@@ -1,0 +1,56 @@
+{
+  "name": "trainingcenter-backend",
+  "version": "0.0.1",
+  "description": "VATSIM Germany Training-center backend Service",
+  "main": "index.js",
+  "scripts": {
+    "start:dev": "tsc && node ./misc/CopyEnv.js && node ./dist/index.js",
+    "seq": "npx sequelize-cli --options-path=db/config/options.js",
+    "prettier:check": "npx prettier --check **/*.{ts,js}",
+    "prettier:write": "npx prettier --write .",
+    "app-key:generate": "node misc/GenerateAppKey.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@git.vatsim-germany.org:trainingcenter/trainingcenter-backend.git"
+  },
+  "keywords": [
+    "VATGER"
+  ],
+  "author": "VATGER Tech Department <webmaster@vatsim-germany.org>",
+  "license": "UNLICENSED",
+  "dependencies": {
+    "@types/body-parser": "^1.19.2",
+    "@types/cli-progress": "^3.11.0",
+    "@types/cookie-parser": "^1.4.3",
+    "@types/express": "^4.17.14",
+    "@types/express-fileupload": "^1.4.1",
+    "@types/node": "^18.11.9",
+    "@types/node-cron": "^3.0.6",
+    "@types/sequelize": "^4.28.14",
+    "@types/uuid": "^8.3.4",
+    "axios": "^1.1.3",
+    "body-parser": "^1.20.1",
+    "cli-progress": "^3.11.2",
+    "cookie-parser": "^1.4.6",
+    "cron-parser": "^4.7.0",
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "express-fileupload": "^1.4.0",
+    "moment": "^2.29.4",
+    "mysql2": "^2.3.3",
+    "node-cron": "^3.0.2",
+    "sequelize": "^6.25.5",
+    "sequelize-typescript": "^2.1.5",
+    "typescript": "^4.8.4",
+    "uuid": "^9.0.0",
+    "xss": "^1.0.14"
+  },
+  "devDependencies": {
+    "@faker-js/faker": "^7.6.0",
+    "@types/cors": "^2.8.12",
+    "cors": "^2.8.5",
+    "prettier": "^2.7.1",
+    "sequelize-cli": "^6.5.2"
+  }
+}

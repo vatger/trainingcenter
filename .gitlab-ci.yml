@@ -1,0 +1,9 @@
+stages:
+  - prettier_test
+
+prettier-check-typescript:
+  image: node:18
+  stage: prettier_test
+  script:
+    - npm update
+    - npm run prettier:check
