@@ -1,7 +1,10 @@
-import { Router } from "express";
-import { TrainingLogTemplateAdminRouter } from "./templates/TrainingLogTemplate.admin.router";
+import {Router} from "express";
+import LogTemplateAdministrationController from "../../../controllers/log-template/LogTemplate.admin.controller";
 
 // Path: "/administration/training-log"
-export const TrainingLogAdminRouter = Router();
+export const TrainingLogAdminRouter: Router = Router();
 
-TrainingLogAdminRouter.use("/template", TrainingLogTemplateAdminRouter);
+TrainingLogAdminRouter.get("/template/", LogTemplateAdministrationController.getAll);
+TrainingLogAdminRouter.put("/template/", LogTemplateAdministrationController.create);
+
+TrainingLogAdminRouter.get("/template/min", LogTemplateAdministrationController.getAllMinimalData);

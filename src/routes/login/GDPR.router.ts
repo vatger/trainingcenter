@@ -3,6 +3,4 @@ import GDPRController from "../../controllers/user/GDPR.controller";
 
 export const GDPRRouter = Router();
 
-GDPRRouter.get("/", async (request: Request, response: Response) => {
-    await GDPRController.getData(request, response);
-});
+GDPRRouter.get("/", GDPRController.getData);

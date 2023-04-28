@@ -5,18 +5,8 @@ import UserTrainingController from "../../../controllers/user/UserTraining.contr
 // Path: "/user-info"
 export const UserInformationRouter = Router();
 
-UserInformationRouter.get("/training-request", async (request: Request, response: Response) => {
-    await UserTrainingController.getRequests(request, response);
-});
+UserInformationRouter.get("/training-request", UserTrainingController.getRequests);
+UserInformationRouter.get("/training-request/:course_uuid", UserTrainingController.getRequestsByUUID);
 
-UserInformationRouter.get("/training-request/:course_uuid", async (request: Request, response: Response) => {
-    await UserTrainingController.getRequestsByUUID(request, response);
-});
-
-UserInformationRouter.get("/mentor-group", async (request, response) => {
-    await UserMentorGroupController.getMentorGroups(request, response);
-});
-
-UserInformationRouter.get("/mentor-group/cm", async (request: Request, response: Response) => {
-    await UserMentorGroupController.getCourseManagerMentorGroups(request, response);
-});
+UserInformationRouter.get("/mentor-group", UserMentorGroupController.getMentorGroups);
+UserInformationRouter.get("/mentor-group/cm", UserMentorGroupController.getCourseManagerMentorGroups);

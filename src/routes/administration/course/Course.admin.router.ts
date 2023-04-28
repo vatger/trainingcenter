@@ -1,20 +1,19 @@
-import { Request, Response, Router } from "express";
-import { CourseInformationAdminRouter } from "./CourseInformation.admin.router";
+import { Router } from "express";
 import CourseAdministrationController from "../../../controllers/course/Course.admin.controller";
+import CourseInformationAdministrationController from "../../../controllers/course/CourseInformation.admin.controller";
 
 // Path: "/administration/course"
-export const CourseAdminRouter = Router();
+export const CourseAdminRouter: Router = Router();
 
-CourseAdminRouter.use("/info", CourseInformationAdminRouter);
+CourseAdminRouter.get("/", CourseAdministrationController.getAll);
+CourseAdminRouter.put("/", CourseAdministrationController.create);
 
-CourseAdminRouter.get("/", async (request: Request, response: Response) => {
-    await CourseAdministrationController.getAll(request, response);
-});
+CourseAdminRouter.get("/editable", CourseAdministrationController.getEditable);
 
-CourseAdminRouter.put("/", async (request: Request, response: Response) => {
-    await CourseAdministrationController.create(request, response);
-});
+CourseAdminRouter.get("/info/", CourseInformationAdministrationController.getByUUID);
+CourseAdminRouter.get("/info/mentor-group", CourseInformationAdministrationController.getMentorGroups);
 
-CourseAdminRouter.get("/editable", async (request: Request, response: Response) => {
-    await CourseAdministrationController.getEditable(request, response);
-});
+CourseAdminRouter.get("/info/user", CourseInformationAdministrationController.getUsers);
+CourseAdminRouter.patch("/info/update", CourseInformationAdministrationController.update);
+CourseAdminRouter.delete("/info/user", CourseInformationAdministrationController.deleteUser);
+CourseAdminRouter.delete("/info/mentor-group", CourseInformationAdministrationController.deleteMentorGroup);

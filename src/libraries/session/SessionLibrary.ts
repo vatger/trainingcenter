@@ -51,7 +51,7 @@ export async function removeSessionToken(request: Request, response: Response) {
     response.clearCookie(Config.SESSION_COOKIE_NAME);
 }
 
-export async function validateSessionToken(request: Request): Promise<boolean> {
+async function validateSessionToken(request: Request): Promise<boolean> {
     const session_token = request.signedCookies[Config.SESSION_COOKIE_NAME];
     const now = moment();
 
@@ -137,4 +137,5 @@ async function getUserFromSession(request: Request): Promise<User | null> {
 export default {
     getUserFromSession,
     getUserIdFromSession,
+    validateSessionToken
 };

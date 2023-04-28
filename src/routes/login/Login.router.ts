@@ -1,31 +1,22 @@
 import { Router } from "express";
 import LoginController from "../../controllers/login/Login.controller";
 import { User } from "../../models/User";
-import SessionLibrary, { validateSessionToken } from "../../libraries/session/SessionLibrary";
+import SessionLibrary from "../../libraries/session/SessionLibrary";
 import { Role } from "../../models/Role";
 
 // Path: "/auth"
 export const LoginRouter = Router();
 
-LoginRouter.get("/url", async (request, response) => {
-    const redirectUri = LoginController.getRedirectUri();
-    response.send(redirectUri);
-});
-
-LoginRouter.post("/login", async (request, response) => {
-    await LoginController.login(request, response);
-});
-
-LoginRouter.post("/logout", async (request, response) => {
-    await LoginController.logout(request, response);
-});
+LoginRouter.get("/url", LoginController.getRedirectUri);
+LoginRouter.post("/login", LoginController.login);
+LoginRouter.post("/logout", LoginController.logout);
 
 LoginRouter.get("/check", async (request, response) => {
-    response.send(await validateSessionToken(request));
+    response.send(await SessionLibrary.validateSessionToken(request));
 });
 
 LoginRouter.get("/data", async (request, response) => {
-    if (!(await validateSessionToken(request))) {
+    if (!(await SessionLibrary.validateSessionToken(request))) {
         response.status(401).send({ message: "Session token invalid" });
         return;
     }

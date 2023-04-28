@@ -22,17 +22,17 @@ const connect_options: ConnectOptions = {
 /**
  * Returns the redirect URI for VATSIM Connect
  */
-function getRedirectUri() {
+function getRedirectUri(request: Request, response: Response) {
     const connectConfig = Config.CONNECT_CONFIG;
 
-    return [
+    response.send([
         connectConfig.BASE_URL,
         "/oauth/authorize",
         `?client_id=${connectConfig.CLIENT_ID}`,
         `&redirect_uri=${encodeURI(connectConfig.REDIRECT_URI ?? "")}`,
         "&response_type=code",
         `&scope=${connectConfig.SCOPE.split(" ").join("+")}`,
-    ].join("");
+    ].join(""));
 }
 
 /**

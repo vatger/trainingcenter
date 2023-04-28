@@ -1,22 +1,16 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 import UserController from "../../../controllers/user/User.admin.controller";
-import { UserInformationAdminRouter } from "./UserInformation.admin.router";
-import { UserNoteAdminRouter } from "./UserNote.admin.router";
+import UserInformationAdminController from "../../../controllers/user/UserInformation.admin.controller";
+import UserNoteAdminController from "../../../controllers/user/UserNote.admin.controller";
 
 // Path: "/administration/user"
-export const UserAdminRouter = Router();
+export const UserAdminRouter: Router = Router();
 
-UserAdminRouter.use("/data", UserInformationAdminRouter);
-UserAdminRouter.use("/notes", UserNoteAdminRouter);
+UserAdminRouter.get("/data/", UserInformationAdminController.getUserDataByID);
+UserAdminRouter.get("/data/sensitive", UserInformationAdminController.getSensitiveUserDataByID);
 
-UserAdminRouter.get("/", async (request: Request, response: Response) => {
-    await UserController.getAll(request, response);
-});
+UserAdminRouter.get("/notes", UserNoteAdminController.getGeneralUserNotes);
 
-UserAdminRouter.get("/min", async (request: Request, response: Response) => {
-    await UserController.getAllUsersMinimalData(request, response);
-});
-
-UserAdminRouter.get("/sensitive", async (request: Request, response: Response) => {
-    await UserController.getAllSensitive(request, response);
-});
+UserAdminRouter.get("/", UserController.getAll);
+UserAdminRouter.get("/min", UserController.getAllUsersMinimalData);
+UserAdminRouter.get("/sensitive", UserController.getAllSensitive);

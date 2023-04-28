@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Role } from "../../models/Role";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { RoleHasPermissions } from "../../models/through/RoleHasPermissions";
+import PermissionHelper from "../../utility/helper/PermissionHelper";
 
 /**
  * Gets all roles
@@ -95,6 +96,8 @@ async function removePermission(request: Request, response: Response) {
     const role_id = request.params.role_id;
     const permission_id = request.body.permission_id;
 
+    if (!PermissionHelper.checkUserHasPermission(request.body.user, response, "tech.permissions.role.edit", true)) return;
+
     const validation = ValidationHelper.validate([
         {
             name: "role_id",
@@ -137,6 +140,8 @@ async function removePermission(request: Request, response: Response) {
 async function addPermission(request: Request, response: Response) {
     const role_id = request.params.role_id;
     const permission_id = request.body.permission_id;
+
+    if (!PermissionHelper.checkUserHasPermission(request.body.user, response, "tech.permissions.role.edit", true)) return;
 
     const validate = ValidationHelper.validate([
         {

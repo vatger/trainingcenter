@@ -5,12 +5,8 @@ import { User } from "../../../models/User";
 import FastTrackAdministrationController from "../../../controllers/fast-track/FastTrack.admin.controller";
 
 // Path: "/administration/fast-track"
-export const FastTrackAdminRouter = Router();
+export const FastTrackAdminRouter: Router = Router();
 
-FastTrackAdminRouter.post("/", async (request: Request, response: Response) => {
-    await FastTrackAdministrationController.create(request, response);
-});
+FastTrackAdminRouter.post("/", FastTrackAdministrationController.create);
 
-FastTrackAdminRouter.get("/user", async (request: Request, response: Response) => {
-    await FastTrackAdministrationController.getByUserID(request, response);
-});
+FastTrackAdminRouter.get("/user", FastTrackAdministrationController.getByUserID);

@@ -1,20 +1,10 @@
-import { Request, Response, Router } from "express";
+import { Router } from "express";
 import TrainingRequestController from "../../../controllers/training-request/TrainingRequest.controller";
 
 export const TrainingRequestRouter = Router();
 
-TrainingRequestRouter.post("/", async (request: Request, response: Response) => {
-    await TrainingRequestController.create(request, response);
-});
+TrainingRequestRouter.post("/", TrainingRequestController.create);
+TrainingRequestRouter.delete("/", TrainingRequestController.destroy);
 
-TrainingRequestRouter.delete("/", async (request: Request, response: Response) => {
-    await TrainingRequestController.destroy(request, response);
-});
-
-TrainingRequestRouter.get("/open", async (request: Request, response: Response) => {
-    await TrainingRequestController.getOpen(request, response);
-});
-
-TrainingRequestRouter.get("/:request_uuid", async (request: Request, response: Response) => {
-    await TrainingRequestController.getByUUID(request, response);
-});
+TrainingRequestRouter.get("/open", TrainingRequestController.getOpen);
+TrainingRequestRouter.get("/:request_uuid", TrainingRequestController.getByUUID);
