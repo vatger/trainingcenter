@@ -126,24 +126,29 @@ async function update(request: Request, response: Response) {
         return;
     }
 
-    let trainingType = await TrainingType.findOne({
-        where: {
-            id: training_type_id?.toString(),
-        },
-    });
+    try {
+        (await TrainingType.findOne({
+            where: {
+                id: training_type_id
+            },
+        }))?.update({
+            name: requestData.name,
+            type: requestData.type,
+            log_template_id: !isNaN(requestData.log_template_id) && Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id),
+        });
 
-    if (trainingType == null) {
-        response.status(400).send({ message: "Training Type with id " + training_type_id + " does not exist" });
-        return;
+        const trainingType = await TrainingType.findOne({
+            where: {
+                id: training_type_id,
+            },
+            include: [TrainingType.associations.log_template, TrainingType.associations.training_stations]
+        });
+
+        response.send(trainingType);
+    } catch (e: any)
+    {
+        response.status(400).send({ message: e.message });
     }
-
-    await trainingType.update({
-        name: requestData.name,
-        type: requestData.type,
-        log_template_id: !isNaN(requestData.log_template_id) && Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id),
-    });
-
-    response.send({ message: "OK" });
 }
 
 async function addStation(request: Request, response: Response) {

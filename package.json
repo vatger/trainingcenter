@@ -5,10 +5,10 @@
 	"author": "VATSIM Germany <webmaster@vatger,de>",
 	"license": "UNLICENSED",
 	"description": "",
-    "repository": {
+	"repository": {
 		"type": "git",
 		"url": "git@git.vatsim-germany.org:trainingcenter/trainingcenter-backend.git"
-	  },
+	},
 	"scripts": {
 		"start:dev": "tsc && node ./misc/CopyEnv.js && node ./dist/index.js",
 		"seq": "npx sequelize-cli --options-path=db/config/options.js",
@@ -43,7 +43,7 @@
 		"uuid": "^9.0.0",
 		"xss": "^1.0.14"
 	},
-		"devDependencies": {
+	"devDependencies": {
 		"@faker-js/faker": "^7.6.0",
 		"@types/cors": "^2.8.12",
 		"cors": "^2.8.5",

@@ -6,7 +6,11 @@ export async function authMiddleware(request: Request, response: Response, next:
     const user: User | null = await SessionLibrary.getUserFromSession(request);
 
     if (user == null) {
-        response.status(401).send({ message: "Unauthenticated", status: "ERR_AUTH" });
+        response.status(401).send({
+            success: false,
+            code: "ERR_AUTH",
+            message: "Unauthenticated",
+        });
         return;
     }
 

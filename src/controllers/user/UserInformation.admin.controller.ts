@@ -43,14 +43,15 @@ async function getUserDataByID(request: Request, response: Response) {
  * @param response
  */
 async function getSensitiveUserDataByID(request: Request, response: Response) {
-    const user_id = request.query.user_id?.toString() ?? -1;
+    const user_id: string | undefined = request.query.user_id?.toString();
     const user: User = request.body.user;
 
-    if (user_id == -1) {
+    if (user_id == null) {
         response.status(404).send({ error: 'Parameter "user_id" is required' });
         return;
     }
     //TODO: Change this to proper permission to access sensitive data
+    //Potentially wrong, should user id be equal or not equal? (using logical or instead)
     if (user_id == user.id.toString() && !PermissionHelper.checkUserHasPermission(user, response, "mentor.acc.manage.own")) return;
 
     const data = await User.scope("sensitive").findOne({

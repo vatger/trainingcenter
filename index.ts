@@ -8,7 +8,7 @@ import bodyParser from "body-parser";
 import { syslogMiddleware } from "./src/middlewares/SyslogMiddleware";
 import { handleUncaughtException } from "./src/exceptions/handler/ExceptionHandler";
 import fileUpload from "express-fileupload";
-import { GlobalRouter } from "./src/routes/Global.router";
+import {router} from "./src/routes/Router";
 
 const application = express();
 
@@ -37,7 +37,7 @@ initializeApplication()
         });
 
         application.use(syslogMiddleware);
-        application.use("/", GlobalRouter);
+        application.use("/", router);
     })
     .catch(() => {
         Logger.log(LogLevels.LOG_ERROR, "\n\nFatal Error detected. Application will now shutdown!\n\n");
