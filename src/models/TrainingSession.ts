@@ -21,11 +21,11 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare date: CreationOptional<Date>;
-    declare cpt_atsim_passed: CreationOptional<boolean>;
-    declare training_station_id: CreationOptional<ForeignKey<TrainingStation["id"]>>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare date: CreationOptional<Date> | null;
+    declare cpt_atsim_passed: CreationOptional<boolean> | null;
+    declare training_station_id: CreationOptional<ForeignKey<TrainingStation["id"]>> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

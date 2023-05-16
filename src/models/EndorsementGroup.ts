@@ -13,8 +13,8 @@ export class EndorsementGroup extends Model<InferAttributes<EndorsementGroup>, I
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

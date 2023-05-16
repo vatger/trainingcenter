@@ -4,14 +4,20 @@ import { sequelize } from "../core/Sequelize";
 import { DataType } from "sequelize-typescript";
 
 export class UserSettings extends Model<InferAttributes<UserSettings>, InferCreationAttributes<UserSettings>> {
+    //
+    // Attributes
+    //
     declare user_id: ForeignKey<User["id"]>;
     declare language: "de" | "en";
     declare dark_mode: boolean;
     declare email_notifications_enabled: boolean;
 
-    declare additional_emails: CreationOptional<string[]>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    //
+    // Optional Attributes
+    //
+    declare additional_emails: CreationOptional<string[]> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 }
 
 UserSettings.init(

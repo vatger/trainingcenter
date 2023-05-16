@@ -13,26 +13,15 @@ import { registerTrainingStationAssociations } from "./TrainingStationAssociatio
 
 export function registerAssociations() {
     registerUserAssociations();
-
     registerMentorGroupAssociations();
-
     registerCourseAssociations();
-
     registerActionRequirementAssociations();
-
     registerTrainingTypeAssociations();
-
     registerTrainingSessionAssociations();
-
     registerEndorsementGroupAssociations();
-
     registerTrainingLogAssociations();
-
     registerTrainingRequestAssociations();
-
     registerFastTrackRequestAssociations();
-
     registerRoleAssociations();
-
     registerTrainingStationAssociations();
 }

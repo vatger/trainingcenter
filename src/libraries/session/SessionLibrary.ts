@@ -1,16 +1,16 @@
 import { CookieOptions, Request, Response } from "express";
-import moment from "moment";
 import { UserSession } from "../../models/UserSession";
 import { generateUUID } from "../../utility/UUID";
 import { Config } from "../../core/Config";
 import Logger, { LogLevels } from "../../utility/Logger";
 import { User } from "../../models/User";
 import { Role } from "../../models/Role";
+import dayjs from "dayjs";
 
 export async function createSessionToken(response: Response, user_id: number, remember: boolean = false): Promise<boolean> {
     const session_uuid = generateUUID();
-    const expiration: Date = remember ? moment().add({ day: 7 }).toDate() : moment().add({ minute: 20 }).toDate();
-    const expiration_latest: Date = remember ? moment().add({ month: 1 }).toDate() : moment().add({ hour: 1 }).toDate();
+    const expiration: Date = remember ? dayjs().add(7, "day").toDate() : dayjs().add(20, "minute").toDate();
+    const expiration_latest: Date = remember ? dayjs().add(1, "month").toDate() : dayjs().add(1, "hour").toDate();
 
     const cookie_options: CookieOptions = {
         signed: true,
@@ -53,7 +53,7 @@ export async function removeSessionToken(request: Request, response: Response) {
 
 async function validateSessionToken(request: Request): Promise<boolean> {
     const session_token = request.signedCookies[Config.SESSION_COOKIE_NAME];
-    const now = moment();
+    const now = dayjs();
 
     // Check if token is present
     if (session_token == null || session_token == false) return false;
@@ -68,8 +68,8 @@ async function validateSessionToken(request: Request): Promise<boolean> {
     // Check if session exists
     if (session == null) return false;
 
-    const expires_at = moment(session.expires_at);
-    const expires_latest = moment(session.expires_latest);
+    const expires_at = dayjs(session.expires_at);
+    const expires_latest = dayjs(session.expires_latest);
 
     // Session is valid
     if (expires_at.isAfter(now)) return true;
@@ -77,9 +77,9 @@ async function validateSessionToken(request: Request): Promise<boolean> {
     // Session is invalid, but we can update the time (assuming the session's latest expiration
     // is more than 20 minutes in the future). Else we might assign an expired_at time which is
     // after the expires_latest time. Not really what we want!
-    if (expires_latest.isAfter(now) && moment().add({ minute: 20 }).isBefore(expires_latest)) {
+    if (expires_latest.isAfter(now) && dayjs().add(20, "minute").isBefore(expires_latest)) {
         await session.update({
-            expires_at: now.add({ minute: 20 }).toDate(),
+            expires_at: now.add(20, "minute").toDate(),
         });
 
         return true;
@@ -137,5 +137,5 @@ async function getUserFromSession(request: Request): Promise<User | null> {
 export default {
     getUserFromSession,
     getUserIdFromSession,
-    validateSessionToken
+    validateSessionToken,
 };

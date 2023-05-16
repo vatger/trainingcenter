@@ -16,9 +16,9 @@ export class UserBelongToMentorGroups extends Model<InferAttributes<UserBelongTo
     //
     // Optional Attributes
     //
-    declare id: CreationOptional<number>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare id: CreationOptional<number> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

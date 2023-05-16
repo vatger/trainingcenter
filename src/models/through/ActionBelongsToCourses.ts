@@ -16,9 +16,9 @@ export class ActionBelongsToCourses extends Model<InferAttributes<ActionBelongsT
     //
     // Optional Attributes
     //
-    declare execute_when: CreationOptional<"on_complete" | "on_enrolment">;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare execute_when: CreationOptional<"on_complete" | "on_enrolment"> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 }
 
 ActionBelongsToCourses.init(

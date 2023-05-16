@@ -2,16 +2,16 @@ import { Error } from "sequelize";
 import { authenticate } from "./Sequelize";
 import Logger, { LogLevels } from "../utility/Logger";
 import { Config } from "./Config";
-import moment from "moment";
 import { registerAssociations } from "../models/associations/_RegisterAssociations";
 import { initScheduledJobs } from "./TaskScheduler";
+import dayjs from "dayjs";
 
 let non_critical_count = 0;
 
 export const initializeApplication = async () => {
     Logger.log(
         LogLevels.LOG_INFO,
-        `=================== ${moment().format("DD.MM.YYYY HH:mm:ss")} ================== \nApplication starting...\nVersion: ${Config.APP_VERSION}\n`
+        `=================== ${dayjs().format("DD.MM.YYYY HH:mm:ss")} ================== \nApplication starting...\nVersion: ${Config.APP_VERSION}\n`
     );
 
     await clearLogFiles();

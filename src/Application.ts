@@ -1,16 +1,16 @@
-import express from "express";
-import { initializeApplication } from "./src/core/StartupRoutine";
-import { Config } from "./src/core/Config";
+import express, { Express } from "express";
+import { initializeApplication } from "./core/StartupRoutine";
+import { Config } from "./core/Config";
 import cors from "cors";
-import Logger, { LogLevels } from "./src/utility/Logger";
+import Logger, { LogLevels } from "./utility/Logger";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
-import { syslogMiddleware } from "./src/middlewares/SyslogMiddleware";
-import { handleUncaughtException } from "./src/exceptions/handler/ExceptionHandler";
+import { syslogMiddleware } from "./middlewares/SyslogMiddleware";
+import { handleUncaughtException } from "./exceptions/handler/ExceptionHandler";
 import fileUpload from "express-fileupload";
-import {router} from "./src/routes/Router";
+import { router } from "./Router";
 
-const application = express();
+const application: Express = express();
 
 process.on("uncaughtException", (err, origin) => handleUncaughtException(err, origin));
 
@@ -33,7 +33,7 @@ initializeApplication()
             Logger.log(LogLevels.LOG_WARN, `SQL logging: ${Config.APP_LOG_SQL ? "ENABLED" : "DISABLED"}`);
             Logger.log(LogLevels.LOG_WARN, `File Upload: {location: ${Config.FILE_STORAGE_LOCATION}, tmp: ${Config.FILE_TMP_LOCATION}}\n`);
 
-            Logger.log(LogLevels.LOG_SUCCESS, `Server is running on http://${Config.APP_HOST ?? "127.0.0.1"}:${Config.APP_PORT}`, true);
+            Logger.log(LogLevels.LOG_SUCCESS, `Server is running on http://${Config.APP_HOST ?? "0.0.0.0"}:${Config.APP_PORT}`, true);
         });
 
         application.use(syslogMiddleware);

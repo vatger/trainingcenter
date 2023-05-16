@@ -14,16 +14,16 @@ export class UserData extends Model<InferAttributes<UserData>, InferCreationAttr
     //
     // Optional Attributes
     //
-    declare country_code: CreationOptional<string>;
-    declare country_name: CreationOptional<string>;
-    declare region_code: CreationOptional<string>;
-    declare region_name: CreationOptional<string>;
-    declare division_code: CreationOptional<string>;
-    declare division_name: CreationOptional<string>;
-    declare subdivision_code: CreationOptional<string>;
-    declare subdivision_name: CreationOptional<string>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare country_code: CreationOptional<string> | null;
+    declare country_name: CreationOptional<string> | null;
+    declare region_code: CreationOptional<string> | null;
+    declare region_name: CreationOptional<string> | null;
+    declare division_code: CreationOptional<string> | null;
+    declare division_name: CreationOptional<string> | null;
+    declare subdivision_code: CreationOptional<string> | null;
+    declare subdivision_name: CreationOptional<string> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 }
 
 UserData.init(

@@ -11,15 +11,15 @@ export enum ConnectLibraryErrors {
 }
 
 export class VatsimConnectException extends Error {
-    private readonly m_error: ConnectLibraryErrors | undefined = undefined;
+    private readonly error_: ConnectLibraryErrors | undefined = undefined;
 
     constructor(error?: ConnectLibraryErrors) {
         super();
-        this.m_error = error;
+        this.error_ = error;
     }
 
     public sendResponse(response: Response) {
-        switch (this.m_error) {
+        switch (this.error_) {
             case ConnectLibraryErrors.ERR_NO_CODE:
                 response.status(404).send({ code: "ERR_NO_CODE", message: "No code was supplied" });
                 return;

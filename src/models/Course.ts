@@ -25,10 +25,10 @@ export class Course extends Model<InferAttributes<Course>, InferCreationAttribut
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare skill_template_id: CreationOptional<ForeignKey<CourseSkillTemplate["id"]>>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
-    declare deletedAt: CreationOptional<Date>;
+    declare skill_template_id: CreationOptional<ForeignKey<CourseSkillTemplate["id"]>> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
+    declare deletedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

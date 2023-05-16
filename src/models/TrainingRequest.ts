@@ -25,8 +25,8 @@ export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, Inf
     declare comment: CreationOptional<string> | null;
     declare training_session_id: CreationOptional<ForeignKey<TrainingSession["id"]>> | null;
     declare training_station_id: CreationOptional<ForeignKey<TrainingStation["id"]>> | null;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

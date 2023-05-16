@@ -27,8 +27,8 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     //
     declare access_token: CreationOptional<string> | null;
     declare refresh_token: CreationOptional<string> | null;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

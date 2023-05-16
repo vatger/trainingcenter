@@ -16,11 +16,11 @@ export class FastTrackRequest extends Model<InferAttributes<FastTrackRequest>, I
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare file_name: CreationOptional<string>;
-    declare comment: CreationOptional<string>;
-    declare response: CreationOptional<string>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare file_name: CreationOptional<string> | null;
+    declare comment: CreationOptional<string> | null;
+    declare response: CreationOptional<string> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

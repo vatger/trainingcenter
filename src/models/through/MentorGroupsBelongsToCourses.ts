@@ -1,4 +1,4 @@
-import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association, ForeignKey } from "sequelize";
+import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { MentorGroup } from "../MentorGroup";
 import { Course } from "../Course";
 import { DataType } from "sequelize-typescript";
@@ -15,9 +15,9 @@ export class MentorGroupsBelongsToCourses extends Model<InferAttributes<MentorGr
     //
     // Optional Attributes
     //
-    declare id: CreationOptional<number>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare id: CreationOptional<number> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 }
 
 MentorGroupsBelongsToCourses.init(
@@ -25,7 +25,7 @@ MentorGroupsBelongsToCourses.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
+            autoIncrement: true
         },
         mentor_group_id: {
             type: DataType.INTEGER,
@@ -33,10 +33,10 @@ MentorGroupsBelongsToCourses.init(
             allowNull: false,
             references: {
                 model: "mentor_groups",
-                key: "id",
+                key: "id"
             },
             onUpdate: "cascade",
-            onDelete: "cascade",
+            onDelete: "cascade"
         },
         course_id: {
             type: DataType.INTEGER,
@@ -44,22 +44,22 @@ MentorGroupsBelongsToCourses.init(
             allowNull: false,
             references: {
                 model: "courses",
-                key: "id",
+                key: "id"
             },
             onUpdate: "cascade",
-            onDelete: "cascade",
+            onDelete: "cascade"
         },
         can_edit_course: {
             type: DataType.BOOLEAN,
             comment:
                 "If true, ALL users of this mentor group can edit the course assuming the can_manage_course flag is set for the user on users_belong_to_mentor_groups.",
-            allowNull: false,
+            allowNull: false
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
+        updatedAt: DataType.DATE
     },
     {
         tableName: "mentor_groups_belong_to_courses",
-        sequelize: sequelize,
+        sequelize: sequelize
     }
 );

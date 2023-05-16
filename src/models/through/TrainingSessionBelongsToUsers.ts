@@ -19,10 +19,10 @@ export class TrainingSessionBelongsToUsers extends Model<
     //
     // Optional Attributes
     //
-    declare log_id: CreationOptional<ForeignKey<TrainingLog["id"]>>;
-    declare passed: CreationOptional<boolean>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare log_id: CreationOptional<ForeignKey<TrainingLog["id"]>> | null;
+    declare passed: CreationOptional<boolean> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

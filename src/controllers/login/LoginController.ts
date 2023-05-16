@@ -4,8 +4,8 @@ import { ConnectOptions, VatsimConnectLibrary } from "../../libraries/vatsim/Con
 import { VatsimConnectException } from "../../exceptions/VatsimConnectException";
 import Logger, { LogLevels } from "../../utility/Logger";
 import SessionLibrary, { removeSessionToken } from "../../libraries/session/SessionLibrary";
-import {User} from "../../models/User";
-import {Role} from "../../models/Role";
+import { User } from "../../models/User";
+import { Role } from "../../models/Role";
 
 // We can ignore all errors, since we are validating the .env
 const connect_options: ConnectOptions = {
@@ -27,14 +27,16 @@ const connect_options: ConnectOptions = {
 function getRedirectUri(request: Request, response: Response) {
     const connectConfig = Config.CONNECT_CONFIG;
 
-    response.send([
-        connectConfig.BASE_URL,
-        "/oauth/authorize",
-        `?client_id=${connectConfig.CLIENT_ID}`,
-        `&redirect_uri=${encodeURI(connectConfig.REDIRECT_URI ?? "")}`,
-        "&response_type=code",
-        `&scope=${connectConfig.SCOPE.split(" ").join("+")}`,
-    ].join(""));
+    response.send(
+        [
+            connectConfig.BASE_URL,
+            "/oauth/authorize",
+            `?client_id=${connectConfig.CLIENT_ID}`,
+            `&redirect_uri=${encodeURI(connectConfig.REDIRECT_URI ?? "")}`,
+            "&response_type=code",
+            `&scope=${connectConfig.SCOPE.split(" ").join("+")}`,
+        ].join("")
+    );
 }
 
 /**
@@ -115,5 +117,5 @@ export default {
     login,
     logout,
     getUserData,
-    validateSessionToken
+    validateSessionToken,
 };

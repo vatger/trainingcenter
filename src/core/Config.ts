@@ -1,13 +1,9 @@
 import dotenv from "dotenv";
-import path from "path";
 import { Dialect, Options } from "sequelize";
 import Logger, { LogLevels } from "../utility/Logger";
 
-const fp = __dirname + "/../../.env";
-
-dotenv.config({ path: path.resolve(fp) });
-
-console.log(`Loading .env from ${fp}`);
+dotenv.config();
+console.log(`Loading .env...`);
 
 // Validate required environment variables are present before continuing
 const required_env: Array<string> = [

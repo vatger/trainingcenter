@@ -16,11 +16,11 @@ export class UsersBelongsToCourses extends Model<InferAttributes<UsersBelongsToC
     //
     // Optional Attributes
     //
-    declare id: CreationOptional<number>;
+    declare id: CreationOptional<number> | null;
     declare next_training_type: CreationOptional<ForeignKey<TrainingType>> | number | null; // Required for type inference - don't know why
     declare skill_set: CreationOptional<string> | null;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

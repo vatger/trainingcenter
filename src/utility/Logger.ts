@@ -1,6 +1,6 @@
-import moment from "moment";
 import * as fs from "fs";
 import path from "path";
+import dayjs from "dayjs";
 
 export enum LogLevels {
     LOG_DEFAULT = "\x1b[37m",
@@ -14,14 +14,14 @@ const reset_string = "\x1b[0m";
 
 function log(logLevel: LogLevels = LogLevels.LOG_DEFAULT, message: string, showDate: boolean = false, customPre: string | null = null) {
     if (customPre == null) {
-        console.log(logLevel + (showDate ? `[ ${moment().format("DD.MM.YYYY HH:mm:ss")} ] ` : "") + message + reset_string);
+        console.log(logLevel + (showDate ? `[ ${dayjs().format("DD.MM.YYYY HH:mm:ss")} ] ` : "") + message + reset_string);
     } else {
         console.log(logLevel + `[ ${customPre} ] ` + message + reset_string);
     }
 }
 
 function logToFile(message: string | undefined, fileName: string = "error.log") {
-    const pre = `==================================== ${moment().format("DD.MM.YYYY HH:mm:ss")} ====================================\n`;
+    const pre = `==================================== ${dayjs().format("DD.MM.YYYY HH:mm:ss")} ====================================\n`;
 
     fs.writeFileSync("log/" + fileName, message ? pre + message + "\n\n" : "", { flag: "a+" });
 }

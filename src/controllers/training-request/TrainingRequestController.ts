@@ -3,8 +3,8 @@ import { User } from "../../models/User";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { generateUUID } from "../../utility/UUID";
-import moment from "moment";
 import { TrainingSession } from "../../models/TrainingSession";
+import dayjs from "dayjs";
 
 /**
  * Creates a new training request
@@ -41,7 +41,7 @@ async function create(request: Request, response: Response) {
         training_station_id: requestData.training_station_id ?? null,
         status: "requested",
         comment: requestData.comment?.length == 0 ? null : requestData.comment,
-        expires: moment().add(1, "month").toDate(),
+        expires: dayjs().add(1, "month").toDate(),
     });
 
     if (trainingRequest == null) {

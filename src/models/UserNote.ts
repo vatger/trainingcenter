@@ -18,8 +18,8 @@ export class UserNote extends Model<InferAttributes<UserNote>, InferCreationAttr
     //
     declare id: CreationOptional<number>;
     declare course_id: CreationOptional<number> | null;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

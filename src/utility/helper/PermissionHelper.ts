@@ -3,7 +3,7 @@ import { User } from "../../models/User";
 
 /**
  * Checks if a user has the specified permission.
- * If the permission is present, true is returned. Else, a 403 response is sent and false is returned
+ * If the permission is present, true is returned. **Else, a 403 response is returned** to the requesting client and false is returned
  * @param user
  * @param response
  * @param permission

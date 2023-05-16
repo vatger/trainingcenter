@@ -14,8 +14,8 @@ export class Role extends Model<InferAttributes<Role>, InferCreationAttributes<R
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders

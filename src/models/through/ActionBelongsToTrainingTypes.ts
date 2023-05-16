@@ -16,9 +16,9 @@ export class ActionBelongsToTrainingTypes extends Model<InferAttributes<ActionBe
     //
     // Optional Attributes
     //
-    declare execute_when: CreationOptional<"on_complete" | "on_session_planned">;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare execute_when: CreationOptional<"on_complete" | "on_session_planned"> | null;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 }
 
 ActionBelongsToTrainingTypes.init(

@@ -16,8 +16,8 @@ export class UserSession extends Model<InferAttributes<UserSession>, InferCreati
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     declare user?: NonAttribute<User>;
 

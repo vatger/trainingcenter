@@ -1,6 +1,12 @@
-import { Model, InferAttributes, CreationOptional, InferCreationAttributes, ForeignKey, NonAttribute, Association } from "sequelize";
-import { User } from "../User";
-import { Course } from "../Course";
+import {
+    Association,
+    CreationOptional,
+    ForeignKey,
+    InferAttributes,
+    InferCreationAttributes,
+    Model,
+    NonAttribute
+} from "sequelize";
 import { TrainingType } from "../TrainingType";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
@@ -12,27 +18,26 @@ export class TrainingStationBelongsToTrainingType extends Model<
 > {
     //
     // Attributes
-    //
-    declare training_type_id: ForeignKey<TrainingType["id"]>;
-    declare training_station_id: ForeignKey<TrainingStation["id"]>;
-
-    //
-    // Optional Attributes
-    //
-    declare id: CreationOptional<number>;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
-
-    //
-    // Association placeholders
-    //
-    declare training_type?: NonAttribute<TrainingType>;
-    declare training_station?: NonAttribute<TrainingStation>;
-
     declare static associations: {
         training_type: Association<TrainingStationBelongsToTrainingType, TrainingType>;
         training_station: Association<TrainingStationBelongsToTrainingType, TrainingStation>;
     };
+    //
+    declare training_type_id: ForeignKey<TrainingType["id"]>;
+
+    //
+    // Optional Attributes
+    declare training_station_id: ForeignKey<TrainingStation["id"]>;
+    //
+    declare id: CreationOptional<number> | null;
+    declare createdAt: CreationOptional<Date> | null;
+
+    //
+    // Association placeholders
+    declare updatedAt: CreationOptional<Date> | null;
+    //
+    declare training_type?: NonAttribute<TrainingType>;
+    declare training_station?: NonAttribute<TrainingStation>;
 }
 
 TrainingStationBelongsToTrainingType.init(
@@ -40,33 +45,33 @@ TrainingStationBelongsToTrainingType.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true,
+            autoIncrement: true
         },
         training_type_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "training_types",
-                key: "id",
+                key: "id"
             },
             onUpdate: "cascade",
-            onDelete: "cascade",
+            onDelete: "cascade"
         },
         training_station_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "training_stations",
-                key: "id",
+                key: "id"
             },
             onUpdate: "cascade",
-            onDelete: "cascade",
+            onDelete: "cascade"
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
+        updatedAt: DataType.DATE
     },
     {
         tableName: "training_types_belong_to_training_stations",
-        sequelize: sequelize,
+        sequelize: sequelize
     }
 );

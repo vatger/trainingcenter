@@ -18,8 +18,8 @@ export class TrainingType extends Model<InferAttributes<TrainingType>, InferCrea
     //
     declare id: CreationOptional<number>;
     declare log_template_id: CreationOptional<ForeignKey<TrainingLogTemplate["id"]>> | null;
-    declare createdAt: CreationOptional<Date>;
-    declare updatedAt: CreationOptional<Date>;
+    declare createdAt: CreationOptional<Date> | null;
+    declare updatedAt: CreationOptional<Date> | null;
 
     //
     // Association placeholders
