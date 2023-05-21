@@ -3,24 +3,14 @@
 #######################
 FROM node:alpine
 
-WORKDIR /app
+WORKDIR /opt/trainingcenter_backend
 
-# Install npm Dependencies
-COPY ["package.json", "package-lock.json*", "./"]
-RUN npm install -g typescript
-RUN npm install
+ARG NODE_ENV=development
 
-COPY ./ ./
-# Compile typescript
-RUN tsc
+COPY package*.json ./
 
-# Explicity delete all unused directores
-RUN rm -rf ./src ./misc ./.git > /dev/null
-RUN rm * 2> /dev/null || true
+RUN npm install --quiet --unsafe-perm --no-progress --no-audit --include=dev
 
-# Copy back the package.json for use in program, since we deleted it earlier
-COPY ["package.json", "package-lock.json*", "./"]
+COPY . .
 
-EXPOSE 8001
-
-CMD ["node", "./dist/index.js"]
+CMD npm run dev

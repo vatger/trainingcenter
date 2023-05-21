@@ -1,9 +1,10 @@
 import { Request, Response } from "express";
 import { Course } from "../../models/Course";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { User } from "../../models/User";
 import { MentorGroup } from "../../models/MentorGroup";
 import { MentorGroupsBelongsToCourses } from "../../models/through/MentorGroupsBelongsToCourses";
+import CourseAdminValidator from "../_validators/CourseAdminValidator";
+import { ValidatorType } from "../_validators/ValidatorType";
 
 /**
  * Gets all courses
@@ -67,63 +68,19 @@ async function getEditable(request: Request, response: Response) {
  */
 async function create(request: Request, response: Response) {
     const data = request.body.data;
-    const course_uuid = data.course_uuid;
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "course_uuid",
-            validationObject: course_uuid,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "mentor_group_id",
-            validationObject: data.mentor_group_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-        },
-        {
-            name: "name_de",
-            validationObject: data.name_de,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "name_en",
-            validationObject: data.name_en,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "description_de",
-            validationObject: data.description_de,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "description_en",
-            validationObject: data.description_en,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "self_enrol",
-            validationObject: data.self_enrol,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "active",
-            validationObject: data.active,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "training_id",
-            validationObject: data.training_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }, { val: ValidationOptions.NOT_EQUAL_NUM, value: 0 }],
-        },
-    ]);
+    const validation: ValidatorType = CourseAdminValidator.validateCreateRequest(data);
 
     if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
+        response.status(400).send({
+            validation: validation.message,
+            validation_failed: validation.invalid
+        });
         return;
     }
 
-    const createObject = {
-        uuid: course_uuid,
+    const course: Course = await Course.create({
+        uuid: data.course_uuid,
         name: data.name_de,
         name_en: data.name_en,
         description: data.description_de,
@@ -132,11 +89,9 @@ async function create(request: Request, response: Response) {
         self_enrollment_enabled: Number(data.self_enrol) == 1,
         initial_training_type: Number(data.training_id),
         skill_template_id: Number(data.skill_template_id) == 0 || isNaN(Number(data.skill_template_id)) ? null : data.skill_template_id,
-    };
-
-    const course = await Course.create(createObject);
+    });
     if (course == null) {
-        response.status(500).send({ error: "An error occured creating the course" });
+        response.status(500).send({ error: "An error occurred creating the course" });
         return;
     }
 

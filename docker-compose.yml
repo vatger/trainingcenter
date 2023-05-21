@@ -1,10 +1,12 @@
 version: "3.9"
 services:
-  training_center-backend:
+  backend:
     build: .
     depends_on:
-      sql:
+      mysql:
         condition: service_started
+    env_file:
+      - .env
     environment:
       - APP_DEBUG
       - APP_LOG_SQL
@@ -32,7 +34,7 @@ services:
     ports:
       - "8001:8001"
 
-  sql:
+  mysql:
     image: mysql
     restart: always
     ports:
@@ -42,3 +44,8 @@ services:
       MYSQL_USER: trainingcenter
       MYSQL_PASSWORD: example
       MYSQL_DATABASE: trainingcenter
+    volumes:
+      - trainingcenter-sql:/var/lib/mysql
+
+volumes:
+  trainingcenter-sql:

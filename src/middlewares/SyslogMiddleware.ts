@@ -1,20 +1,19 @@
 import { NextFunction, Request, Response } from "express";
 import { SysLog } from "../models/SysLog";
-import SessionLibrary from "../libraries/session/SessionLibrary";
+import UserSessionLibrary from "../libraries/session/UserSessionLibrary";
 
 export async function syslogMiddleware(request: Request, response: Response, next: NextFunction) {
-    const uid = await SessionLibrary.getUserIdFromSession(request);
-
-    if (request.url.includes("code")) {
+    if (request.url.includes("auth") || request.xhr) {
         next();
         return;
     }
 
+    const uid: number = await UserSessionLibrary.getUserIdFromSession(request);
     await SysLog.create({
         path: request.url,
         method: request.method,
         remote_addr: request.socket.remoteAddress,
-        user_id: uid == 0 ? undefined : uid.toString(),
+        user_id: uid === 0 ? null : uid.toString(),
     });
 
     next();

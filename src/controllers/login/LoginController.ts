@@ -6,6 +6,7 @@ import Logger, { LogLevels } from "../../utility/Logger";
 import SessionLibrary, { removeSessionToken } from "../../libraries/session/SessionLibrary";
 import { User } from "../../models/User";
 import { Role } from "../../models/Role";
+import UserSessionLibrary from "../../libraries/session/UserSessionLibrary";
 
 // We can ignore all errors, since we are validating the .env
 const connect_options: ConnectOptions = {
@@ -76,9 +77,9 @@ async function getUserData(request: Request, response: Response) {
         return;
     }
 
-    const user_id = await SessionLibrary.getUserIdFromSession(request);
+    const user_id: number = await UserSessionLibrary.getUserIdFromSession(request);
 
-    const user = await User.scope("sensitive").findOne({
+    const user: User | null = await User.scope("sensitive").findOne({
         where: {
             id: user_id,
         },
@@ -109,7 +110,7 @@ async function getUserData(request: Request, response: Response) {
 }
 
 async function validateSessionToken(request: Request, response: Response) {
-    response.send(await SessionLibrary.validateSessionToken(request));
+    response.send(await SessionLibrary.validateSessionToken(request) != null);
 }
 
 export default {

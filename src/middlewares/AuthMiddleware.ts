@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import SessionLibrary from "../libraries/session/SessionLibrary";
 import { User } from "../models/User";
+import UserSessionLibrary from "../libraries/session/UserSessionLibrary";
 
 export async function authMiddleware(request: Request, response: Response, next: NextFunction) {
-    const user: User | null = await SessionLibrary.getUserFromSession(request);
+    const user: User | null = await UserSessionLibrary.getUserFromSession(request);
 
     if (user == null) {
         response.status(401).send({
