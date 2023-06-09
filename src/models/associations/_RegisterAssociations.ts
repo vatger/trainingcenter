@@ -10,6 +10,7 @@ import { registerTrainingRequestAssociations } from "./TrainingRequestAssociatio
 import { registerFastTrackRequestAssociations } from "./FastTrackRequestAssociations";
 import { registerRoleAssociations } from "./RoleAssociations";
 import { registerTrainingStationAssociations } from "./TrainingStationAssociations";
+import { registerNotificationAssociations } from "./NotificationAssociations";
 
 export function registerAssociations() {
     registerUserAssociations();
@@ -24,4 +25,5 @@ export function registerAssociations() {
     registerFastTrackRequestAssociations();
     registerRoleAssociations();
     registerTrainingStationAssociations();
+    registerNotificationAssociations();
 }

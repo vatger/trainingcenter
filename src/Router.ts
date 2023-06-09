@@ -24,6 +24,7 @@ import MentorGroupAdministrationController from "./controllers/mentor-group/Ment
 import SyslogAdminController from "./controllers/syslog/SyslogAdminController";
 import PermissionAdministrationController from "./controllers/permission/PermissionAdminController";
 import RoleAdministrationController from "./controllers/permission/RoleAdminController";
+import UserNotificationController from "./controllers/user/UserNotificationController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -51,6 +52,7 @@ router.use(
         r.use(authMiddleware);
 
         r.get("/gdpr", GDPRController.getData);
+        r.get("/notifications", UserNotificationController.getUnreadNotifications);
 
         r.use(
             "/course",
@@ -120,6 +122,7 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/", TrainingRequestAdminController.getOpen);
                 r.get("/:uuid", TrainingRequestAdminController.getByUUID);
+                r.delete("/:uuid", TrainingRequestAdminController.destroyByUUID);
             })
         );
 
