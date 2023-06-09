@@ -209,7 +209,7 @@ export class VatsimConnectLibrary {
             },
         });
 
-        const user = await User.findOne({
+        const user: User | null = await User.scope("sensitive").findOne({
             where: {
                 id: this.m_userData?.data.cid,
             },

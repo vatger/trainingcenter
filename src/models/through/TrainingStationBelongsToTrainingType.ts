@@ -1,12 +1,4 @@
-import {
-    Association,
-    CreationOptional,
-    ForeignKey,
-    InferAttributes,
-    InferCreationAttributes,
-    Model,
-    NonAttribute
-} from "sequelize";
+import { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { TrainingType } from "../TrainingType";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
@@ -45,33 +37,33 @@ TrainingStationBelongsToTrainingType.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         training_type_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "training_types",
-                key: "id"
+                key: "id",
             },
             onUpdate: "cascade",
-            onDelete: "cascade"
+            onDelete: "cascade",
         },
         training_station_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "training_stations",
-                key: "id"
+                key: "id",
             },
             onUpdate: "cascade",
-            onDelete: "cascade"
+            onDelete: "cascade",
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "training_types_belong_to_training_stations",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );

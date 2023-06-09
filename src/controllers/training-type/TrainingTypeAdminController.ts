@@ -27,8 +27,8 @@ async function getByID(request: Request, response: Response) {
         {
             name: "id",
             validationObject: requestID,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
-        }
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
+        },
     ]);
 
     if (validation.invalid) {
@@ -38,22 +38,22 @@ async function getByID(request: Request, response: Response) {
 
     const trainingType = await TrainingType.findOne({
         where: {
-            id: requestID?.toString()
+            id: requestID?.toString(),
         },
         include: [
             {
                 association: TrainingType.associations.log_template,
                 attributes: {
-                    exclude: ["content"]
-                }
+                    exclude: ["content"],
+                },
             },
             {
                 association: TrainingType.associations.training_stations,
                 through: {
-                    attributes: []
-                }
-            }
-        ]
+                    attributes: [],
+                },
+            },
+        ],
     });
 
     response.send(trainingType);
@@ -71,13 +71,13 @@ async function create(request: Request, response: Response) {
         {
             name: "name",
             validationObject: requestData.name,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
         {
             name: "type",
             validationObject: requestData.type,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
-        }
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
+        },
     ]);
 
     if (validation.invalid) {
@@ -88,7 +88,7 @@ async function create(request: Request, response: Response) {
     const trainingType = await TrainingType.create({
         name: requestData.name,
         type: requestData.type,
-        log_template_id: !isNaN(requestData.log_template_id) && Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id)
+        log_template_id: !isNaN(requestData.log_template_id) && Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id),
     });
 
     response.send(trainingType);
@@ -107,18 +107,18 @@ async function update(request: Request, response: Response) {
         {
             name: "id",
             validationObject: training_type_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
         {
             name: "name",
             validationObject: requestData.name,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
         {
             name: "type",
             validationObject: requestData.type,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
-        }
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
+        },
     ]);
 
     if (validation.invalid) {
@@ -130,20 +130,20 @@ async function update(request: Request, response: Response) {
         (
             await TrainingType.findOne({
                 where: {
-                    id: training_type_id
-                }
+                    id: training_type_id,
+                },
             })
         )?.update({
             name: requestData.name,
             type: requestData.type,
-            log_template_id: !isNaN(requestData.log_template_id) && Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id)
+            log_template_id: !isNaN(requestData.log_template_id) && Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id),
         });
 
         const trainingType = await TrainingType.findOne({
             where: {
-                id: training_type_id
+                id: training_type_id,
             },
-            include: [TrainingType.associations.log_template, TrainingType.associations.training_stations]
+            include: [TrainingType.associations.log_template, TrainingType.associations.training_stations],
         });
 
         response.send(trainingType);
@@ -159,13 +159,13 @@ async function addStation(request: Request, response: Response) {
         {
             name: "training_type_id",
             validationObject: requestData.training_type_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
         {
             name: "training_station_id",
             validationObject: requestData.training_station_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
-        }
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
+        },
     ]);
 
     if (validation.invalid) {
@@ -175,14 +175,14 @@ async function addStation(request: Request, response: Response) {
 
     const station = await TrainingStation.findOne({
         where: {
-            id: requestData.training_station_id
-        }
+            id: requestData.training_station_id,
+        },
     });
 
     const trainingType = await TrainingType.findOne({
         where: {
-            id: requestData.training_type_id
-        }
+            id: requestData.training_type_id,
+        },
     });
 
     if (station == null || trainingType == null) {
@@ -192,7 +192,7 @@ async function addStation(request: Request, response: Response) {
 
     await TrainingStationBelongsToTrainingType.create({
         training_station_id: requestData.training_station_id,
-        training_type_id: requestData.training_type_id
+        training_type_id: requestData.training_type_id,
     });
 
     response.send(station);
@@ -210,5 +210,5 @@ export default {
     create,
     update,
     addStation,
-    removeStation
+    removeStation,
 };

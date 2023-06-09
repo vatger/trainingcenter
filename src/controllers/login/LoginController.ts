@@ -110,7 +110,7 @@ async function getUserData(request: Request, response: Response) {
 }
 
 async function validateSessionToken(request: Request, response: Response) {
-    response.send(await SessionLibrary.validateSessionToken(request) != null);
+    response.send((await SessionLibrary.validateSessionToken(request)) != null);
 }
 
 export default {

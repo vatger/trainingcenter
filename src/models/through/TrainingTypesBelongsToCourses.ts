@@ -27,33 +27,33 @@ TrainingTypesBelongsToCourses.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         training_type_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "training_types",
-                key: "id"
+                key: "id",
             },
             onUpdate: "cascade",
-            onDelete: "cascade"
+            onDelete: "cascade",
         },
         course_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "courses",
-                key: "id"
+                key: "id",
             },
             onUpdate: "cascade",
-            onDelete: "cascade"
+            onDelete: "cascade",
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "training_types_belongs_to_courses",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );

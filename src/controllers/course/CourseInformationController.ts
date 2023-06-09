@@ -10,6 +10,9 @@ import { TrainingSession } from "../../models/TrainingSession";
  */
 async function getInformationByUUID(request: Request, response: Response) {
     const uuid: string = request.query.uuid?.toString() ?? "";
+    const user: User = request.body.user;
+
+    const userCourses: Course[] = await user.getCourses();
 
     const course: Course | null = await Course.findOne({
         where: {
@@ -33,6 +36,11 @@ async function getInformationByUUID(request: Request, response: Response) {
 
     if (course == null) {
         response.status(500).send({ message: "Failed to get Course with uuid" });
+        return;
+    }
+
+    if (userCourses.find((c: Course) => c.uuid == course.uuid) != null) {
+        response.send({ ...course.toJSON(), enrolled: true });
         return;
     }
 
@@ -85,7 +93,7 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
         return;
     }
 
-    const data = await User.findOne({
+    const data: User | null = await User.findOne({
         where: {
             id: user.id,
         },

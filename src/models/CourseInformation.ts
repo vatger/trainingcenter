@@ -1,12 +1,4 @@
-import {
-    Association,
-    CreationOptional,
-    ForeignKey,
-    InferAttributes,
-    InferCreationAttributes,
-    Model,
-    NonAttribute
-} from "sequelize";
+import { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { Course } from "./Course";
@@ -39,27 +31,27 @@ CourseInformation.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         course_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "courses",
-                key: "id"
+                key: "id",
             },
             onUpdate: "cascade",
-            onDelete: "cascade"
+            onDelete: "cascade",
         },
         data: {
             type: DataType.JSON,
-            allowNull: false
+            allowNull: false,
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "course_information",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );
