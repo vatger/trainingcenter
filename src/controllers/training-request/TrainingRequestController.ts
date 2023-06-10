@@ -105,6 +105,7 @@ async function getOpen(request: Request, response: Response) {
     const trainingRequests = await TrainingRequest.findAll({
         where: {
             user_id: reqUser.id,
+            status: "requested",
         },
         include: [TrainingRequest.associations.training_type, TrainingRequest.associations.course],
     });

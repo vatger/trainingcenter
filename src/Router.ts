@@ -25,6 +25,7 @@ import SyslogAdminController from "./controllers/syslog/SyslogAdminController";
 import PermissionAdministrationController from "./controllers/permission/PermissionAdminController";
 import RoleAdministrationController from "./controllers/permission/RoleAdminController";
 import UserNotificationController from "./controllers/user/UserNotificationController";
+import TrainingSessionAdminController from "./controllers/training-session/TrainingSessionAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -121,8 +122,18 @@ router.use(
             "/training-request",
             routerGroup((r: Router) => {
                 r.get("/", TrainingRequestAdminController.getOpen);
+                r.get("/training", TrainingRequestAdminController.getOpenTrainingRequests);
+                r.get("/lesson", TrainingRequestAdminController.getOpenLessonRequests);
                 r.get("/:uuid", TrainingRequestAdminController.getByUUID);
                 r.delete("/:uuid", TrainingRequestAdminController.destroyByUUID);
+            })
+        );
+
+        r.use(
+            "/training-session",
+            routerGroup((r: Router) => {
+                r.put("/training", TrainingSessionAdminController.createTrainingSession);
+                // TODO r.put("/lesson");
             })
         );
 

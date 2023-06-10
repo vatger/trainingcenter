@@ -12,13 +12,13 @@ export class TrainingSessionBelongsToUsers extends Model<
     //
     // Attributes
     //
-    declare id: number;
     declare user_id: ForeignKey<User["id"]>;
     declare training_session_id: ForeignKey<TrainingSession["id"]>;
 
     //
     // Optional Attributes
     //
+    declare id: CreationOptional<number>;
     declare log_id: CreationOptional<ForeignKey<TrainingLog["id"]>> | null;
     declare passed: CreationOptional<boolean> | null;
     declare createdAt: CreationOptional<Date> | null;

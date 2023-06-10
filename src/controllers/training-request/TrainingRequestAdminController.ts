@@ -6,14 +6,11 @@ import { Op } from "sequelize";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 
 /**
- * Returns all training requests that the current user is able to mentor based on his mentor groups
- * @param request
- * @param response
+ * Returns all currently open training requests
+ * Method should not be called from router
  */
-async function getOpen(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
-    const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
-    let trainingRequests: TrainingRequest[] = await TrainingRequest.findAll({
+async function _getOpenTrainingRequests(): Promise<TrainingRequest[]> {
+    return await TrainingRequest.findAll({
         where: {
             [Op.and]: {
                 expires: {
@@ -26,6 +23,75 @@ async function getOpen(request: Request, response: Response) {
             },
         },
         include: [TrainingRequest.associations.training_station, TrainingRequest.associations.training_type, TrainingRequest.associations.user],
+    });
+}
+
+/**
+ * Returns all training requests that the current user is able to mentor based on his mentor groups
+ * @param request
+ * @param response
+ */
+async function getOpen(request: Request, response: Response) {
+    const reqUser: User = request.body.user;
+    const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
+    let trainingRequests: TrainingRequest[] = await _getOpenTrainingRequests();
+
+    // Store course IDs that a user can mentor in
+    const courseIDs: number[] = [];
+
+    for (const mentorGroup of reqUserMentorGroups) {
+        for (const course of mentorGroup.courses ?? []) {
+            if (!courseIDs.includes(course.id)) courseIDs.push(course.id);
+        }
+    }
+
+    trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
+        return courseIDs.includes(req.course_id);
+    });
+
+    response.send(trainingRequests);
+}
+
+/**
+ * Returns all training requests that the current user is able to mentor based on his mentor groups
+ * Only returns Trainings (not lessons)
+ * @param request
+ * @param response
+ */
+async function getOpenTrainingRequests(request: Request, response: Response) {
+    const reqUser: User = request.body.user;
+    const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
+    let trainingRequests: TrainingRequest[] = (await _getOpenTrainingRequests()).filter((trainingRequest: TrainingRequest) => {
+        return trainingRequest.training_type?.type != "lesson";
+    });
+
+    // Store course IDs that a user can mentor in
+    const courseIDs: number[] = [];
+
+    for (const mentorGroup of reqUserMentorGroups) {
+        for (const course of mentorGroup.courses ?? []) {
+            if (!courseIDs.includes(course.id)) courseIDs.push(course.id);
+        }
+    }
+
+    trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
+        return courseIDs.includes(req.course_id);
+    });
+
+    response.send(trainingRequests);
+}
+
+/**
+ * Returns all training requests that the current user is able to mentor based on his mentor groups
+ * Only returns Lessons (not anything else)
+ * @param request
+ * @param response
+ */
+async function getOpenLessonRequests(request: Request, response: Response) {
+    const reqUser: User = request.body.user;
+    const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
+    let trainingRequests: TrainingRequest[] = (await _getOpenTrainingRequests()).filter((trainingRequest: TrainingRequest) => {
+        return trainingRequest.training_type?.type == "lesson";
     });
 
     // Store course IDs that a user can mentor in
@@ -94,18 +160,22 @@ async function destroyByUUID(request: Request, response: Response) {
 
     await trainingRequest.destroy();
 
-    await NotificationLibrary.sendUserNotification(
-        trainingRequest.user_id,
-        `Deine Trainingsanfrage für "${trainingRequest.training_type?.name}" wurde von $author gelöscht`,
-        `$author has deleted your training request for "${trainingRequest.training_type?.name}"`,
-        request.body.user.id
-    );
+    await NotificationLibrary.sendUserNotification({
+        user_id: trainingRequest.user_id,
+        message_de: `Deine Trainingsanfrage für "${trainingRequest.training_type?.name}" wurde von $author gelöscht`,
+        message_en: `$author has deleted your training request for "${trainingRequest.training_type?.name}"`,
+        author_id: request.body.user.id,
+        severity: "default",
+        icon: "trash",
+    });
 
     response.send({ message: "OK" });
 }
 
 export default {
     getOpen,
+    getOpenTrainingRequests,
+    getOpenLessonRequests,
     getByUUID,
     destroyByUUID,
 };

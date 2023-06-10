@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../../models/User";
 import { Notification } from "../../models/Notification";
+import { Op } from "sequelize";
 
 /**
  * Returns all unread notifications for the requesting user
@@ -12,8 +13,10 @@ async function getUnreadNotifications(request: Request, response: Response) {
 
     const notifications: Notification[] = await Notification.findAll({
         where: {
-            user_id: user.id,
-            read: false,
+            [Op.and]: {
+                user_id: user.id,
+                read: false,
+            },
         },
         include: [Notification.associations.author],
     });
