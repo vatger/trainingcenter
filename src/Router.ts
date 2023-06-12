@@ -88,6 +88,7 @@ router.use(
                 r.delete("/", TrainingRequestController.destroy);
 
                 r.get("/open", TrainingRequestController.getOpen);
+                r.get("/planned", TrainingRequestController.getPlanned);
                 r.get("/:request_uuid", TrainingRequestController.getByUUID);
             })
         );

@@ -5,6 +5,8 @@ import { TrainingRequest } from "../../models/TrainingRequest";
 import { generateUUID } from "../../utility/UUID";
 import { TrainingSession } from "../../models/TrainingSession";
 import dayjs from "dayjs";
+import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSessionBelongsToUsers";
+import { Op } from "sequelize";
 
 /**
  * Creates a new training request
@@ -113,6 +115,35 @@ async function getOpen(request: Request, response: Response) {
     response.send(trainingRequests);
 }
 
+/**
+ * Gets all planned training sessions for the requesting user
+ * @param request
+ * @param response
+ */
+async function getPlanned(request: Request, response: Response) {
+    const user: User = request.body.user;
+
+    const sessions: TrainingSessionBelongsToUsers[] = await TrainingSessionBelongsToUsers.findAll({
+        where: {
+            user_id: user.id,
+            passed: null,
+        },
+        include: [
+            {
+                association: TrainingSessionBelongsToUsers.associations.training_session,
+                include: [TrainingSession.associations.mentor, TrainingSession.associations.training_station],
+                where: {
+                    date: {
+                        [Op.gte]: new Date(),
+                    },
+                },
+            },
+        ],
+    });
+
+    response.send(sessions);
+}
+
 async function getByUUID(request: Request, response: Response) {
     const reqData = request.params;
 
@@ -151,5 +182,6 @@ export default {
     create,
     destroy,
     getOpen,
+    getPlanned,
     getByUUID,
 };

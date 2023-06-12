@@ -62,7 +62,7 @@ async function getUserCourseInformationByUUID(request: Request, response: Respon
         return;
     }
 
-    const user = await User.findOne({
+    const user: User | null = await User.findOne({
         where: {
             id: reqUser.id,
         },
@@ -102,8 +102,7 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
                 association: User.associations.training_sessions,
                 as: "training_sessions",
                 through: {
-                    as: "through",
-                    attributes: ["passed"],
+                    attributes: ["passed", "log_id"],
                     where: {
                         user_id: user.id,
                     },
@@ -111,14 +110,12 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
                 include: [
                     {
                         association: TrainingSession.associations.training_logs,
-                        attributes: ["uuid", "log_public"],
-                        as: "training_logs",
+                        attributes: ["uuid", "log_public", "id"],
                         through: { attributes: [] },
                     },
                     {
                         association: TrainingSession.associations.training_type,
                         attributes: ["id", "name", "type"],
-                        as: "training_type",
                     },
                     {
                         association: TrainingSession.associations.course,
