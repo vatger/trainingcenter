@@ -26,6 +26,7 @@ import PermissionAdministrationController from "./controllers/permission/Permiss
 import RoleAdministrationController from "./controllers/permission/RoleAdminController";
 import UserNotificationController from "./controllers/user/UserNotificationController";
 import TrainingSessionAdminController from "./controllers/training-session/TrainingSessionAdminController";
+import TrainingSessionController from "./controllers/training-session/TrainingSessionController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -92,6 +93,13 @@ router.use(
                 r.get("/:request_uuid", TrainingRequestController.getByUUID);
             })
         );
+
+        r.use(
+            "/training-session",
+            routerGroup((r: Router) => {
+                r.get("/:uuid", TrainingSessionController.getByUUID)
+            })
+        )
 
         r.use(
             "/training-type",
