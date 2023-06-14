@@ -40,7 +40,7 @@ export class VatsimConnectLibrary {
 
         this.m_axiosInstance = axios.create({
             baseURL: this.m_connectOptions.base_uri,
-            timeout: 2000,
+            timeout: 5000,
             headers: { "Accept-Encoding": "gzip,deflate,compress" },
         });
     }
@@ -87,14 +87,20 @@ export class VatsimConnectLibrary {
     private async queryUserData() {
         if (this.m_accessToken == null) return null;
 
-        const user_response = await this.m_axiosInstance.get("/api/user", {
-            headers: {
-                Authorization: `Bearer ${this.m_accessToken}`,
-                Accept: "application/json",
-            },
-        });
+        let user_response: AxiosResponse | undefined = undefined;
 
-        const user_response_data: VatsimUserData | undefined = user_response.data as VatsimUserData;
+        try {
+            user_response = await this.m_axiosInstance.get("/api/user", {
+                headers: {
+                    Authorization: `Bearer ${this.m_accessToken}`,
+                    Accept: "application/json",
+                },
+            });
+        } catch (e) {
+            throw new VatsimConnectException(ConnectLibraryErrors.ERR_AXIOS_TIMEOUT);
+        }
+
+        const user_response_data: VatsimUserData | undefined = user_response?.data as VatsimUserData;
 
         if (user_response_data == null) {
             throw new VatsimConnectException();

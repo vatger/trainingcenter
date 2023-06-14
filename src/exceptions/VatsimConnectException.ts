@@ -8,6 +8,7 @@ export enum ConnectLibraryErrors {
     ERR_AUTH_REVOKED,
     ERR_INV_CODE,
     ERR_NO_AUTH_RESPONSE,
+    ERR_AXIOS_TIMEOUT
 }
 
 export class VatsimConnectException extends Error {
