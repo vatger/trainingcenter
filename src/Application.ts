@@ -20,7 +20,7 @@ initializeApplication()
         application.use(
             cors({
                 credentials: true,
-                origin: "https://tc-api-dev.vatsim-germany.org",
+                origin: "https://tc-dev.vatsim-germany.org",
             })
         );
         application.use(cookieParser(Config.APP_KEY));
