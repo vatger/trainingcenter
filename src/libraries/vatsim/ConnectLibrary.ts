@@ -135,12 +135,15 @@ export class VatsimConnectLibrary {
     }
 
     private async handleSessionChange() {
-        if (this.m_response == null || this.m_request == null || this.m_userData?.data.cid == null) throw new VatsimConnectException();
+        const browserUUID: string | string[] | undefined = this.m_request?.headers['unique-browser-token'];
+
+        if (this.m_response == null || this.m_request == null || browserUUID == null || this.m_userData?.data.cid == null) throw new VatsimConnectException();
 
         // Remove old session
         await UserSession.destroy({
             where: {
-                user_id: this.m_userData?.data.cid,
+                user_id: this.m_userData.data.cid,
+                browser_uuid: browserUUID
             },
         });
 
