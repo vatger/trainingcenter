@@ -97,7 +97,8 @@ router.use(
         r.use(
             "/training-session",
             routerGroup((r: Router) => {
-                r.get("/:uuid", TrainingSessionController.getByUUID)
+                r.get("/:uuid", TrainingSessionController.getByUUID);
+                r.delete("/withdraw/:uuid", TrainingSessionController.withdrawFromSessionByUUID);
             })
         )
 
