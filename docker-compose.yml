@@ -1,0 +1,53 @@
+version: "3.9"
+services:
+  backend:
+    image: ghcr.io/vatger/trainingcenter-backend:latest
+    depends_on:
+      mysql:
+        condition: service_started
+    environment:
+      - APP_DEBUG
+      - APP_LOG_SQL
+      - APP_PORT=80
+      - APP_HOST
+      - APP_KEY
+      - APP_VERSION
+      - SESSION_COOKIE_NAME
+      - FILE_STORAGE_LOCATION
+      - FILE_TMP_LOCATION
+      - VATSIM_API_BASE
+      - VATGER_API_BASE
+      - MOODLE_API_BASE
+      - CONNECT_BASE
+      - CONNECT_REDIRECT_URI
+      - CONNECT_SCOPE
+      - CONNECT_CLIENT_ID
+      - CONNECT_SECRET
+      - DB_DIALECT
+      - DB_HOST
+      - DB_PORT
+      - DB_DATABASE_NAME
+      - DB_USERNAME
+      - DB_PASSWORD
+    ports:
+      - "5001:80"
+
+  frontend:
+    image: ghcr.io/vatger/trainingcenter-frontend:latest
+    ports:
+      - "5002:80"
+  mysql:
+    image: mysql
+    restart: always
+    ports:
+      - "5000:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: example
+      MYSQL_USER: trainingcenter
+      MYSQL_PASSWORD: example
+      MYSQL_DATABASE: trainingcenter
+    volumes:
+      - trainingcenter-sql:/var/lib/mysql
+
+volumes:
+  trainingcenter-sql:

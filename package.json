@@ -11,6 +11,8 @@
 	},
 	"scripts": {
 		"dev": "tsc && node ./dist/Application.js",
+		"build": "tsc",
+		"run": "node ./dist/Application.js",
 		"seq": "npx sequelize-cli --options-path=db/config/options.js",
 		"prettier:check": "npx prettier --check **/*.{ts,js}",
 		"prettier:write": "npx prettier --write .",

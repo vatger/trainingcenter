@@ -13,4 +13,6 @@ RUN npm install --quiet --unsafe-perm --no-progress --no-audit --include=dev
 
 COPY . .
 
-CMD npm run dev
+RUN npm run build
+
+CMD npm run run
