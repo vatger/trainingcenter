@@ -10,6 +10,10 @@ const DataModelAttributes = {
         type: DataType.UUID,
         allowNull: false,
     },
+    browser_uuid: {
+        type: DataType.UUID,
+        allowNull: false,
+    },
     user_id: {
         type: DataType.INTEGER,
         allowNull: false,

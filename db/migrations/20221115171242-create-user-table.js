@@ -1,5 +1,7 @@
 const { DataType } = require("sequelize-typescript");
 
+//TODO: Check relationships (explicitly on delete and on update). These should not all be cascade!
+
 const DataModelAttributes = {
     id: {
         type: DataType.INTEGER,

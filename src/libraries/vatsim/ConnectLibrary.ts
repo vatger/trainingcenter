@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosResponse } from "axios";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { VatsimOauthToken, VatsimScopes, VatsimUserData } from "./ConnectTypes";
 import { ConnectLibraryErrors, VatsimConnectException } from "../../exceptions/VatsimConnectException";
 import { checkIsUserBanned } from "../../utility/helper/MembershipHelper";
@@ -30,6 +30,7 @@ export class VatsimConnectLibrary {
 
     private m_userData: VatsimUserData | undefined = undefined;
     private m_response: Response | undefined = undefined;
+    private m_request: Request | undefined = undefined;
 
     constructor(connectOptions: ConnectOptions, remember: boolean) {
         this.m_connectOptions = connectOptions;
@@ -134,7 +135,7 @@ export class VatsimConnectLibrary {
     }
 
     private async handleSessionChange() {
-        if (this.m_response == null || this.m_userData?.data.cid == null) throw new VatsimConnectException();
+        if (this.m_response == null || this.m_request == null || this.m_userData?.data.cid == null) throw new VatsimConnectException();
 
         // Remove old session
         await UserSession.destroy({
@@ -144,7 +145,7 @@ export class VatsimConnectLibrary {
         });
 
         // Create new session
-        return await createSessionToken(this.m_response, this.m_userData?.data.cid, this.m_remember);
+        return await createSessionToken(this.m_request, this.m_response, this.m_userData?.data.cid, this.m_remember);
     }
 
     /**
@@ -158,10 +159,11 @@ export class VatsimConnectLibrary {
      * Handle the login flow
      * @throws VatsimConnectException
      */
-    public async login(response: Response, code: string | undefined) {
+    public async login(request: Request, response: Response, code: string | undefined) {
         if (code == null) throw new VatsimConnectException(ConnectLibraryErrors.ERR_NO_CODE);
 
         this.m_response = response;
+        this.m_request = request;
 
         await this.queryAccessTokens(code);
         await this.queryUserData();

@@ -8,6 +8,7 @@ export class UserSession extends Model<InferAttributes<UserSession>, InferCreati
     // Attributes
     //
     declare uuid: string;
+    declare browser_uuid: string;
     declare user_id: ForeignKey<User["id"]>;
     declare expires_at: Date;
     declare expires_latest: Date;
@@ -34,6 +35,10 @@ UserSession.init(
             autoIncrement: true,
         },
         uuid: {
+            type: DataType.UUID,
+            allowNull: false,
+        },
+        browser_uuid: {
             type: DataType.UUID,
             allowNull: false,
         },
