@@ -11,10 +11,7 @@ function validateCreateRequest(data: any): ValidatorType {
         {
             name: "mentor_group_id",
             validationObject: data.mentor_group_id,
-            toValidate: [
-                { val: ValidationOptions.NON_NULL },
-                { val: ValidationOptions.NUMBER }
-            ],
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
         },
         {
             name: "name_de",
@@ -49,15 +46,11 @@ function validateCreateRequest(data: any): ValidatorType {
         {
             name: "training_id",
             validationObject: data.training_id,
-            toValidate: [
-                { val: ValidationOptions.NON_NULL },
-                { val: ValidationOptions.NUMBER },
-                { val: ValidationOptions.NOT_EQUAL_NUM, value: 0 }
-            ],
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }, { val: ValidationOptions.NOT_EQUAL_NUM, value: 0 }],
         },
     ]);
 }
 
 export default {
-    validateCreateRequest
-}
+    validateCreateRequest,
+};

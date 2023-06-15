@@ -50,7 +50,7 @@ const DataModelAttributes = {
             key: "id",
         },
         onUpdate: "cascade",
-        onDelete: "cascade",
+        onDelete: "set null",
     },
     comment: {
         type: DataType.TEXT,
@@ -73,7 +73,7 @@ const DataModelAttributes = {
             key: "id",
         },
         onUpdate: "cascade",
-        onDelete: "cascade",
+        onDelete: "set null",
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

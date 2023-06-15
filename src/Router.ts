@@ -24,6 +24,10 @@ import MentorGroupAdministrationController from "./controllers/mentor-group/Ment
 import SyslogAdminController from "./controllers/syslog/SyslogAdminController";
 import PermissionAdministrationController from "./controllers/permission/PermissionAdminController";
 import RoleAdministrationController from "./controllers/permission/RoleAdminController";
+import UserNotificationController from "./controllers/user/UserNotificationController";
+import TrainingSessionAdminController from "./controllers/training-session/TrainingSessionAdminController";
+import TrainingSessionController from "./controllers/training-session/TrainingSessionController";
+import UserCourseAdminController from "./controllers/user/UserCourseAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -51,6 +55,7 @@ router.use(
         r.use(authMiddleware);
 
         r.get("/gdpr", GDPRController.getData);
+        r.get("/notifications", UserNotificationController.getUnreadNotifications);
 
         r.use(
             "/course",
@@ -60,6 +65,7 @@ router.use(
                 r.get("/available", UserCourseController.getAvailableCourses);
                 r.get("/active", UserCourseController.getActiveCourses);
                 r.put("/enrol", UserCourseController.enrolInCourse);
+                r.delete("/withdraw", UserCourseController.withdrawFromCourseByUUID);
 
                 r.get("/info", CourseInformationController.getInformationByUUID);
                 r.get("/info/my", CourseInformationController.getUserCourseInformationByUUID);
@@ -85,7 +91,16 @@ router.use(
                 r.delete("/", TrainingRequestController.destroy);
 
                 r.get("/open", TrainingRequestController.getOpen);
+                r.get("/planned", TrainingRequestController.getPlanned);
                 r.get("/:request_uuid", TrainingRequestController.getByUUID);
+            })
+        );
+
+        r.use(
+            "/training-session",
+            routerGroup((r: Router) => {
+                r.get("/:uuid", TrainingSessionController.getByUUID);
+                r.delete("/withdraw/:uuid", TrainingSessionController.withdrawFromSessionByUUID);
             })
         );
 
@@ -107,11 +122,15 @@ router.use(
                 r.get("/data/", UserInformationAdminController.getUserDataByID);
                 r.get("/data/sensitive", UserInformationAdminController.getSensitiveUserDataByID);
 
+                r.put("/note", UserNoteAdminController.createUserNote);
                 r.get("/notes", UserNoteAdminController.getGeneralUserNotes);
+                r.get("/notes/course", UserNoteAdminController.getNotesByCourseID);
 
                 r.get("/", UserController.getAll);
                 r.get("/min", UserController.getAllUsersMinimalData);
                 r.get("/sensitive", UserController.getAllSensitive);
+
+                r.get("/course/match", UserCourseAdminController.getUserCourseMatch);
             })
         );
 
@@ -119,7 +138,18 @@ router.use(
             "/training-request",
             routerGroup((r: Router) => {
                 r.get("/", TrainingRequestAdminController.getOpen);
+                r.get("/training", TrainingRequestAdminController.getOpenTrainingRequests);
+                r.get("/lesson", TrainingRequestAdminController.getOpenLessonRequests);
                 r.get("/:uuid", TrainingRequestAdminController.getByUUID);
+                r.delete("/:uuid", TrainingRequestAdminController.destroyByUUID);
+            })
+        );
+
+        r.use(
+            "/training-session",
+            routerGroup((r: Router) => {
+                r.put("/training", TrainingSessionAdminController.createTrainingSession);
+                // TODO r.put("/lesson");
             })
         );
 

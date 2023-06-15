@@ -27,38 +27,38 @@ Job.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         uuid: {
             type: DataType.UUID,
-            allowNull: false
+            allowNull: false,
         },
         job_type: {
-            type: DataType.ENUM("email")
+            type: DataType.ENUM("email"),
         },
         payload: {
             type: DataType.JSON,
-            comment: "Payload for the job, includes json data for the job to execute"
+            comment: "Payload for the job, includes json data for the job to execute",
         },
         attempts: {
             type: DataType.TINYINT({ unsigned: true }),
-            allowNull: false
+            allowNull: false,
         },
         available_at: {
-            type: DataType.DATE
+            type: DataType.DATE,
         },
         last_executed: {
-            type: DataType.DATE
+            type: DataType.DATE,
         },
         status: {
             type: DataType.ENUM("queued", "running", "completed"),
-            allowNull: false
+            allowNull: false,
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "jobs",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );

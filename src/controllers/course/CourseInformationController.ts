@@ -10,6 +10,9 @@ import { TrainingSession } from "../../models/TrainingSession";
  */
 async function getInformationByUUID(request: Request, response: Response) {
     const uuid: string = request.query.uuid?.toString() ?? "";
+    const user: User = request.body.user;
+
+    const userCourses: Course[] = await user.getCourses();
 
     const course: Course | null = await Course.findOne({
         where: {
@@ -36,6 +39,11 @@ async function getInformationByUUID(request: Request, response: Response) {
         return;
     }
 
+    if (userCourses.find((c: Course) => c.uuid == course.uuid) != null) {
+        response.send({ ...course.toJSON(), enrolled: true });
+        return;
+    }
+
     response.send(course);
 }
 
@@ -54,7 +62,7 @@ async function getUserCourseInformationByUUID(request: Request, response: Respon
         return;
     }
 
-    const user = await User.findOne({
+    const user: User | null = await User.findOne({
         where: {
             id: reqUser.id,
         },
@@ -85,7 +93,7 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
         return;
     }
 
-    const data = await User.findOne({
+    const data: User | null = await User.findOne({
         where: {
             id: user.id,
         },
@@ -94,8 +102,7 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
                 association: User.associations.training_sessions,
                 as: "training_sessions",
                 through: {
-                    as: "through",
-                    attributes: ["passed"],
+                    attributes: ["passed", "log_id"],
                     where: {
                         user_id: user.id,
                     },
@@ -103,14 +110,12 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
                 include: [
                     {
                         association: TrainingSession.associations.training_logs,
-                        attributes: ["uuid", "log_public"],
-                        as: "training_logs",
+                        attributes: ["uuid", "log_public", "id"],
                         through: { attributes: [] },
                     },
                     {
                         association: TrainingSession.associations.training_type,
                         attributes: ["id", "name", "type"],
-                        as: "training_type",
                     },
                     {
                         association: TrainingSession.associations.course,

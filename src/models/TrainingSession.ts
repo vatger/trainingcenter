@@ -13,7 +13,6 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
     //
     declare uuid: string;
     declare mentor_id: number;
-    declare cpt_examiner_id: number;
     declare training_type_id: number;
     declare course_id: number;
 
@@ -22,6 +21,7 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
     //
     declare id: CreationOptional<number>;
     declare date: CreationOptional<Date> | null;
+    declare cpt_examiner_id: CreationOptional<number> | null;
     declare cpt_atsim_passed: CreationOptional<boolean> | null;
     declare training_station_id: CreationOptional<ForeignKey<TrainingStation["id"]>> | null;
     declare createdAt: CreationOptional<Date> | null;

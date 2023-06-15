@@ -28,43 +28,43 @@ EndorsementGroupsBelongsToUsers.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         endorsement_group_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "endorsement_groups",
-                key: "id"
+                key: "id",
             },
             onUpdate: "cascade",
-            onDelete: "cascade"
+            onDelete: "cascade",
         },
         user_id: {
             type: DataType.INTEGER,
             allowNull: false,
             references: {
                 model: "users",
-                key: "id"
+                key: "id",
             },
             onUpdate: "cascade",
-            onDelete: "cascade"
+            onDelete: "cascade",
         },
         solo: {
             type: DataType.BOOLEAN,
-            allowNull: false
+            allowNull: false,
         },
         solo_expires: {
-            type: DataType.DATE
+            type: DataType.DATE,
         },
         solo_extension_count: {
-            type: DataType.INTEGER
+            type: DataType.INTEGER,
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "endorsement_groups_belong_to_users",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );

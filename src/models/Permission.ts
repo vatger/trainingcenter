@@ -21,18 +21,18 @@ Permission.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         name: {
             type: DataType.STRING(70),
             allowNull: false,
-            unique: true
+            unique: true,
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "permissions",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );

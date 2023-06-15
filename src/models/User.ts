@@ -88,7 +88,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     }
 
     async getCourses(): Promise<Course[]> {
-        const user = await User.findOne({
+        const user: User | null = await User.findOne({
             where: {
                 id: this.id,
             },

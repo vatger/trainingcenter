@@ -21,25 +21,25 @@ SysLog.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         user_id: {
-            type: DataType.STRING
+            type: DataType.STRING,
         },
         path: {
-            type: DataType.STRING
+            type: DataType.STRING,
         },
         method: {
-            type: DataType.STRING(10)
+            type: DataType.STRING(10),
         },
         remote_addr: {
-            type: DataType.STRING
+            type: DataType.STRING,
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "syslog",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );

@@ -74,7 +74,7 @@ async function create(request: Request, response: Response) {
     if (validation.invalid) {
         response.status(400).send({
             validation: validation.message,
-            validation_failed: validation.invalid
+            validation_failed: validation.invalid,
         });
         return;
     }

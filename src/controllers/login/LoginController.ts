@@ -51,7 +51,7 @@ async function login(request: Request, response: Response) {
     const vatsimConnectLibrary = new VatsimConnectLibrary(connect_options, remember);
 
     try {
-        await vatsimConnectLibrary.login(response, code);
+        await vatsimConnectLibrary.login(request, response, code);
     } catch (e: any) {
         if (e instanceof VatsimConnectException) {
             Logger.log(LogLevels.LOG_ERROR, e.message);
@@ -72,7 +72,7 @@ async function logout(request: Request, response: Response) {
 }
 
 async function getUserData(request: Request, response: Response) {
-    if (!(await SessionLibrary.validateSessionToken(request))) {
+    if ((await SessionLibrary.validateSessionToken(request)) == null) {
         response.status(401).send({ message: "Session token invalid" });
         return;
     }
@@ -110,7 +110,7 @@ async function getUserData(request: Request, response: Response) {
 }
 
 async function validateSessionToken(request: Request, response: Response) {
-    response.send(await SessionLibrary.validateSessionToken(request) != null);
+    response.send((await SessionLibrary.validateSessionToken(request)) != null);
 }
 
 export default {

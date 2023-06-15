@@ -101,5 +101,5 @@ export default {
     validateDeleteMentorGroupRequest,
     validateGetUsersRequest,
     validateDeleteUserRequest,
-    validateUpdateRequest
-}
+    validateUpdateRequest,
+};

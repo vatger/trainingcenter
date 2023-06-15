@@ -10,8 +10,7 @@ async function getUserIdFromSession(request: Request): Promise<number> {
     if (session_token == null || session_token == false) return 0;
 
     const sessionCurrent: UserSession | null = await SessionLibrary.validateSessionToken(request);
-    if (sessionCurrent == null)
-        return 0;
+    if (sessionCurrent == null) return 0;
 
     return sessionCurrent.user_id;
 }
@@ -46,4 +45,4 @@ async function getUserFromSession(request: Request): Promise<User | null> {
 export default {
     getUserFromSession,
     getUserIdFromSession,
-}
+};

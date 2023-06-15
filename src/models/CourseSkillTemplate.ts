@@ -22,21 +22,21 @@ CourseSkillTemplate.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         name: {
             type: DataType.STRING,
-            allowNull: false
+            allowNull: false,
         },
         content: {
             type: DataType.JSON,
-            allowNull: false
+            allowNull: false,
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "course_skill_templates",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );

@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosResponse } from "axios";
-import { Response } from "express";
+import { Request, Response } from "express";
 import { VatsimOauthToken, VatsimScopes, VatsimUserData } from "./ConnectTypes";
 import { ConnectLibraryErrors, VatsimConnectException } from "../../exceptions/VatsimConnectException";
 import { checkIsUserBanned } from "../../utility/helper/MembershipHelper";
@@ -30,6 +30,7 @@ export class VatsimConnectLibrary {
 
     private m_userData: VatsimUserData | undefined = undefined;
     private m_response: Response | undefined = undefined;
+    private m_request: Request | undefined = undefined;
 
     constructor(connectOptions: ConnectOptions, remember: boolean) {
         this.m_connectOptions = connectOptions;
@@ -39,7 +40,7 @@ export class VatsimConnectLibrary {
 
         this.m_axiosInstance = axios.create({
             baseURL: this.m_connectOptions.base_uri,
-            timeout: 2000,
+            timeout: 5000,
             headers: { "Accept-Encoding": "gzip,deflate,compress" },
         });
     }
@@ -86,14 +87,20 @@ export class VatsimConnectLibrary {
     private async queryUserData() {
         if (this.m_accessToken == null) return null;
 
-        const user_response = await this.m_axiosInstance.get("/api/user", {
-            headers: {
-                Authorization: `Bearer ${this.m_accessToken}`,
-                Accept: "application/json",
-            },
-        });
+        let user_response: AxiosResponse | undefined = undefined;
 
-        const user_response_data: VatsimUserData | undefined = user_response.data as VatsimUserData;
+        try {
+            user_response = await this.m_axiosInstance.get("/api/user", {
+                headers: {
+                    Authorization: `Bearer ${this.m_accessToken}`,
+                    Accept: "application/json",
+                },
+            });
+        } catch (e) {
+            throw new VatsimConnectException(ConnectLibraryErrors.ERR_AXIOS_TIMEOUT);
+        }
+
+        const user_response_data: VatsimUserData | undefined = user_response?.data as VatsimUserData;
 
         if (user_response_data == null) {
             throw new VatsimConnectException();
@@ -134,17 +141,20 @@ export class VatsimConnectLibrary {
     }
 
     private async handleSessionChange() {
-        if (this.m_response == null || this.m_userData?.data.cid == null) throw new VatsimConnectException();
+        const browserUUID: string | string[] | undefined = this.m_request?.headers["unique-browser-token"];
+
+        if (this.m_response == null || this.m_request == null || browserUUID == null || this.m_userData?.data.cid == null) throw new VatsimConnectException();
 
         // Remove old session
         await UserSession.destroy({
             where: {
-                user_id: this.m_userData?.data.cid,
+                user_id: this.m_userData.data.cid,
+                browser_uuid: browserUUID,
             },
         });
 
         // Create new session
-        return await createSessionToken(this.m_response, this.m_userData?.data.cid, this.m_remember);
+        return await createSessionToken(this.m_request, this.m_response, this.m_userData?.data.cid, this.m_remember);
     }
 
     /**
@@ -158,10 +168,11 @@ export class VatsimConnectLibrary {
      * Handle the login flow
      * @throws VatsimConnectException
      */
-    public async login(response: Response, code: string | undefined) {
+    public async login(request: Request, response: Response, code: string | undefined) {
         if (code == null) throw new VatsimConnectException(ConnectLibraryErrors.ERR_NO_CODE);
 
         this.m_response = response;
+        this.m_request = request;
 
         await this.queryAccessTokens(code);
         await this.queryUserData();
@@ -209,7 +220,7 @@ export class VatsimConnectLibrary {
             },
         });
 
-        const user = await User.findOne({
+        const user: User | null = await User.scope("sensitive").findOne({
             where: {
                 id: this.m_userData?.data.cid,
             },

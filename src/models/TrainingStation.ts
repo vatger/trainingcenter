@@ -1,11 +1,4 @@
-import {
-    Association,
-    CreationOptional,
-    InferAttributes,
-    InferCreationAttributes,
-    Model,
-    NonAttribute
-} from "sequelize";
+import { Association, CreationOptional, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { TrainingRequest } from "./TrainingRequest";
@@ -39,25 +32,25 @@ TrainingStation.init(
         id: {
             type: DataType.INTEGER,
             primaryKey: true,
-            autoIncrement: true
+            autoIncrement: true,
         },
         callsign: {
             type: DataType.STRING(15),
-            allowNull: false
+            allowNull: false,
         },
         frequency: {
             type: DataType.FLOAT(6, 3),
-            allowNull: false
+            allowNull: false,
         },
         deactivated: {
             type: DataType.BOOLEAN,
-            allowNull: false
+            allowNull: false,
         },
         createdAt: DataType.DATE,
-        updatedAt: DataType.DATE
+        updatedAt: DataType.DATE,
     },
     {
         tableName: "training_stations",
-        sequelize: sequelize
+        sequelize: sequelize,
     }
 );
