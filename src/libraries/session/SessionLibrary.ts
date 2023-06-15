@@ -4,6 +4,7 @@ import { generateUUID } from "../../utility/UUID";
 import { Config } from "../../core/Config";
 import Logger, { LogLevels } from "../../utility/Logger";
 import dayjs from "dayjs";
+import UAParser from "ua-parser-js";
 
 /**
  * Creates and stores a new session token in the database
@@ -15,6 +16,8 @@ import dayjs from "dayjs";
 export async function createSessionToken(request: Request, response: Response, user_id: number, remember: boolean = false): Promise<boolean> {
     const sessionUUID: string = generateUUID();
     const browserUUID: string | string[] | undefined = request.headers['unique-browser-token'];
+    const userAgent = UAParser(request.headers["user-agent"]);
+
     const expiration: Date = remember ? dayjs().add(7, "day").toDate() : dayjs().add(20, "minute").toDate();
     const expiration_latest: Date = remember ? dayjs().add(1, "month").toDate() : dayjs().add(1, "hour").toDate();
 
@@ -34,6 +37,7 @@ export async function createSessionToken(request: Request, response: Response, u
         user_id: user_id,
         expires_at: expiration,
         expires_latest: expiration_latest,
+        client: `${userAgent.os.name} / ${userAgent.browser.name} ${userAgent.browser.version}`
     });
 
     if (session != null) {
