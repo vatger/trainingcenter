@@ -15,7 +15,7 @@ import UAParser from "ua-parser-js";
  */
 export async function createSessionToken(request: Request, response: Response, user_id: number, remember: boolean = false): Promise<boolean> {
     const sessionUUID: string = generateUUID();
-    const browserUUID: string | string[] | undefined = request.headers['unique-browser-token'];
+    const browserUUID: string | string[] | undefined = request.headers["unique-browser-token"];
     const userAgent = UAParser(request.headers["user-agent"]);
 
     const expiration: Date = remember ? dayjs().add(7, "day").toDate() : dayjs().add(20, "minute").toDate();
@@ -37,7 +37,7 @@ export async function createSessionToken(request: Request, response: Response, u
         user_id: user_id,
         expires_at: expiration,
         expires_latest: expiration_latest,
-        client: `${userAgent.os.name} / ${userAgent.browser.name} ${userAgent.browser.version}`
+        client: `${userAgent.os.name} / ${userAgent.browser.name} ${userAgent.browser.version}`,
     });
 
     if (session != null) {
@@ -57,13 +57,13 @@ export async function createSessionToken(request: Request, response: Response, u
  */
 export async function removeSessionToken(request: Request, response: Response) {
     const sessionUUID = request.signedCookies[Config.SESSION_COOKIE_NAME];
-    const browserUUID: string | string[] | undefined = request.headers['unique-browser-token'];
+    const browserUUID: string | string[] | undefined = request.headers["unique-browser-token"];
 
     if (sessionUUID != null && browserUUID != null) {
         await UserSession.destroy({
             where: {
                 uuid: sessionUUID,
-                browser_uuid: browserUUID
+                browser_uuid: browserUUID,
             },
         });
     }
@@ -78,7 +78,7 @@ export async function removeSessionToken(request: Request, response: Response) {
  */
 async function validateSessionToken(request: Request): Promise<UserSession | null> {
     const sessionToken = request.signedCookies[Config.SESSION_COOKIE_NAME];
-    const browserUUID: string | string[] | undefined = request.headers['unique-browser-token'];
+    const browserUUID: string | string[] | undefined = request.headers["unique-browser-token"];
     const now = dayjs();
 
     // Check if token is present
@@ -88,7 +88,7 @@ async function validateSessionToken(request: Request): Promise<UserSession | nul
     const session: UserSession | null = await UserSession.findOne({
         where: {
             uuid: sessionToken,
-            browser_uuid: browserUUID
+            browser_uuid: browserUUID,
         },
     });
 

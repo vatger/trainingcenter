@@ -1,4 +1,4 @@
-import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association } from "sequelize";
+import { Association, CreationOptional, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { User } from "./User";
@@ -33,6 +33,15 @@ export class UserNote extends Model<InferAttributes<UserNote>, InferCreationAttr
         author: Association<UserNote, User>;
         course: Association<UserNote, Course>;
     };
+
+    async getAuthor(): Promise<UserNote | null> {
+        return await UserNote.findOne({
+            where: {
+                uuid: this.uuid,
+            },
+            include: [UserNote.associations.author],
+        });
+    }
 }
 
 UserNote.init(

@@ -3,6 +3,7 @@ import { Request, Response } from "express";
 import { Course } from "../../models/Course";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
+import { TrainingRequest } from "../../models/TrainingRequest";
 
 /**
  * Returns courses that are available to the current user (i.e. not enrolled in course)
@@ -120,9 +121,41 @@ async function enrolInCourse(request: Request, response: Response) {
     response.send(userBelongsToCourses);
 }
 
+/**
+ *
+ * @param request
+ * @param response
+ */
+async function withdrawFromCourseByUUID(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const courseID = request.body.course_id;
+
+    if (courseID == null) {
+        response.send(404);
+        return;
+    }
+
+    await UsersBelongsToCourses.destroy({
+        where: {
+            course_id: courseID,
+            user_id: user.id,
+        },
+    });
+
+    await TrainingRequest.destroy({
+        where: {
+            course_id: courseID,
+            user_id: user.id,
+        },
+    });
+
+    response.send({ message: "OK" });
+}
+
 export default {
     getAvailableCourses,
     getActiveCourses,
     getMyCourses,
     enrolInCourse,
+    withdrawFromCourseByUUID,
 };

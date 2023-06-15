@@ -72,7 +72,7 @@ async function logout(request: Request, response: Response) {
 }
 
 async function getUserData(request: Request, response: Response) {
-    if (await SessionLibrary.validateSessionToken(request) == null) {
+    if ((await SessionLibrary.validateSessionToken(request)) == null) {
         response.status(401).send({ message: "Session token invalid" });
         return;
     }

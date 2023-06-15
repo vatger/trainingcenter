@@ -141,7 +141,7 @@ export class VatsimConnectLibrary {
     }
 
     private async handleSessionChange() {
-        const browserUUID: string | string[] | undefined = this.m_request?.headers['unique-browser-token'];
+        const browserUUID: string | string[] | undefined = this.m_request?.headers["unique-browser-token"];
 
         if (this.m_response == null || this.m_request == null || browserUUID == null || this.m_userData?.data.cid == null) throw new VatsimConnectException();
 
@@ -149,7 +149,7 @@ export class VatsimConnectLibrary {
         await UserSession.destroy({
             where: {
                 user_id: this.m_userData.data.cid,
-                browser_uuid: browserUUID
+                browser_uuid: browserUUID,
             },
         });
 

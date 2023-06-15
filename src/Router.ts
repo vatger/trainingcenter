@@ -27,6 +27,7 @@ import RoleAdministrationController from "./controllers/permission/RoleAdminCont
 import UserNotificationController from "./controllers/user/UserNotificationController";
 import TrainingSessionAdminController from "./controllers/training-session/TrainingSessionAdminController";
 import TrainingSessionController from "./controllers/training-session/TrainingSessionController";
+import UserCourseAdminController from "./controllers/user/UserCourseAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -64,6 +65,7 @@ router.use(
                 r.get("/available", UserCourseController.getAvailableCourses);
                 r.get("/active", UserCourseController.getActiveCourses);
                 r.put("/enrol", UserCourseController.enrolInCourse);
+                r.delete("/withdraw", UserCourseController.withdrawFromCourseByUUID);
 
                 r.get("/info", CourseInformationController.getInformationByUUID);
                 r.get("/info/my", CourseInformationController.getUserCourseInformationByUUID);
@@ -100,7 +102,7 @@ router.use(
                 r.get("/:uuid", TrainingSessionController.getByUUID);
                 r.delete("/withdraw/:uuid", TrainingSessionController.withdrawFromSessionByUUID);
             })
-        )
+        );
 
         r.use(
             "/training-type",
@@ -120,11 +122,15 @@ router.use(
                 r.get("/data/", UserInformationAdminController.getUserDataByID);
                 r.get("/data/sensitive", UserInformationAdminController.getSensitiveUserDataByID);
 
+                r.put("/note", UserNoteAdminController.createUserNote);
                 r.get("/notes", UserNoteAdminController.getGeneralUserNotes);
+                r.get("/notes/course", UserNoteAdminController.getNotesByCourseID);
 
                 r.get("/", UserController.getAll);
                 r.get("/min", UserController.getAllUsersMinimalData);
                 r.get("/sensitive", UserController.getAllSensitive);
+
+                r.get("/course/match", UserCourseAdminController.getUserCourseMatch);
             })
         );
 

@@ -17,20 +17,20 @@ async function getByUUID(request: Request, response: Response) {
 
     const session: TrainingSession | null = await TrainingSession.findOne({
         where: {
-            uuid: sessionUUID
+            uuid: sessionUUID,
         },
         include: [
             {
                 association: TrainingSession.associations.users,
                 attributes: ["id"],
-                through: {attributes: []}
+                through: { attributes: [] },
             },
             TrainingSession.associations.mentor,
             TrainingSession.associations.cpt_examiner,
             TrainingSession.associations.training_type,
             TrainingSession.associations.training_station,
-            TrainingSession.associations.course
-        ]
+            TrainingSession.associations.course,
+        ],
     });
 
     // Check if the user even exists in this session, else deny the request
@@ -53,13 +53,13 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
 
     const session: TrainingSession | null = await TrainingSession.findOne({
         where: {
-            uuid: sessionUUID
+            uuid: sessionUUID,
         },
-        include: [TrainingSession.associations.users]
+        include: [TrainingSession.associations.users],
     });
 
     if (session == null) {
-        response.status(404).send({message: "Session with this UUID not found"});
+        response.status(404).send({ message: "Session with this UUID not found" });
         return;
     }
 
@@ -70,8 +70,8 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
             user_id: user.id,
             training_session_id: session.id,
             passed: null,
-            log_id: null
-        }
+            log_id: null,
+        },
     });
 
     // Check if we can delete the entire session, or only the user
@@ -80,22 +80,24 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
     }
 
     // Update the request to reflect this change
-    await TrainingRequest.update({
-        status: "requested",
-        training_session_id: null,
-        expires: dayjs().add(1, 'month').toDate()
-    }, {
-        where: {
-            user_id: user.id,
-            training_session_id: session.id,
+    await TrainingRequest.update(
+        {
+            status: "requested",
+            training_session_id: null,
+            expires: dayjs().add(1, "month").toDate(),
+        },
+        {
+            where: {
+                user_id: user.id,
+                training_session_id: session.id,
+            },
         }
-    });
+    );
 
-    response.send({message: "OK"});
+    response.send({ message: "OK" });
 }
-
 
 export default {
     getByUUID,
-    withdrawFromSessionByUUID
-}
+    withdrawFromSessionByUUID,
+};

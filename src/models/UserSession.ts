@@ -45,7 +45,7 @@ UserSession.init(
         },
         client: {
             type: DataType.STRING(100),
-            allowNull: true
+            allowNull: true,
         },
         user_id: {
             type: DataType.INTEGER,
