@@ -16,6 +16,7 @@ const required_env: Array<string> = [
     "APP_PORT",
     "APP_KEY",
     "APP_HOST",
+    "APP_CORS_ALLOW",
     "SESSION_COOKIE_NAME",
     "VATSIM_API_BASE",
     "VATGER_API_BASE",
@@ -45,6 +46,7 @@ export const Config = {
     // Read from .env
     APP_DEBUG: process.env.APP_DEBUG?.toLowerCase() == "true",
     APP_LOG_SQL: process.env.APP_LOG_SQL?.toLowerCase() == "true",
+    APP_CORS_ALLOW: process.env.APP_CORS_ALLOW,
 
     APP_KEY: process.env.APP_KEY,
     APP_PORT: Number(process.env.APP_PORT),
