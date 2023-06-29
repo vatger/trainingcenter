@@ -5,6 +5,9 @@ import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourse
 import { MentorGroup } from "../../models/MentorGroup";
 import CourseInformationAdminValidator from "../_validators/CourseInformationAdminValidator";
 import { ValidatorType } from "../_validators/ValidatorType";
+import { TrainingRequest } from "../../models/TrainingRequest";
+import { TrainingSession } from "../../models/TrainingSession";
+import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSessionBelongsToUsers";
 
 /**
  * Gets the basic course information associated with this course
@@ -130,6 +133,13 @@ async function deleteUser(request: Request, response: Response) {
         },
     });
 
+    await TrainingRequest.destroy({
+        where: {
+            user_id: requestData.user_id,
+            course_id: requestData.course_id,
+        },
+    });
+
     response.send({ message: "OK" });
 }
 
@@ -156,17 +166,25 @@ async function update(request: Request, response: Response) {
         skill_template_id: Number(data.skill_template_id) == 0 || isNaN(Number(data.skill_template_id)) ? null : data.skill_template_id,
     };
 
-    try {
-        await Course.update(updateObject, {
-            where: {
-                uuid: data.course_uuid,
-            },
-        });
+    await Course.update(updateObject, {
+        where: {
+            uuid: data.course_uuid,
+        },
+    });
 
-        response.send({ message: "OK" });
-    } catch (e: any) {
-        response.status(500).send({ message: e.message });
+    const course: Course | null = await Course.findOne({
+        where: {
+            uuid: data.course_uuid,
+        },
+        include: [Course.associations.training_type, Course.associations.skill_template],
+    });
+
+    if (course == null) {
+        response.status(500).send();
+        return;
     }
+
+    response.send(course);
 }
 
 export default {

@@ -83,7 +83,7 @@ UserNote.init(
                 key: "id",
             },
             onUpdate: "cascade",
-            onDelete: "cascade",
+            onDelete: "set null",
         },
         content: {
             type: DataType.TEXT,

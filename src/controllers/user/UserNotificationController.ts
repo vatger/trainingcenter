@@ -13,11 +13,10 @@ async function getUnreadNotifications(request: Request, response: Response) {
 
     const notifications: Notification[] = await Notification.findAll({
         where: {
-            [Op.and]: {
-                user_id: user.id,
-                read: false,
-            },
+            user_id: user.id,
+            read: false,
         },
+        order: [["createdAt", "desc"]],
         include: [Notification.associations.author],
     });
 

@@ -34,7 +34,7 @@ const DataModelAttributes = {
             key: "id",
         },
         onUpdate: "cascade",
-        onDelete: "cascade",
+        onDelete: "set null",
     },
     passed: {
         type: DataType.BOOLEAN,

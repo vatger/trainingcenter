@@ -4,6 +4,7 @@ import { TrainingSession } from "../../models/TrainingSession";
 import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSessionBelongsToUsers";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import dayjs from "dayjs";
+import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 
 /**
  * [User]
@@ -55,13 +56,28 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
         where: {
             uuid: sessionUUID,
         },
-        include: [TrainingSession.associations.users],
+        include: [TrainingSession.associations.users, TrainingSession.associations.training_type],
     });
 
     if (session == null) {
         response.status(404).send({ message: "Session with this UUID not found" });
         return;
     }
+
+    // Update the request to reflect this change
+    await TrainingRequest.update(
+        {
+            status: "requested",
+            training_session_id: null,
+            expires: dayjs().add(1, "month").toDate(),
+        },
+        {
+            where: {
+                user_id: user.id,
+                training_session_id: session.id,
+            },
+        }
+    );
 
     // Delete the association between trainee and session
     // only if the session hasn't been completed (i.e. passed == null && log_id == null)
@@ -79,20 +95,17 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
         await session.destroy();
     }
 
-    // Update the request to reflect this change
-    await TrainingRequest.update(
-        {
-            status: "requested",
-            training_session_id: null,
-            expires: dayjs().add(1, "month").toDate(),
-        },
-        {
-            where: {
-                user_id: user.id,
-                training_session_id: session.id,
-            },
-        }
-    );
+    await NotificationLibrary.sendUserNotification({
+        user_id: session.mentor_id,
+        message_de: `${user.first_name} ${user.last_name} (${user.id}) hat sich von der geplanten Session (${session.training_type?.name}) am ${dayjs(
+            session.date
+        ).format("DD.MM.YYYY")} abgemeldet`,
+        message_en: `${user.first_name} ${user.last_name} (${user.id}) withdrew from the planned session (${session.training_type?.name}) on ${dayjs(
+            session.date
+        ).format("DD.MM.YYYY")}`,
+        severity: "danger",
+        icon: "door-exit",
+    });
 
     response.send({ message: "OK" });
 }

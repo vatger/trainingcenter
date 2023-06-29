@@ -35,7 +35,7 @@ const DataModelAttributes = {
             key: "id",
         },
         onUpdate: "cascade",
-        onDelete: "cascade",
+        onDelete: "set null",
     },
     skill_set: {
         type: DataType.JSON,

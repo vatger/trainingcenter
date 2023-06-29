@@ -28,7 +28,7 @@ const DataModelAttributes = {
             key: "id",
         },
         onUpdate: "cascade",
-        onDelete: "cascade",
+        onDelete: "set null",
     },
     cpt_atsim_passed: {
         type: DataType.BOOLEAN,
@@ -43,7 +43,7 @@ const DataModelAttributes = {
             key: "id",
         },
         onUpdate: "cascade",
-        onDelete: "cascade",
+        onDelete: "set null",
     },
     date: {
         type: DataType.DATE,
@@ -51,6 +51,7 @@ const DataModelAttributes = {
     },
     training_type_id: {
         type: DataType.INTEGER,
+        allowNull: false,
         references: {
             model: "training_types",
             key: "id",
@@ -60,6 +61,7 @@ const DataModelAttributes = {
     },
     course_id: {
         type: DataType.INTEGER,
+        allowNull: false,
         references: {
             model: "courses",
             key: "id",
