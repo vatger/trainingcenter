@@ -37,6 +37,23 @@ async function getUserDataByID(request: Request, response: Response) {
     response.send(data);
 }
 
+async function getBasicUserDataByID(request: Request, response: Response) {
+    const query = request.query as { user_id: string };
+
+    const user = await User.findOne({
+        where: {
+            id: query.user_id,
+        },
+    });
+
+    if (user == null) {
+        response.status(404).send();
+        return;
+    }
+
+    response.send(user);
+}
+
 /**
  * Returns the user data for a user with id request.query.user_id
  * @param request
@@ -79,5 +96,6 @@ async function getSensitiveUserDataByID(request: Request, response: Response) {
 
 export default {
     getUserDataByID,
+    getBasicUserDataByID,
     getSensitiveUserDataByID,
 };

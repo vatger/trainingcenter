@@ -121,6 +121,7 @@ router.use(
             "/user",
             routerGroup((r: Router) => {
                 r.get("/data/", UserInformationAdminController.getUserDataByID);
+                r.get("/data/basic", UserInformationAdminController.getBasicUserDataByID);
                 r.get("/data/sensitive", UserInformationAdminController.getSensitiveUserDataByID);
 
                 r.put("/note", UserNoteAdminController.createUserNote);
