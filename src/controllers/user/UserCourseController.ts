@@ -76,14 +76,14 @@ async function getMyCourses(request: Request, response: Response) {
  * @param response
  */
 async function enrolInCourse(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
-    const course_id = request.body.course_id;
+    const user: User = request.body.user;
+    const query = request.body as { course_uuid: string };
 
     const validation = ValidationHelper.validate([
         {
-            name: "course_id",
-            validationObject: course_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+            name: "course_uuid",
+            validationObject: query.course_uuid,
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
     ]);
 
@@ -95,23 +95,23 @@ async function enrolInCourse(request: Request, response: Response) {
     // Get course in question
     const course: Course | null = await Course.findOne({
         where: {
-            id: course_id,
+            uuid: query.course_uuid,
         },
         include: [Course.associations.training_type, Course.associations.skill_template],
     });
 
     // If Course-Instance couldn't be found, throw an error (caught locally)
-    if (course == null) throw Error("Course with id " + course_id + " could not be found!");
+    if (course == null) throw Error("Course with id " + query.course_uuid + " could not be found!");
 
     // Enrol user in course
     const userBelongsToCourses = await UsersBelongsToCourses.findOrCreate({
         where: {
-            user_id: reqUser.id,
-            course_id: course_id,
+            user_id: user.id,
+            course_id: course.id,
         },
         defaults: {
-            user_id: reqUser.id,
-            course_id: course_id,
+            user_id: user.id,
+            course_id: course.id,
             completed: false,
             next_training_type: course?.training_type?.id ?? null,
             skill_set: course?.skill_template?.content ?? null,

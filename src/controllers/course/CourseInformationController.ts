@@ -3,6 +3,7 @@ import { Course } from "../../models/Course";
 import { User } from "../../models/User";
 import { TrainingSession } from "../../models/TrainingSession";
 import { ActionRequirement } from "../../models/ActionRequirement";
+import RequirementHelper from "../../utility/helper/RequirementHelper";
 
 /**
  * Returns course information based on the provided uuid (request.query.uuid)
@@ -134,61 +135,18 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
     response.send(data?.training_sessions ?? []);
 }
 
-/**
- * Returns the requested course's requirements as an array of strings
- * @param request
- * @param response
- */
-async function getCourseRequirements(request: Request, response: Response) {
-    const query = request.query as {course_uuid: string};
-    const requirements = await _getRequirementsFromCourse(query.course_uuid);
-    if (requirements == null) {
-        response.status(404).send();
-        return;
-    }
-
-    response.send(requirements);
-}
-
 async function validateCourseRequirements(request: Request, response: Response) {
-    const query = request.query as {course_uuid: string};
-    const requirements = await _getRequirementsFromCourse(query.course_uuid);
-    if (requirements == null) {
-        response.status(404).send();
-        return;
-    }
-
-    let req_ids_satisfied = new Map<number, boolean>;
-    for (const req of requirements) {
-        // do logic...
-
-        // if yes:
-        if (!req_ids_satisfied.has(req.req_id) || req_ids_satisfied.get(req.req_id)) {
-            req_ids_satisfied.set(req.req_id, true);
-        }
-
-        // if no:
-        //req_ids_satisfied.set(req.req_id, false);
-    }
-
-    let ids: number[] = [];
-    req_ids_satisfied.forEach((value, key) => {
-        if (value) {
-            ids.push(key);
-        }
-    });
-
-    response.send(ids);
-}
-
-async function _getRequirementsFromCourse(courseUUID: string) {
+    const user: User = request.body.user;
+    const query = request.query as { course_uuid: string };
     const course = await Course.findOne({
         where: {
-            uuid: courseUUID
+            uuid: query.course_uuid,
         },
-        include: [{
-            association: Course.associations.action_requirements
-        }]
+        include: [
+            {
+                association: Course.associations.action_requirements,
+            },
+        ],
     });
 
     if (course == null) {
@@ -196,21 +154,26 @@ async function _getRequirementsFromCourse(courseUUID: string) {
     }
 
     const actionRequirements = course.action_requirements?.filter((actionRequirement: ActionRequirement) => actionRequirement.type == "requirement");
-    let actions: { action: string, req_id: number }[] = [];
+    let requirements: { action: string; req_id: number; passed: boolean }[] = [];
 
-    actionRequirements?.forEach((actionRequirement: ActionRequirement) => {
-        actionRequirement.action.forEach((s) => {
-            actions.push({action: s, req_id: actionRequirement.id});
-        })
-    });
+    if (actionRequirements == null) {
+        response.send([]);
+        return;
+    }
 
-    return actions;
+    for (const actionRequirement of actionRequirements) {
+        for (const requirement of actionRequirement.action) {
+            const requirementPassed = await RequirementHelper.validateRequirement(user, requirement);
+            requirements.push({ action: requirement, req_id: actionRequirement.id, passed: requirementPassed });
+        }
+    }
+
+    response.send(requirements);
 }
 
 export default {
     getInformationByUUID,
     getUserCourseInformationByUUID,
     getCourseTrainingInformationByUUID,
-    getCourseRequirements,
-    validateCourseRequirements
+    validateCourseRequirements,
 };

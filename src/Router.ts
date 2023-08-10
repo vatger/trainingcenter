@@ -70,7 +70,6 @@ router.use(
                 r.get("/info", CourseInformationController.getInformationByUUID);
                 r.get("/info/my", CourseInformationController.getUserCourseInformationByUUID);
                 r.get("/info/training", CourseInformationController.getCourseTrainingInformationByUUID);
-                r.get("/info/requirements", CourseInformationController.getCourseRequirements);
                 r.get("/info/requirements/validate", CourseInformationController.validateCourseRequirements);
             })
         );
