@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { Course } from "../../models/Course";
 import { User } from "../../models/User";
 import { TrainingSession } from "../../models/TrainingSession";
+import { ActionRequirement } from "../../models/ActionRequirement";
 
 /**
  * Returns course information based on the provided uuid (request.query.uuid)
@@ -133,8 +134,83 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
     response.send(data?.training_sessions ?? []);
 }
 
+/**
+ * Returns the requested course's requirements as an array of strings
+ * @param request
+ * @param response
+ */
+async function getCourseRequirements(request: Request, response: Response) {
+    const query = request.query as {course_uuid: string};
+    const requirements = await _getRequirementsFromCourse(query.course_uuid);
+    if (requirements == null) {
+        response.status(404).send();
+        return;
+    }
+
+    response.send(requirements);
+}
+
+async function validateCourseRequirements(request: Request, response: Response) {
+    const query = request.query as {course_uuid: string};
+    const requirements = await _getRequirementsFromCourse(query.course_uuid);
+    if (requirements == null) {
+        response.status(404).send();
+        return;
+    }
+
+    let req_ids_satisfied = new Map<number, boolean>;
+    for (const req of requirements) {
+        // do logic...
+
+        // if yes:
+        if (!req_ids_satisfied.has(req.req_id) || req_ids_satisfied.get(req.req_id)) {
+            req_ids_satisfied.set(req.req_id, true);
+        }
+
+        // if no:
+        //req_ids_satisfied.set(req.req_id, false);
+    }
+
+    let ids: number[] = [];
+    req_ids_satisfied.forEach((value, key) => {
+        if (value) {
+            ids.push(key);
+        }
+    });
+
+    response.send(ids);
+}
+
+async function _getRequirementsFromCourse(courseUUID: string) {
+    const course = await Course.findOne({
+        where: {
+            uuid: courseUUID
+        },
+        include: [{
+            association: Course.associations.action_requirements
+        }]
+    });
+
+    if (course == null) {
+        return null;
+    }
+
+    const actionRequirements = course.action_requirements?.filter((actionRequirement: ActionRequirement) => actionRequirement.type == "requirement");
+    let actions: { action: string, req_id: number }[] = [];
+
+    actionRequirements?.forEach((actionRequirement: ActionRequirement) => {
+        actionRequirement.action.forEach((s) => {
+            actions.push({action: s, req_id: actionRequirement.id});
+        })
+    });
+
+    return actions;
+}
+
 export default {
     getInformationByUUID,
     getUserCourseInformationByUUID,
     getCourseTrainingInformationByUUID,
+    getCourseRequirements,
+    validateCourseRequirements
 };

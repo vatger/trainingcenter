@@ -10,7 +10,7 @@ import { ValidatorType } from "../_validators/ValidatorType";
  * Gets all courses
  */
 async function getAll(request: Request, response: Response) {
-    const courses = await Course.findAll();
+    const courses: Course[] = await Course.findAll();
 
     response.send(courses);
 }
