@@ -28,6 +28,7 @@ import UserNotificationController from "./controllers/user/UserNotificationContr
 import TrainingSessionAdminController from "./controllers/training-session/TrainingSessionAdminController";
 import TrainingSessionController from "./controllers/training-session/TrainingSessionController";
 import UserCourseAdminController from "./controllers/user/UserCourseAdminController";
+import SessionController from "./controllers/login/SessionController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -54,8 +55,12 @@ router.use(
     routerGroup((r: Router) => {
         r.use(authMiddleware);
 
+        r.get("/sessions", SessionController.getUserSessions);
+        r.delete("/session", SessionController.deleteUserSession);
+
         r.get("/gdpr", GDPRController.getData);
-        r.get("/notifications", UserNotificationController.getUnreadNotifications);
+        r.get("/notifications", UserNotificationController.getNotifications);
+        r.get("/notifications/unread", UserNotificationController.getUnreadNotifications);
 
         r.use(
             "/course",

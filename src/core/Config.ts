@@ -1,6 +1,10 @@
 import dotenv from "dotenv";
 import { Dialect, Options } from "sequelize";
 import Logger, { LogLevels } from "../utility/Logger";
+import dayjs from "dayjs";
+import utc from "dayjs/plugin/utc";
+
+dayjs.extend(utc)
 
 dotenv.config();
 console.log(`Loading .env...`);

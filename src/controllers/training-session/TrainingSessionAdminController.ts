@@ -59,7 +59,7 @@ async function createTrainingSession(request: Request, response: Response) {
         uuid: generateUUID(),
         mentor_id: requestUser.id,
         training_station_id: data.training_station_id,
-        date: dayjs(data.date).toDate(),
+        date: dayjs.utc(data.date).toDate(),
         training_type_id: data.training_type_id,
         course_id: course.id
     });

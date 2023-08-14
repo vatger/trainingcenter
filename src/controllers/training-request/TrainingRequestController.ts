@@ -132,11 +132,6 @@ async function getPlanned(request: Request, response: Response) {
             {
                 association: TrainingSessionBelongsToUsers.associations.training_session,
                 include: [TrainingSession.associations.mentor, TrainingSession.associations.training_station],
-                where: {
-                    date: {
-                        [Op.gte]: new Date(),
-                    },
-                },
             },
         ],
     });

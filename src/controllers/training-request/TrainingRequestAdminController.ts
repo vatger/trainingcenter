@@ -4,6 +4,7 @@ import { MentorGroup } from "../../models/MentorGroup";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { Op } from "sequelize";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
+import { TrainingType } from "../../models/TrainingType";
 
 /**
  * Returns all currently open training requests
@@ -124,9 +125,18 @@ async function getByUUID(request: Request, response: Response) {
         },
         include: [
             TrainingRequest.associations.user,
-            TrainingRequest.associations.training_type,
             TrainingRequest.associations.training_station,
             TrainingRequest.associations.course,
+            {
+                association: TrainingRequest.associations.training_type,
+                include: [{
+                    association: TrainingType.associations.training_stations,
+                    attributes: ['id', 'callsign', 'deactivated'],
+                    through: {
+                        attributes: []
+                    }
+                }]
+            }
         ],
     });
 
