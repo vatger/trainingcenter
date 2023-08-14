@@ -1,3 +1,5 @@
+import dayjs from "dayjs";
+
 export function validateObject(object: any, keys: string[], checkStringNull = false) {
     let malformedKeys: any[] = [];
 
@@ -24,6 +26,7 @@ export enum ValidationOptions {
     NOT_EQUAL,
     NOT_EQUAL_NUM,
     IN_ARRAY,
+    VALID_DATE,
 }
 
 /**
@@ -91,6 +94,13 @@ function validate(options: ValidationType[]): { invalid: boolean; message: any[]
                     if (!arr.includes(toCheck)) {
                         invalid = true;
                         message.push({ key: opt.name, code: "VAL_NOT_ARR", message: `Parameter is not contained in possible options: ${arr}.` });
+                    }
+                    break;
+
+                case ValidationOptions.VALID_DATE:
+                    if (!dayjs(toCheck).isValid()) {
+                        invalid = true;
+                        message.push({key: opt.name, code: "VAL_NOT_VALID_DATE", message: "Parameter is not a valid date."})
                     }
                     break;
             }

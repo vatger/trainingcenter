@@ -44,6 +44,9 @@ async function getBasicUserDataByID(request: Request, response: Response) {
         where: {
             id: query.user_id,
         },
+        attributes: {
+            exclude: ['createdAt', 'updatedAt']
+        }
     });
 
     if (user == null) {
