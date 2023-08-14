@@ -4,6 +4,7 @@ import { User } from "../../models/User";
 import { TrainingSession } from "../../models/TrainingSession";
 import { ActionRequirement } from "../../models/ActionRequirement";
 import RequirementHelper from "../../utility/helper/RequirementHelper";
+import { HttpStatusCode } from "axios";
 
 /**
  * Returns course information based on the provided uuid (request.query.uuid)
@@ -102,7 +103,6 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
         include: [
             {
                 association: User.associations.training_sessions,
-                as: "training_sessions",
                 through: {
                     attributes: ["passed", "log_id"],
                     where: {
@@ -132,7 +132,20 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
         ],
     });
 
-    response.send(data?.training_sessions ?? []);
+    if (data == null) {
+        response.sendStatus(HttpStatusCode.InternalServerError);
+        return;
+    }
+
+    data.training_sessions?.sort((a, b) => {
+        if (a.date == null || b.date == null) {
+            return 0;
+        }
+
+        return a.date > b.date ? 1 : -1;
+    });
+
+    response.send(data.training_sessions);
 }
 
 async function validateCourseRequirements(request: Request, response: Response) {

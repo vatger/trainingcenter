@@ -101,7 +101,9 @@ async function enrolInCourse(request: Request, response: Response) {
     });
 
     // If Course-Instance couldn't be found, throw an error (caught locally)
-    if (course == null) throw Error("Course with id " + query.course_uuid + " could not be found!");
+    if (course == null) {
+        throw Error("Course with id " + query.course_uuid + " could not be found!");
+    }
 
     // Enrol user in course
     const userBelongsToCourses = await UsersBelongsToCourses.findOrCreate({

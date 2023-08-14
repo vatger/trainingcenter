@@ -5,6 +5,7 @@ import { MentorGroup } from "../../models/MentorGroup";
 import { MentorGroupsBelongsToCourses } from "../../models/through/MentorGroupsBelongsToCourses";
 import CourseAdminValidator from "../_validators/CourseAdminValidator";
 import { ValidatorType } from "../_validators/ValidatorType";
+import { HttpStatusCode } from "axios";
 
 /**
  * Gets all courses
@@ -67,12 +68,23 @@ async function getEditable(request: Request, response: Response) {
  * Creates a new course
  */
 async function create(request: Request, response: Response) {
-    const data = request.body.data;
+    const data = request.body.data as {
+        course_uuid: string;
+        name_de: string;
+        name_en: string;
+        description_de: string;
+        description_en: string;
+        active: string;
+        self_enrol: string;
+        training_id: string;
+        skill_template_id: string;
+        mentor_group_id: string;
+    };
 
     const validation: ValidatorType = CourseAdminValidator.validateCreateRequest(data);
 
     if (validation.invalid) {
-        response.status(400).send({
+        response.status(HttpStatusCode.BadRequest).send({
             validation: validation.message,
             validation_failed: true,
         });
@@ -88,10 +100,10 @@ async function create(request: Request, response: Response) {
         is_active: Number(data.active) == 1,
         self_enrollment_enabled: Number(data.self_enrol) == 1,
         initial_training_type: Number(data.training_id),
-        skill_template_id: Number(data.skill_template_id) == 0 || isNaN(Number(data.skill_template_id)) ? null : data.skill_template_id,
+        skill_template_id: Number(data.skill_template_id) == 0 || isNaN(Number(data.skill_template_id)) ? null : Number(data.skill_template_id),
     });
     if (course == null) {
-        response.status(500).send({ error: "An error occurred creating the course" });
+        response.sendStatus(HttpStatusCode.InternalServerError);
         return;
     }
 

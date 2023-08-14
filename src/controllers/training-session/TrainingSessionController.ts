@@ -5,6 +5,7 @@ import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSess
 import { TrainingRequest } from "../../models/TrainingRequest";
 import dayjs from "dayjs";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
+import { HttpStatusCode } from "axios";
 
 /**
  * [User]
@@ -34,14 +35,15 @@ async function getByUUID(request: Request, response: Response) {
         ],
     });
 
-    // Check if the user even exists in this session, else deny the request
-    if (session?.users?.find((u: User) => u.id == user.id) == null) {
-        response.status(403).send();
+    // Check if the session exists
+    if (session == null) {
+        response.sendStatus(HttpStatusCode.InternalServerError);
         return;
     }
 
-    if (session == null) {
-        response.status(404).send();
+    // Check if the user even exists in this session, else deny the request
+    if (session?.users?.find((u: User) => u.id == user.id) == null) {
+        response.sendStatus(HttpStatusCode.Forbidden);
         return;
     }
 

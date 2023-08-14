@@ -11,10 +11,12 @@ async function getNotifications(request: Request, response: Response) {
             user_id: user.id,
         },
         order: [["createdAt", "desc"]],
-        include: [{
-            association: Notification.associations.author,
-            attributes: ['id', 'first_name', 'last_name']
-        }],
+        include: [
+            {
+                association: Notification.associations.author,
+                attributes: ["id", "first_name", "last_name"],
+            },
+        ],
     });
 
     response.send(notifications);
@@ -34,10 +36,12 @@ async function getUnreadNotifications(request: Request, response: Response) {
             read: false,
         },
         order: [["createdAt", "desc"]],
-        include: [{
-            association: Notification.associations.author,
-            attributes: ['id', 'first_name', 'last_name']
-        }],
+        include: [
+            {
+                association: Notification.associations.author,
+                attributes: ["id", "first_name", "last_name"],
+            },
+        ],
     });
 
     response.send(notifications);

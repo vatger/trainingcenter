@@ -15,7 +15,7 @@ async function createTrainingSession(request: Request, response: Response) {
     // TODO: Check if the mentor of the course is even allowed to create such a session!
 
     const requestUser: User = request.body.user as User;
-    const data = request.body.data as { course_uuid?: string, date?: string, training_type_id?: number, training_station_id?: number, user_ids?: number[] };
+    const data = request.body.data as { course_uuid?: string; date?: string; training_type_id?: number; training_station_id?: number; user_ids?: number[] };
 
     const validation = _TrainingSessionAdminValidator.validateCreateSessionRequest(data);
 
@@ -32,9 +32,9 @@ async function createTrainingSession(request: Request, response: Response) {
     let courseParticipants: number[] = [];
     const course = await Course.findOne({
         where: {
-            uuid: data.course_uuid
+            uuid: data.course_uuid,
         },
-        include: [Course.associations.users]
+        include: [Course.associations.users],
     });
 
     if (course == null) {
@@ -43,14 +43,14 @@ async function createTrainingSession(request: Request, response: Response) {
     }
 
     // Filter the requested users that are also enrolled in this course.
-    data.user_ids?.filter((userID) => {
+    data.user_ids?.filter(userID => {
         if (course.users?.find(courseUser => courseUser.id == userID)) {
             courseParticipants.push(userID);
         }
     });
 
     if (courseParticipants.length == 0) {
-        response.status(400).send({error: "No specified user was a member of this course."});
+        response.status(400).send({ error: "No specified user was a member of this course." });
         return;
     }
 
@@ -61,7 +61,7 @@ async function createTrainingSession(request: Request, response: Response) {
         training_station_id: data.training_station_id,
         date: dayjs.utc(data.date).toDate(),
         training_type_id: data.training_type_id,
-        course_id: course.id
+        course_id: course.id,
     });
 
     if (trainingSession == null) {
@@ -75,8 +75,8 @@ async function createTrainingSession(request: Request, response: Response) {
             where: {
                 user_id: userID,
                 course_id: course.id,
-                training_type_id: data.training_type_id
-            }
+                training_type_id: data.training_type_id,
+            },
         });
 
         if (request == null) {
@@ -87,19 +87,19 @@ async function createTrainingSession(request: Request, response: Response) {
                 course_id: course.id,
                 training_station_id: data.training_station_id,
                 status: "planned",
-                expires: dayjs().add(1, 'month').toDate(),
-                training_session_id: trainingSession.id
+                expires: dayjs().add(1, "month").toDate(),
+                training_session_id: trainingSession.id,
             });
         } else {
             await request.update({
                 status: "planned",
-                training_session_id: trainingSession.id
+                training_session_id: trainingSession.id,
             });
         }
 
         await TrainingSessionBelongsToUsers.create({
             training_session_id: trainingSession.id,
-            user_id: userID
+            user_id: userID,
         });
     }
 

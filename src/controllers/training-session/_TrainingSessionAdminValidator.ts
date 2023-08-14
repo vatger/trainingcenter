@@ -6,26 +6,26 @@ function validateCreateSessionRequest(data: any): ValidatorType {
         {
             name: "user_ids",
             validationObject: data.user_ids,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
         {
             name: "course_uuid",
             validationObject: data.course_uuid,
-            toValidate: [{ val: ValidationOptions.NON_NULL }]
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
         {
             name: "date",
             validationObject: data.date,
-            toValidate: [{ val: ValidationOptions.VALID_DATE }]
+            toValidate: [{ val: ValidationOptions.VALID_DATE }],
         },
         {
             name: "training_type_id",
             validationObject: data.training_type_id,
-            toValidate: [{ val: ValidationOptions.NUMBER }]
-        }
-    ])
+            toValidate: [{ val: ValidationOptions.NUMBER }],
+        },
+    ]);
 }
 
 export default {
-    validateCreateSessionRequest
-}
+    validateCreateSessionRequest,
+};

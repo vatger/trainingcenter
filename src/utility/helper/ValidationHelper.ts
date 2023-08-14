@@ -100,7 +100,7 @@ function validate(options: ValidationType[]): { invalid: boolean; message: any[]
                 case ValidationOptions.VALID_DATE:
                     if (!dayjs(toCheck).isValid()) {
                         invalid = true;
-                        message.push({key: opt.name, code: "VAL_NOT_VALID_DATE", message: "Parameter is not a valid date."})
+                        message.push({ key: opt.name, code: "VAL_NOT_VALID_DATE", message: "Parameter is not a valid date." });
                     }
                     break;
             }
