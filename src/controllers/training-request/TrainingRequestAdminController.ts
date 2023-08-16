@@ -5,6 +5,7 @@ import { TrainingRequest } from "../../models/TrainingRequest";
 import { Op } from "sequelize";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 import { TrainingType } from "../../models/TrainingType";
+import { TrainingSession } from "../../models/TrainingSession";
 
 /**
  * Returns all currently open training requests
@@ -51,6 +52,55 @@ async function getOpen(request: Request, response: Response) {
     });
 
     response.send(trainingRequests);
+}
+
+/**
+ * Returns all the planned sessions of the current user as either mentor or CPT examiner
+ * The differentiation between mentor & examiner must be done in the frontend
+ * @param request
+ * @param response
+ */
+async function getPlanned(request: Request, response: Response) {
+    const user: User = request.body.user;
+
+    let trainingSession = await TrainingSession.findAll({
+        where: {
+            [Op.or]: {
+                mentor_id: user.id,
+                cpt_examiner_id: user.id
+            },
+        },
+        include: [
+            TrainingSession.associations.course,
+            TrainingSession.associations.training_type,
+            {
+                association: TrainingSession.associations.training_session_belongs_to_users,
+                attributes: ['passed']
+            }
+        ]
+    });
+
+    /*
+        For each training session, we need to check whether there is at least one associated participant, who has not yet received a log
+        If the log doesn't exist, then this acts as a reminder to the mentor to fill out this log. Only when all participants have received a log
+        entry, will the session be shown as "complete"
+     */
+    trainingSession = trainingSession.filter((trainingSession: TrainingSession) => {
+        let hasOneNonPassed = false;
+        if (trainingSession.training_session_belongs_to_users == null || trainingSession.training_session_belongs_to_users.length == 0) {
+            return true;
+        }
+
+        for (const userSession of trainingSession.training_session_belongs_to_users) {
+            if (userSession.log_id == null) {
+                hasOneNonPassed = true;
+            }
+        }
+
+        return hasOneNonPassed;
+    })
+
+    response.send(trainingSession);
 }
 
 /**
@@ -186,6 +236,7 @@ async function destroyByUUID(request: Request, response: Response) {
 
 export default {
     getOpen,
+    getPlanned,
     getOpenTrainingRequests,
     getOpenLessonRequests,
     getByUUID,

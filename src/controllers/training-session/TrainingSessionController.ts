@@ -109,7 +109,7 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
         icon: "door-exit",
     });
 
-    response.send({ message: "OK" });
+    response.sendStatus(HttpStatusCode.NoContent);
 }
 
 export default {

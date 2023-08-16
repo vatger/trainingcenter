@@ -6,6 +6,7 @@ import { TrainingType } from "./TrainingType";
 import { Course } from "./Course";
 import { TrainingLog } from "./TrainingLog";
 import { TrainingStation } from "./TrainingStation";
+import { TrainingSessionBelongsToUsers } from "./through/TrainingSessionBelongsToUsers";
 
 export class TrainingSession extends Model<InferAttributes<TrainingSession>, InferCreationAttributes<TrainingSession>> {
     //
@@ -37,6 +38,7 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
     declare training_logs?: NonAttribute<TrainingLog[]>;
     declare training_station?: NonAttribute<TrainingStation>;
     declare course?: NonAttribute<Course>;
+    declare training_session_belongs_to_users?: NonAttribute<TrainingSessionBelongsToUsers[]>;
 
     declare static associations: {
         users: Association<TrainingSession, User>;
@@ -45,6 +47,7 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
         training_type: Association<TrainingSession, TrainingType>;
         training_logs: Association<TrainingSession, TrainingLog>;
         training_station: Association<TrainingSession, TrainingStation>;
+        training_session_belongs_to_users: Association<TrainingSession, TrainingSessionBelongsToUsers>;
         course: Association<TrainingSession, Course>;
     };
 }

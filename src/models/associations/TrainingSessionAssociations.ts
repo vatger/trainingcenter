@@ -38,6 +38,12 @@ export function registerTrainingSessionAssociations() {
         foreignKey: "id",
     });
 
+    TrainingSession.hasMany(TrainingSessionBelongsToUsers, {
+        as: "training_session_belongs_to_users",
+        sourceKey: "id",
+        foreignKey: "training_session_id",
+    });
+
     TrainingSession.hasOne(User, {
         as: "mentor",
         sourceKey: "mentor_id",

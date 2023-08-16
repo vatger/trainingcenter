@@ -145,6 +145,7 @@ router.use(
             "/training-request",
             routerGroup((r: Router) => {
                 r.get("/", TrainingRequestAdminController.getOpen);
+                r.get("/planned", TrainingRequestAdminController.getPlanned);
                 r.get("/training", TrainingRequestAdminController.getOpenTrainingRequests);
                 r.get("/lesson", TrainingRequestAdminController.getOpenLessonRequests);
                 r.get("/:uuid", TrainingRequestAdminController.getByUUID);
