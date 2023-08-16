@@ -67,7 +67,7 @@ async function getPlanned(request: Request, response: Response) {
         where: {
             [Op.or]: {
                 mentor_id: user.id,
-                cpt_examiner_id: user.id
+                cpt_examiner_id: user.id,
             },
         },
         include: [
@@ -75,9 +75,9 @@ async function getPlanned(request: Request, response: Response) {
             TrainingSession.associations.training_type,
             {
                 association: TrainingSession.associations.training_session_belongs_to_users,
-                attributes: ['passed']
-            }
-        ]
+                attributes: ["passed"],
+            },
+        ],
     });
 
     /*
@@ -98,7 +98,7 @@ async function getPlanned(request: Request, response: Response) {
         }
 
         return hasOneNonPassed;
-    })
+    });
 
     response.send(trainingSession);
 }

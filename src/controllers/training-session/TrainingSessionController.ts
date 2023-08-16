@@ -47,7 +47,17 @@ async function getByUUID(request: Request, response: Response) {
         return;
     }
 
-    response.send(session);
+    const requestingUserPassed = await TrainingSessionBelongsToUsers.findOne({
+        where: {
+            user_id: user.id,
+            training_session_id: session.id,
+        },
+    });
+
+    response.send({
+        ...session.toJSON(),
+        user_passed: requestingUserPassed == null ? null : requestingUserPassed.passed,
+    });
 }
 
 async function withdrawFromSessionByUUID(request: Request, response: Response) {

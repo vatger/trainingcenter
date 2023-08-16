@@ -104,7 +104,7 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
             {
                 association: User.associations.training_sessions,
                 through: {
-                    as: 'single_user_through',
+                    as: "training_session_belongs_to_users",
                     attributes: ["passed", "log_id"],
                     where: {
                         user_id: user.id,
