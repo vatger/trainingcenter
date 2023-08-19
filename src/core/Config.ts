@@ -81,6 +81,9 @@ export const Config = {
         HOST: process.env.DB_HOST,
         PORT: Number(process.env.DB_PORT),
     },
+
+    DATE_FORMAT: "DD.MM.YYYY",
+    DATETIME_FORMAT: "DD.MM.YYYY HH:mm",
 };
 
 export const SequelizeConfig: Options = {

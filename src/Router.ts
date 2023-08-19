@@ -157,6 +157,7 @@ router.use(
             "/training-session",
             routerGroup((r: Router) => {
                 r.put("/training", TrainingSessionAdminController.createTrainingSession);
+                r.delete("/training", TrainingSessionAdminController.deleteTrainingSession);
                 // TODO r.put("/lesson");
             })
         );
