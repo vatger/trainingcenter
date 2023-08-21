@@ -145,7 +145,6 @@ router.use(
             "/training-request",
             routerGroup((r: Router) => {
                 r.get("/", TrainingRequestAdminController.getOpen);
-                r.get("/planned", TrainingRequestAdminController.getPlanned);
                 r.get("/training", TrainingRequestAdminController.getOpenTrainingRequests);
                 r.get("/lesson", TrainingRequestAdminController.getOpenLessonRequests);
                 r.get("/:uuid", TrainingRequestAdminController.getByUUID);
@@ -156,8 +155,11 @@ router.use(
         r.use(
             "/training-session",
             routerGroup((r: Router) => {
+                r.get("/planned", TrainingSessionAdminController.getPlanned);
                 r.put("/training", TrainingSessionAdminController.createTrainingSession);
                 r.delete("/training", TrainingSessionAdminController.deleteTrainingSession);
+                r.get("/:uuid", TrainingSessionAdminController.getByUUID);
+                r.patch("/:uuid", TrainingSessionAdminController.updateByUUID);
                 // TODO r.put("/lesson");
             })
         );

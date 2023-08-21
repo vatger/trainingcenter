@@ -10,6 +10,8 @@ import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSess
 import { HttpStatusCode } from "axios";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 import { Config } from "../../core/Config";
+import { TrainingType } from "../../models/TrainingType";
+import { Op } from "sequelize";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -109,20 +111,15 @@ async function createTrainingSession(request: Request, response: Response) {
     response.send(trainingSession);
 }
 
-/**
- * Deletes a training session by a mentor
- * All users that are participants of this course are placed back in the queue
- */
-async function deleteTrainingSession(request: Request, response: Response) {
-    const user: User = request.body.user;
-    const data = request.body as {training_session_id: number};
+async function updateByUUID(request: Request, response: Response) {
+    const user = request.body.user;
+    const sessionUUID = request.params.uuid;
+    const data = request.body as { date: string; training_station: string };
 
     const session = await TrainingSession.findOne({
         where: {
-            id: data.training_session_id,
-            mentor_id: user.id,
+            uuid: sessionUUID,
         },
-        include: [TrainingSession.associations.users, TrainingSession.associations.course]
     });
 
     if (session == null) {
@@ -130,26 +127,62 @@ async function deleteTrainingSession(request: Request, response: Response) {
         return;
     }
 
-    session.users?.forEach((participant) => {
+    await session.update({
+        date: dayjs.utc(data.date).toDate(),
+        training_station_id: data.training_station == "-1" ? null : Number(data.training_station),
+    });
+
+    response.sendStatus(HttpStatusCode.Ok);
+}
+
+/**
+ * Deletes a training session by a mentor
+ * All users that are participants of this course are placed back in the queue
+ */
+async function deleteTrainingSession(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const data = request.body as { training_session_id: number };
+
+    const session = await TrainingSession.findOne({
+        where: {
+            id: data.training_session_id,
+            mentor_id: user.id,
+        },
+        include: [TrainingSession.associations.users, TrainingSession.associations.course],
+    });
+
+    if (session == null) {
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
+    }
+
+    session.users?.forEach(participant => {
         NotificationLibrary.sendUserNotification({
             user_id: participant.id,
             author_id: user.id,
-            message_de: `Deine Session im Kurs ${session.course?.name} am ${dayjs.utc(session.date).format(Config.DATE_FORMAT)} wurde gelöscht. Dein Request wurde wieder in der Warteliste plaziert.`,
-            message_en: `Your Session in the course ${session.course?.name} on ${dayjs.utc(session.date).format(Config.DATE_FORMAT)} was deleted. Your Request was placed in the waiting list.`,
+            message_de: `Deine Session im Kurs ${session.course?.name} am ${dayjs
+                .utc(session.date)
+                .format(Config.DATE_FORMAT)} wurde gelöscht. Dein Request wurde wieder in der Warteliste plaziert.`,
+            message_en: `Your Session in the course ${session.course?.name} on ${dayjs
+                .utc(session.date)
+                .format(Config.DATE_FORMAT)} was deleted. Your Request was placed in the waiting list.`,
             severity: "danger",
-            icon: "alert-triangle"
+            icon: "alert-triangle",
         });
     });
 
     // Update training requests to reflect the now non-existent session
-    await TrainingRequest.update({
-        status: "requested",
-        training_session_id: null
-    }, {
-        where: {
-            training_session_id: session.id
+    await TrainingRequest.update(
+        {
+            status: "requested",
+            training_session_id: null,
+        },
+        {
+            where: {
+                training_session_id: session.id,
+            },
         }
-    });
+    );
 
     // Destroying the session also destroys the related training_session_belongs_to_users
     // entries with this course, due to their foreign relationships
@@ -158,7 +191,99 @@ async function deleteTrainingSession(request: Request, response: Response) {
     response.sendStatus(HttpStatusCode.NoContent);
 }
 
+async function getByUUID(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const params = request.params as { uuid: string };
+
+    const trainingSession = await TrainingSession.findOne({
+        where: {
+            uuid: params.uuid,
+        },
+        include: [
+            TrainingSession.associations.course,
+            {
+                association: TrainingSession.associations.users,
+                through: {
+                    attributes: [],
+                },
+            },
+            {
+                association: TrainingSession.associations.training_type,
+                include: [
+                    {
+                        association: TrainingType.associations.training_stations,
+                        through: {
+                            attributes: [],
+                        },
+                    },
+                ],
+            },
+            TrainingSession.associations.training_station,
+        ],
+    });
+
+    if (trainingSession == null) {
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
+    }
+
+    response.send(trainingSession);
+}
+
+/**
+ * Returns all the planned sessions of the current user as either mentor or CPT examiner
+ * The differentiation between mentor & examiner must be done in the frontend
+ * @param request
+ * @param response
+ */
+async function getPlanned(request: Request, response: Response) {
+    const user: User = request.body.user;
+
+    let trainingSession = await TrainingSession.findAll({
+        where: {
+            [Op.or]: {
+                mentor_id: user.id,
+                cpt_examiner_id: user.id,
+            },
+        },
+        order: [["date", "asc"]],
+        include: [
+            TrainingSession.associations.course,
+            TrainingSession.associations.training_type,
+            {
+                association: TrainingSession.associations.training_session_belongs_to_users,
+                attributes: ["passed"],
+            },
+        ],
+    });
+
+    /*
+        For each training session, we need to check whether there is at least one associated participant, who has not yet received a log
+        If the log doesn't exist, then this acts as a reminder to the mentor to fill out this log. Only when all participants have received a log
+        entry, will the session be shown as "complete"
+     */
+    trainingSession = trainingSession.filter((trainingSession: TrainingSession) => {
+        let hasOneNonPassed = false;
+        if (trainingSession.training_session_belongs_to_users == null || trainingSession.training_session_belongs_to_users.length == 0) {
+            return true;
+        }
+
+        for (const userSession of trainingSession.training_session_belongs_to_users) {
+            if (userSession.log_id == null) {
+                hasOneNonPassed = true;
+            }
+        }
+
+        return hasOneNonPassed;
+    });
+
+    response.send(trainingSession);
+}
+
 export default {
+    getByUUID,
     createTrainingSession,
-    deleteTrainingSession
+    updateByUUID,
+    deleteTrainingSession,
+    getPlanned,
 };
