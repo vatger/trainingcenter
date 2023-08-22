@@ -114,7 +114,7 @@ async function createTrainingSession(request: Request, response: Response) {
 async function updateByUUID(request: Request, response: Response) {
     const user = request.body.user;
     const sessionUUID = request.params.uuid;
-    const data = request.body as { date: string; training_station: string };
+    const data = request.body as { date: string; training_station: string};
 
     const session = await TrainingSession.findOne({
         where: {
@@ -280,10 +280,68 @@ async function getPlanned(request: Request, response: Response) {
     response.send(trainingSession);
 }
 
+async function getParticipants(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const params = request.params as {uuid: string};
+
+    const session = await TrainingSession.findOne({
+        where: {
+            uuid: params.uuid,
+            [Op.or]: {
+                mentor_id: user.id,
+                cpt_examiner_id: user.id
+            }
+        },
+        include: [{
+            association: TrainingSession.associations.users,
+            through: {
+                attributes: []
+            }
+        }]
+    });
+
+    if (session == null) {
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
+    }
+
+    response.send(session.users ?? []);
+}
+
+async function getLogTemplate(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const params = request.params as {uuid: string};
+
+    const session = await TrainingSession.findOne({
+        where: {
+            uuid: params.uuid,
+            [Op.or]: {
+                mentor_id: user.id,
+                cpt_examiner_id: user.id
+            }
+        },
+        include: {
+            association: TrainingSession.associations.training_type,
+            include: [{
+                association: TrainingType.associations.log_template
+            }]
+        }
+    });
+
+    if (session == null || session.training_type?.log_template == null) {
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
+    }
+
+    response.send(session.training_type?.log_template);
+}
+
 export default {
     getByUUID,
     createTrainingSession,
     updateByUUID,
+    getParticipants,
+    getLogTemplate,
     deleteTrainingSession,
     getPlanned,
 };

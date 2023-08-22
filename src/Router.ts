@@ -160,7 +160,9 @@ router.use(
                 r.delete("/training", TrainingSessionAdminController.deleteTrainingSession);
                 r.get("/:uuid", TrainingSessionAdminController.getByUUID);
                 r.patch("/:uuid", TrainingSessionAdminController.updateByUUID);
-                // TODO r.put("/lesson");
+
+                r.get("/log-template/:uuid", TrainingSessionAdminController.getLogTemplate);
+                r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
             })
         );
 
