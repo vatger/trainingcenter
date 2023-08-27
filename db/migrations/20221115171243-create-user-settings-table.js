@@ -16,22 +16,22 @@ const DataModelAttributes = {
     language: {
         type: DataType.ENUM(...LanguageEnum),
         allowNull: false,
-        default: "de",
+        defaultValue: "de",
     },
     dark_mode: {
         type: DataType.BOOLEAN,
         allowNull: false,
-        default: false,
+        defaultValue: false,
     },
     additional_emails: {
         type: DataType.JSON(),
         allowNull: true,
-        default: [],
+        defaultValue: [],
     },
     email_notifications_enabled: {
         type: DataType.BOOLEAN,
         allowNull: false,
-        default: true,
+        defaultValue: true,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

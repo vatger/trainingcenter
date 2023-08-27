@@ -23,7 +23,7 @@ const DataModelAttributes = {
     attempts: {
         type: DataType.TINYINT({ unsigned: true }),
         allowNull: false,
-        default: 0,
+        defaultValue: 0,
     },
     available_at: {
         type: DataType.DATE,
@@ -33,7 +33,7 @@ const DataModelAttributes = {
     },
     status: {
         type: DataType.ENUM(...jobStatusEnum),
-        default: "queued",
+        defaultValue: "queued",
         allowNull: false,
     },
     createdAt: DataType.DATE,

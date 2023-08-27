@@ -9,7 +9,7 @@ export class TrainingLog extends Model<InferAttributes<TrainingLog>, InferCreati
     //
     declare uuid: string;
     declare log_public: boolean;
-    declare content: string;
+    declare content: any;
     declare author_id: ForeignKey<User["id"]>;
 
     //

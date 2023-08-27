@@ -20,6 +20,7 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
+    declare completed: CreationOptional<boolean>;
     declare date: CreationOptional<Date> | null;
     declare cpt_examiner_id: CreationOptional<number> | null;
     declare cpt_atsim_passed: CreationOptional<boolean> | null;
@@ -62,6 +63,11 @@ TrainingSession.init(
         uuid: {
             type: DataType.UUID,
             allowNull: false,
+        },
+        completed: {
+            type: DataType.BOOLEAN,
+            allowNull: false,
+            defaultValue: false,
         },
         mentor_id: {
             type: DataType.INTEGER,

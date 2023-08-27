@@ -33,13 +33,13 @@ const DataModelAttributes = {
         type: DataType.BOOLEAN,
         comment: "If true then course is visible",
         allowNull: false,
-        default: true,
+        defaultValue: true,
     },
     self_enrollment_enabled: {
         type: DataType.BOOLEAN,
         comment: "If true a user can self-enrol in this course",
         allowNull: false,
-        default: true,
+        defaultValue: true,
     },
     initial_training_type: {
         type: DataType.INTEGER,

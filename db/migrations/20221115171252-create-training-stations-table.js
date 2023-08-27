@@ -13,12 +13,12 @@ const DataModelAttributes = {
     frequency: {
         type: DataType.FLOAT(6, 3),
         allowNull: false,
-        default: 199.998,
+        defaultValue: 199.998,
     },
     deactivated: {
         type: DataType.BOOLEAN,
         allowNull: false,
-        default: false,
+        defaultValue: false,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

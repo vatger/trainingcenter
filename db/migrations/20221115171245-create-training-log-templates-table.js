@@ -13,7 +13,7 @@ const DataModelAttributes = {
     content: {
         type: DataType.JSON,
         allowNull: false,
-        default: [],
+        defaultValue: [],
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

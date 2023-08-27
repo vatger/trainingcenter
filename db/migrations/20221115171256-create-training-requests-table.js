@@ -59,7 +59,7 @@ const DataModelAttributes = {
     status: {
         type: DataType.ENUM(...RequestStatusEnum),
         allowNull: false,
-        default: "requested",
+        defaultValue: "requested",
     },
     expires: {
         type: DataType.DATE,

@@ -40,12 +40,12 @@ const DataModelAttributes = {
     skill_set: {
         type: DataType.JSON,
         allowNull: true,
-        default: null,
+        defaultValue: null,
     },
     completed: {
         type: DataType.BOOLEAN,
         allowNull: false,
-        default: false,
+        defaultValue: false,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

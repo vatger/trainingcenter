@@ -16,7 +16,7 @@ const DataModelAttributes = {
     type: {
         type: DataType.ENUM(...trainingTypeEnum),
         comment: "Type of Training Type (ie. Sim Session - Sim)",
-        default: "Online",
+        defaultValue: "Online",
         allowNull: false,
     },
     log_template_id: {

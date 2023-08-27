@@ -12,6 +12,7 @@ import NotificationLibrary from "../../libraries/notification/NotificationLibrar
 import { Config } from "../../core/Config";
 import { TrainingType } from "../../models/TrainingType";
 import { Op } from "sequelize";
+import { TrainingLog } from "../../models/TrainingLog";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -114,7 +115,7 @@ async function createTrainingSession(request: Request, response: Response) {
 async function updateByUUID(request: Request, response: Response) {
     const user = request.body.user;
     const sessionUUID = request.params.uuid;
-    const data = request.body as { date: string; training_station: string};
+    const data = request.body as { date: string; training_station: string };
 
     const session = await TrainingSession.findOne({
         where: {
@@ -245,6 +246,7 @@ async function getPlanned(request: Request, response: Response) {
                 mentor_id: user.id,
                 cpt_examiner_id: user.id,
             },
+            completed: false,
         },
         order: [["date", "asc"]],
         include: [
@@ -252,29 +254,9 @@ async function getPlanned(request: Request, response: Response) {
             TrainingSession.associations.training_type,
             {
                 association: TrainingSession.associations.training_session_belongs_to_users,
-                attributes: ["passed"],
+                attributes: ["log_id"],
             },
         ],
-    });
-
-    /*
-        For each training session, we need to check whether there is at least one associated participant, who has not yet received a log
-        If the log doesn't exist, then this acts as a reminder to the mentor to fill out this log. Only when all participants have received a log
-        entry, will the session be shown as "complete"
-     */
-    trainingSession = trainingSession.filter((trainingSession: TrainingSession) => {
-        let hasOneNonPassed = false;
-        if (trainingSession.training_session_belongs_to_users == null || trainingSession.training_session_belongs_to_users.length == 0) {
-            return true;
-        }
-
-        for (const userSession of trainingSession.training_session_belongs_to_users) {
-            if (userSession.log_id == null) {
-                hasOneNonPassed = true;
-            }
-        }
-
-        return hasOneNonPassed;
     });
 
     response.send(trainingSession);
@@ -282,22 +264,24 @@ async function getPlanned(request: Request, response: Response) {
 
 async function getParticipants(request: Request, response: Response) {
     const user: User = request.body.user;
-    const params = request.params as {uuid: string};
+    const params = request.params as { uuid: string };
 
     const session = await TrainingSession.findOne({
         where: {
             uuid: params.uuid,
             [Op.or]: {
                 mentor_id: user.id,
-                cpt_examiner_id: user.id
-            }
+                cpt_examiner_id: user.id,
+            },
         },
-        include: [{
-            association: TrainingSession.associations.users,
-            through: {
-                attributes: []
-            }
-        }]
+        include: [
+            {
+                association: TrainingSession.associations.users,
+                through: {
+                    attributes: [],
+                },
+            },
+        ],
     });
 
     if (session == null) {
@@ -310,22 +294,24 @@ async function getParticipants(request: Request, response: Response) {
 
 async function getLogTemplate(request: Request, response: Response) {
     const user: User = request.body.user;
-    const params = request.params as {uuid: string};
+    const params = request.params as { uuid: string };
 
     const session = await TrainingSession.findOne({
         where: {
             uuid: params.uuid,
             [Op.or]: {
                 mentor_id: user.id,
-                cpt_examiner_id: user.id
-            }
+                cpt_examiner_id: user.id,
+            },
         },
         include: {
             association: TrainingSession.associations.training_type,
-            include: [{
-                association: TrainingType.associations.log_template
-            }]
-        }
+            include: [
+                {
+                    association: TrainingType.associations.log_template,
+                },
+            ],
+        },
     });
 
     if (session == null || session.training_type?.log_template == null) {
@@ -336,6 +322,58 @@ async function getLogTemplate(request: Request, response: Response) {
     response.send(session.training_type?.log_template);
 }
 
+async function createTrainingLogs(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const params = request.params as { uuid: string };
+    const body = request.body as { user_id: number; log_public: boolean; passed: boolean; user_log: any[] }[];
+
+    if (body == null || body.length == 0) {
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
+    }
+
+    const session = await TrainingSession.findOne({
+        where: {
+            uuid: params.uuid,
+        },
+    });
+
+    if (session == null) {
+        response.sendStatus(HttpStatusCode.InternalServerError);
+        return;
+    }
+
+    for (let i = 0; i < body.length; i++) {
+        const user_id = body[i].user_id;
+
+        const trainingLog = await TrainingLog.create({
+            uuid: generateUUID(),
+            content: body[i].user_log,
+            log_public: body[i].log_public,
+            author_id: user.id,
+        });
+
+        await TrainingSessionBelongsToUsers.update(
+            {
+                log_id: trainingLog.id,
+                passed: body[i].passed,
+            },
+            {
+                where: {
+                    user_id: body[i].user_id,
+                    training_session_id: session?.id,
+                },
+            }
+        );
+    }
+
+    await session.update({
+        completed: true,
+    });
+
+    response.sendStatus(HttpStatusCode.Ok);
+}
+
 export default {
     getByUUID,
     createTrainingSession,
@@ -343,5 +381,6 @@ export default {
     getParticipants,
     getLogTemplate,
     deleteTrainingSession,
+    createTrainingLogs,
     getPlanned,
 };

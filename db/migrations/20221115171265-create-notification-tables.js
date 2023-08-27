@@ -53,7 +53,7 @@ const CourseInformationModelAttributes = {
     read: {
         type: DataType.BOOLEAN,
         allowNull: false,
-        default: true,
+        defaultValue: true,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

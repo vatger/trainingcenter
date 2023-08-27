@@ -39,7 +39,7 @@ const DataModelAttributes = {
     passed: {
         type: DataType.BOOLEAN,
         allowNull: true,
-        default: null,
+        defaultValue: null,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

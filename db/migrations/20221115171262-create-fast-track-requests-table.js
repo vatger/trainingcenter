@@ -39,7 +39,7 @@ const DataModelAttributes = {
     status: {
         type: DataType.INTEGER,
         allowNull: false,
-        default: 0,
+        defaultValue: 0,
     },
     rating: {
         type: DataType.INTEGER,

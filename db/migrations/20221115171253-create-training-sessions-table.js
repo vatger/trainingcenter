@@ -10,6 +10,11 @@ const DataModelAttributes = {
         type: DataType.UUID,
         allowNull: false,
     },
+    completed: {
+        type: DataType.BOOLEAN,
+        allowNull: false,
+        defaultValue: false,
+    },
     mentor_id: {
         type: DataType.INTEGER,
         allowNull: false,
@@ -33,7 +38,7 @@ const DataModelAttributes = {
     cpt_atsim_passed: {
         type: DataType.BOOLEAN,
         allowNull: true,
-        default: false,
+        defaultValue: false,
     },
     training_station_id: {
         type: DataType.INTEGER,

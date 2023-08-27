@@ -16,13 +16,13 @@ const DataModelAttributes = {
     action: {
         type: DataType.JSON,
         comment: "Action-Array, including string array of automated actions",
-        default: [],
+        defaultValue: [],
         allowNull: false,
     },
     type: {
         type: DataType.ENUM(...ActionTypeEnum),
         allowNull: false,
-        default: "action",
+        defaultValue: "action",
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

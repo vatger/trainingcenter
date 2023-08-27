@@ -33,7 +33,7 @@ const DataModelAttributes = {
         comment:
             "If true, ALL users of this mentor group can edit the course assuming the can_manage_course flag is set for the user on users_belong_to_mentor_groups.",
         allowNull: false,
-        default: false,
+        defaultValue: false,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

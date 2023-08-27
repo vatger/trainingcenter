@@ -30,20 +30,20 @@ const DataModelAttributes = {
     },
     solo: {
         type: DataType.BOOLEAN,
-        default: false,
+        defaultValue: false,
         allowNull: false,
     },
     solo_rating: {
         type: DataType.ENUM(...RatingEnum),
         allowNull: false,
-        default: "s1",
+        defaultValue: "s1",
     },
     solo_expires: {
         type: DataType.DATE,
     },
     solo_extension_count: {
         type: DataType.INTEGER,
-        default: 0,
+        defaultValue: 0,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
