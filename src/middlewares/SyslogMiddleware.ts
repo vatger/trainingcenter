@@ -12,7 +12,7 @@ export async function syslogMiddleware(request: Request, response: Response, nex
     await SysLog.create({
         path: request.url,
         method: request.method,
-        remote_addr: request.socket.remoteAddress,
+        remote_addr: request.ip,
         user_id: uid === 0 ? null : uid.toString(),
     });
 

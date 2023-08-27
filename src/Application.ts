@@ -27,6 +27,8 @@ initializeApplication()
         application.use(bodyParser.json());
         application.use(fileUpload({ debug: Config.APP_DEBUG, useTempFiles: true, tempFileDir: Config.FILE_TMP_LOCATION }));
 
+        application.set("trust proxy", ["loopback", "172.16.0.201"]);
+
         // Start listening
         application.listen(Config.APP_PORT, Config.APP_HOST ?? "127.0.0.1", () => {
             Logger.log(LogLevels.LOG_WARN, `Debug mode: ${Config.APP_DEBUG ? "ENABLED" : "DISABLED"}`);
