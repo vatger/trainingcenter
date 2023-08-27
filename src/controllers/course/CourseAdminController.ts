@@ -6,6 +6,7 @@ import { MentorGroupsBelongsToCourses } from "../../models/through/MentorGroupsB
 import CourseAdminValidator from "../_validators/CourseAdminValidator";
 import { ValidatorType } from "../_validators/ValidatorType";
 import { HttpStatusCode } from "axios";
+import { TrainingType } from "../../models/TrainingType";
 
 /**
  * Gets all courses
@@ -116,8 +117,49 @@ async function create(request: Request, response: Response) {
     response.send(course);
 }
 
+async function getMentorable(request: Request, response: Response) {
+    const user: User = request.body.user;
+
+    const userWithCourses = await User.findOne({
+        where: {
+            id: user.id
+        },
+        include: [{
+            association: User.associations.mentor_groups,
+            through: {attributes: []},
+            include: [{
+                association: MentorGroup.associations.courses,
+                through: {attributes: []},
+                include: [{
+                    association: Course.associations.training_types,
+                    through: {attributes: []},
+                    include: [{
+                        association: TrainingType.associations.training_stations,
+                        through: {attributes: []}
+                    }]
+                }]
+            }]
+        }]
+    });
+
+    if (userWithCourses == null || userWithCourses.mentor_groups == null) {
+        response.sendStatus(HttpStatusCode.InternalServerError);
+        return;
+    }
+
+    let courses: Course[] = [];
+    for (const mentorGroup of userWithCourses.mentor_groups) {
+        for (const course of mentorGroup.courses ?? []) {
+            courses.push(course);
+        }
+    }
+
+    response.send(courses);
+}
+
 export default {
     create,
     getAll,
     getEditable,
+    getMentorable
 };

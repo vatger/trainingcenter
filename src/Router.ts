@@ -84,6 +84,7 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/training-request", UserTrainingController.getRequests);
                 r.get("/training-request/:course_uuid", UserTrainingController.getRequestsByUUID);
+                r.get("/training-request/:course_uuid/active", UserTrainingController.getActiveRequestsByUUID);
 
                 r.get("/mentor-group", UserMentorGroupController.getMentorGroups);
                 r.get("/mentor-group/cm", UserMentorGroupController.getCourseManagerMentorGroups);
@@ -164,7 +165,7 @@ router.use(
                 r.get("/log-template/:uuid", TrainingSessionAdminController.getLogTemplate);
                 r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
 
-                r.post("/log/:uuid", TrainingSessionAdminController.createTrainingLogs);
+                r.put("/log/:uuid", TrainingSessionAdminController.createTrainingLogs);
             })
         );
 
@@ -174,6 +175,7 @@ router.use(
                 r.get("/", CourseAdministrationController.getAll);
                 r.put("/", CourseAdministrationController.create);
 
+                r.get("/mentorable", CourseAdministrationController.getMentorable);
                 r.get("/editable", CourseAdministrationController.getEditable);
 
                 r.get("/info/", CourseInformationAdministrationController.getByUUID);

@@ -43,6 +43,7 @@ export class Course extends Model<InferAttributes<Course>, InferCreationAttribut
 
     declare static associations: {
         training_type: Association<Course, TrainingType>;
+        training_types: Association<Course, TrainingType>;
         action_requirements: Association<Course, ActionRequirement>;
         mentor_groups: Association<Course, MentorGroup>;
         skill_template: Association<Course, CourseSkillTemplate>;

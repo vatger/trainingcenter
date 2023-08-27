@@ -82,6 +82,7 @@ async function createTrainingSession(request: Request, response: Response) {
                 user_id: userID,
                 course_id: course.id,
                 training_type_id: data.training_type_id,
+                status: "requested"
             },
         });
 
@@ -365,6 +366,15 @@ async function createTrainingLogs(request: Request, response: Response) {
                 },
             }
         );
+
+        await TrainingRequest.update({
+            status: "completed"
+        }, {
+            where: {
+                user_id: user_id,
+                training_session_id: session.id
+            }
+        });
     }
 
     await session.update({

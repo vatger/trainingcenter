@@ -2,6 +2,8 @@ import { Request, Response } from "express";
 import { User } from "../../models/User";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { Course } from "../../models/Course";
+import { HttpStatusCode } from "axios";
+import { Op } from "sequelize";
 
 /**
  * Get a list of all training-requests made by this user
@@ -46,7 +48,36 @@ async function getRequestsByUUID(request: Request, response: Response) {
     response.send(trainingRequests);
 }
 
+async function getActiveRequestsByUUID(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const params = request.params as {course_uuid: string};
+
+    const course = await Course.findOne({
+        where: {
+            uuid: params.course_uuid
+        }
+    });
+
+    if (course == null) {
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
+    }
+
+    const trainingRequests = await TrainingRequest.findAll({
+        where: {
+            user_id: user.id,
+            course_id: course.id,
+        },
+        include: [TrainingRequest.associations.training_type, TrainingRequest.associations.training_station],
+    });
+
+    response.send(trainingRequests.filter((t) => {
+        return t.status == "requested" || t.status == "planned"
+    }));
+}
+
 export default {
     getRequests,
     getRequestsByUUID,
+    getActiveRequestsByUUID
 };
