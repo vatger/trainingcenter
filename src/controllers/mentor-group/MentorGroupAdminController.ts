@@ -66,6 +66,25 @@ async function create(request: Request, response: Response) {
 }
 
 /**
+ * Returns a minimal list of all mentor-groups
+ * Should be available to all (mentors), since this is used in the course mentor-group management too!
+ * @param request
+ * @param response
+ */
+async function getAll(request: Request, response: Response) {
+    const mentorGroups = await MentorGroup.findAll({
+        include: {
+            association: MentorGroup.associations.users,
+            attributes: ["id", "first_name", "last_name"],
+            through: {
+                attributes: []
+            }
+        }
+    });
+    response.send(mentorGroups);
+}
+
+/**
  *
  * @param request
  * @param response
@@ -156,6 +175,7 @@ async function getAllCourseManager(request: Request, response: Response) {
 
 export default {
     create,
+    getAll,
     getByID,
     getAllAdmin,
     getAllCourseManager,

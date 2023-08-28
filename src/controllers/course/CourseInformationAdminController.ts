@@ -8,6 +8,8 @@ import { ValidatorType } from "../_validators/ValidatorType";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { TrainingSession } from "../../models/TrainingSession";
 import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSessionBelongsToUsers";
+import { User } from "../../models/User";
+import { HttpStatusCode } from "axios";
 
 /**
  * Gets the basic course information associated with this course
@@ -187,9 +189,23 @@ async function update(request: Request, response: Response) {
     response.send(course);
 }
 
+async function addMentorGroup(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const body = request.body as {mentor_group_id: number; course_id: number; can_edit: boolean};
+
+    await MentorGroupsBelongsToCourses.create({
+        mentor_group_id: body.mentor_group_id,
+        course_id: body.course_id,
+        can_edit_course: body.can_edit
+    });
+
+    response.sendStatus(HttpStatusCode.Created);
+}
+
 export default {
     getByUUID,
     getMentorGroups,
+    addMentorGroup,
     deleteMentorGroup,
     getUsers,
     deleteUser,

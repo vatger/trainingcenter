@@ -184,6 +184,7 @@ router.use(
                 r.get("/info/user", CourseInformationAdministrationController.getUsers);
                 r.patch("/info/update", CourseInformationAdministrationController.update);
                 r.delete("/info/user", CourseInformationAdministrationController.deleteUser);
+                r.put("/info/mentor-group", CourseInformationAdministrationController.addMentorGroup);
                 r.delete("/info/mentor-group", CourseInformationAdministrationController.deleteMentorGroup);
             })
         );
@@ -231,6 +232,8 @@ router.use(
             "/mentor-group",
             routerGroup((r: Router) => {
                 r.post("/", MentorGroupAdministrationController.create);
+
+                r.get("/", MentorGroupAdministrationController.getAll);
 
                 r.get("/admin", MentorGroupAdministrationController.getAllAdmin);
 
