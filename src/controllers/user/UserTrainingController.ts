@@ -50,12 +50,12 @@ async function getRequestsByUUID(request: Request, response: Response) {
 
 async function getActiveRequestsByUUID(request: Request, response: Response) {
     const user: User = request.body.user;
-    const params = request.params as {course_uuid: string};
+    const params = request.params as { course_uuid: string };
 
     const course = await Course.findOne({
         where: {
-            uuid: params.course_uuid
-        }
+            uuid: params.course_uuid,
+        },
     });
 
     if (course == null) {
@@ -71,13 +71,15 @@ async function getActiveRequestsByUUID(request: Request, response: Response) {
         include: [TrainingRequest.associations.training_type, TrainingRequest.associations.training_station],
     });
 
-    response.send(trainingRequests.filter((t) => {
-        return t.status == "requested" || t.status == "planned"
-    }));
+    response.send(
+        trainingRequests.filter(t => {
+            return t.status == "requested" || t.status == "planned";
+        })
+    );
 }
 
 export default {
     getRequests,
     getRequestsByUUID,
-    getActiveRequestsByUUID
+    getActiveRequestsByUUID,
 };

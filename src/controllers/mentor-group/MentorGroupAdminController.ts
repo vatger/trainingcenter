@@ -77,9 +77,9 @@ async function getAll(request: Request, response: Response) {
             association: MentorGroup.associations.users,
             attributes: ["id", "first_name", "last_name"],
             through: {
-                attributes: []
-            }
-        }
+                attributes: [],
+            },
+        },
     });
     response.send(mentorGroups);
 }

@@ -122,24 +122,32 @@ async function getMentorable(request: Request, response: Response) {
 
     const userWithCourses = await User.findOne({
         where: {
-            id: user.id
+            id: user.id,
         },
-        include: [{
-            association: User.associations.mentor_groups,
-            through: {attributes: []},
-            include: [{
-                association: MentorGroup.associations.courses,
-                through: {attributes: []},
-                include: [{
-                    association: Course.associations.training_types,
-                    through: {attributes: []},
-                    include: [{
-                        association: TrainingType.associations.training_stations,
-                        through: {attributes: []}
-                    }]
-                }]
-            }]
-        }]
+        include: [
+            {
+                association: User.associations.mentor_groups,
+                through: { attributes: [] },
+                include: [
+                    {
+                        association: MentorGroup.associations.courses,
+                        through: { attributes: [] },
+                        include: [
+                            {
+                                association: Course.associations.training_types,
+                                through: { attributes: [] },
+                                include: [
+                                    {
+                                        association: TrainingType.associations.training_stations,
+                                        through: { attributes: [] },
+                                    },
+                                ],
+                            },
+                        ],
+                    },
+                ],
+            },
+        ],
     });
 
     if (userWithCourses == null || userWithCourses.mentor_groups == null) {
@@ -161,5 +169,5 @@ export default {
     create,
     getAll,
     getEditable,
-    getMentorable
+    getMentorable,
 };

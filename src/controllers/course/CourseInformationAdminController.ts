@@ -191,12 +191,12 @@ async function update(request: Request, response: Response) {
 
 async function addMentorGroup(request: Request, response: Response) {
     const user: User = request.body.user;
-    const body = request.body as {mentor_group_id: number; course_id: number; can_edit: boolean};
+    const body = request.body as { mentor_group_id: number; course_id: number; can_edit: boolean };
 
     await MentorGroupsBelongsToCourses.create({
         mentor_group_id: body.mentor_group_id,
         course_id: body.course_id,
-        can_edit_course: body.can_edit
+        can_edit_course: body.can_edit,
     });
 
     response.sendStatus(HttpStatusCode.Created);

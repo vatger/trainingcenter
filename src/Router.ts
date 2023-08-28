@@ -29,6 +29,7 @@ import TrainingSessionAdminController from "./controllers/training-session/Train
 import TrainingSessionController from "./controllers/training-session/TrainingSessionController";
 import UserCourseAdminController from "./controllers/user/UserCourseAdminController";
 import SessionController from "./controllers/login/SessionController";
+import UserSettingsController from "./controllers/user/UserSettingsController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -54,6 +55,8 @@ router.use(
     "/",
     routerGroup((r: Router) => {
         r.use(authMiddleware);
+
+        r.patch("/settings", UserSettingsController.updateSettings);
 
         r.get("/sessions", SessionController.getUserSessions);
         r.delete("/session", SessionController.deleteUserSession);
