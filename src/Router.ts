@@ -235,10 +235,14 @@ router.use(
             "/mentor-group",
             routerGroup((r: Router) => {
                 r.post("/", MentorGroupAdministrationController.create);
+                r.patch("/", MentorGroupAdministrationController.update);
 
                 r.get("/", MentorGroupAdministrationController.getAll);
 
                 r.get("/admin", MentorGroupAdministrationController.getAllAdmin);
+                r.get("/members", MentorGroupAdministrationController.getMembers);
+                r.put("/member", MentorGroupAdministrationController.addMember);
+                r.delete("/member", MentorGroupAdministrationController.removeMember);
 
                 r.get("/course-manager", MentorGroupAdministrationController.getAllCourseManager);
 

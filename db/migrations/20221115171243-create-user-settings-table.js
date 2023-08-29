@@ -18,11 +18,6 @@ const DataModelAttributes = {
         allowNull: false,
         defaultValue: "de",
     },
-    dark_mode: {
-        type: DataType.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-    },
     additional_emails: {
         type: DataType.JSON(),
         allowNull: true,

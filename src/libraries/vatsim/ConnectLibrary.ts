@@ -214,7 +214,6 @@ export class VatsimConnectLibrary {
             defaults: {
                 user_id: this.m_userData.data.cid,
                 language: "de",
-                dark_mode: false,
                 additional_emails: [],
                 email_notifications_enabled: true,
             },

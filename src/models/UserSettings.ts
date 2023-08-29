@@ -9,7 +9,6 @@ export class UserSettings extends Model<InferAttributes<UserSettings>, InferCrea
     //
     declare user_id: ForeignKey<User["id"]>;
     declare language: "de" | "en";
-    declare dark_mode: boolean;
     declare email_notifications_enabled: boolean;
 
     //
@@ -34,10 +33,6 @@ UserSettings.init(
         },
         language: {
             type: DataType.ENUM("de", "en"),
-            allowNull: false,
-        },
-        dark_mode: {
-            type: DataType.BOOLEAN,
             allowNull: false,
         },
         additional_emails: {

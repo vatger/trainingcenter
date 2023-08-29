@@ -1,13 +1,9 @@
 const { DataType } = require("sequelize-typescript");
 
 const DataModelAttributes = {
-    id: {
-        type: DataType.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
     user_id: {
         type: DataType.INTEGER,
+        primaryKey: true,
         comment: "User ID (CID)",
         allowNull: false,
         references: {
@@ -19,6 +15,7 @@ const DataModelAttributes = {
     },
     group_id: {
         type: DataType.INTEGER,
+        primaryKey: true,
         comment: "Mentor-Group ID",
         allowNull: false,
         references: {

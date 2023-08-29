@@ -16,7 +16,6 @@ export class UserBelongToMentorGroups extends Model<InferAttributes<UserBelongTo
     //
     // Optional Attributes
     //
-    declare id: CreationOptional<number> | null;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
 
@@ -32,11 +31,6 @@ export class UserBelongToMentorGroups extends Model<InferAttributes<UserBelongTo
 
 UserBelongToMentorGroups.init(
     {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
         user_id: {
             type: DataType.INTEGER,
             comment: "User ID (CID)",

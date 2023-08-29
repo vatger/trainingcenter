@@ -3,6 +3,8 @@ import ValidationHelper, { ValidationOptions } from "../../utility/helper/Valida
 import { MentorGroup } from "../../models/MentorGroup";
 import { UserBelongToMentorGroups } from "../../models/through/UserBelongToMentorGroups";
 import { User } from "../../models/User";
+import { HttpStatusCode } from "axios";
+import _MentorGroupAdminValidator from "./_MentorGroupAdminValidator";
 
 // Type used to create the mentor group. The request is of type Array<UserInMentorGroupT>
 type UserInMentorGroupT = {
@@ -63,6 +65,34 @@ async function create(request: Request, response: Response) {
     }
 
     response.send(mentorGroup);
+}
+
+async function update(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const body = request.body as { mentor_group_id: number; name: string; fir?: "-1" | "edgg" | "edww" | "edmm" };
+
+    const validation = _MentorGroupAdminValidator.validateUpdate(body);
+    if (validation.invalid) {
+        response.status(HttpStatusCode.BadRequest).send({
+            validation: validation.message,
+            validation_failed: true,
+        });
+        return;
+    }
+
+    await MentorGroup.update(
+        {
+            name: body.name,
+            fir: body.fir == "-1" ? null : body.fir ?? null,
+        },
+        {
+            where: {
+                id: body.mentor_group_id,
+            },
+        }
+    );
+
+    response.sendStatus(HttpStatusCode.NoContent);
 }
 
 /**
@@ -147,6 +177,52 @@ async function getAllAdmin(request: Request, response: Response) {
     response.send(mentorGroups);
 }
 
+async function getMembers(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const query = request.query;
+
+    // Check if the mentor group is even a number
+    const mentor_group_id = Number(query.mentor_group_id);
+    if (isNaN(mentor_group_id)) {
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
+    }
+
+    const userInMentorGroup = await UserBelongToMentorGroups.findAll({
+        where: {
+            user_id: user.id,
+            group_admin: true,
+        },
+    });
+
+    if (!userInMentorGroup.find(uIMG => uIMG.group_id == Number(query.mentor_group_id))) {
+        response.sendStatus(HttpStatusCode.Forbidden);
+        return;
+    }
+
+    const mentorGroup = await MentorGroup.findOne({
+        where: {
+            id: Number(query.mentor_group_id),
+        },
+        include: [
+            {
+                association: MentorGroup.associations.users,
+                attributes: ["id", "first_name", "last_name"],
+                through: {
+                    attributes: ["group_admin", "can_manage_course", "createdAt"],
+                },
+            },
+        ],
+    });
+
+    if (mentorGroup == null) {
+        response.sendStatus(HttpStatusCode.InternalServerError);
+        return;
+    }
+
+    response.send(mentorGroup?.users);
+}
+
 /**
  * Gets all mentor groups in which the request.body.user is a course manager in
  * @param request
@@ -173,10 +249,80 @@ async function getAllCourseManager(request: Request, response: Response) {
     response.send(mentorGroups);
 }
 
+async function addMember(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const body = request.body as { user_id: string; mentor_group_id: string; group_admin: boolean; can_manage_course: boolean };
+
+    const validation = _MentorGroupAdminValidator.validateAddUser(body);
+    if (validation.invalid) {
+        response.status(HttpStatusCode.BadRequest).send({
+            validation: validation.message,
+            validation_failed: true,
+        });
+        return;
+    }
+
+    // TODO: Add utility function to check if user is allowed to perform this action
+
+    try {
+        await UserBelongToMentorGroups.create({
+            user_id: Number(body.user_id),
+            group_id: Number(body.mentor_group_id),
+            group_admin: body.group_admin,
+            can_manage_course: body.can_manage_course,
+        });
+    } catch (e) {
+        response.sendStatus(HttpStatusCode.InternalServerError);
+        return;
+    }
+
+    const newMember = await User.findOne({
+        where: {
+            id: body.user_id,
+        },
+        attributes: ["id", "first_name", "last_name"],
+    });
+
+    response.send(newMember);
+}
+
+async function removeMember(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const body = request.body as { mentor_group_id: number; user_id: number };
+
+    const validation = _MentorGroupAdminValidator.validateRemoveUser(body);
+    if (validation.invalid) {
+        response.status(HttpStatusCode.BadRequest).send({
+            validation: validation.message,
+            validation_failed: true,
+        });
+        return;
+    }
+
+    try {
+        await UserBelongToMentorGroups.destroy({
+            where: {
+                group_id: body.mentor_group_id,
+                user_id: body.user_id,
+            },
+        });
+    } catch (e) {
+        response.sendStatus(HttpStatusCode.InternalServerError);
+        return;
+    }
+
+    response.sendStatus(HttpStatusCode.NoContent);
+}
+
 export default {
     create,
+    update,
+    addMember,
+    removeMember,
+
     getAll,
     getByID,
     getAllAdmin,
+    getMembers,
     getAllCourseManager,
 };

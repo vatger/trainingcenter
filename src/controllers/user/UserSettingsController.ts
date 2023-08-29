@@ -5,11 +5,10 @@ import { HttpStatusCode } from "axios";
 
 async function updateSettings(request: Request, response: Response) {
     const user: User = request.body.user;
-    const body = request.body as { dark_mode: boolean; language: "de" | "en" };
+    const body = request.body as { language: "de" | "en" };
 
     await UserSettings.update(
         {
-            dark_mode: body.dark_mode,
             language: body.language,
         },
         {
