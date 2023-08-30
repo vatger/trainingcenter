@@ -1,4 +1,7 @@
 import dayjs from "dayjs";
+import { Response } from "express";
+import { ValidatorType } from "../../controllers/_validators/ValidatorType";
+import { HttpStatusCode } from "axios";
 
 export function validateObject(object: any, keys: string[], checkStringNull = false) {
     let malformedKeys: any[] = [];
@@ -113,6 +116,14 @@ function validate(options: ValidationType[]): { invalid: boolean; message: any[]
     };
 }
 
+function sendValidationErrorResponse(response: Response, validation: ValidatorType) {
+    response.status(HttpStatusCode.BadRequest).send({
+        validation: validation.message,
+        validation_failed: true,
+    });
+}
+
 export default {
     validate,
+    sendValidationErrorResponse,
 };

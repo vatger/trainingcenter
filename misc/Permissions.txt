@@ -1,0 +1,14 @@
+############
+## COURSE ##
+############
+COURSE.CREATE
+COURSE.UPDATE
+
+##########
+## Tech ##
+##########
+TECH.SYSLOG.VIEW
+TECH.PERMISSIONS.VIEW
+TECH.ROLES.VIEW
+...
+

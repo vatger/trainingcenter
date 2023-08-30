@@ -12,6 +12,8 @@ import { Role } from "./Role";
 import { TrainingLog } from "./TrainingLog";
 import { UsersBelongsToCourses } from "./through/UsersBelongsToCourses";
 import { TrainingRequest } from "./TrainingRequest";
+import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
+import UserExtensions from "./extensions/UserExtensions";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     //
@@ -46,6 +48,11 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     declare fast_track_requests?: NonAttribute<FastTrackRequest[]>;
     declare roles?: NonAttribute<Role[]>;
 
+    //
+    // Through Association Placeholders
+    //
+    declare UserBelongToMentorGroups?: NonAttribute<UserBelongToMentorGroups>;
+
     declare static associations: {
         user_data: Association<User, UserData>;
         user_settings: Association<User, UserSettings>;
@@ -61,42 +68,14 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
         roles: Association<User, Role>;
     };
 
-    /**
-     * Checks if the user has a specific role
-     */
-    hasRole(role: string): boolean {
-        let roles: string[] = [];
-        this.roles?.forEach(role => {
-            roles.push(role.name);
-        });
-
-        return roles.includes(role);
-    }
-
-    /**
-     * Checks if the user has a specific permission
-     */
-    hasPermission(permission: string): boolean {
-        let permissions: string[] = [];
-        this.roles?.forEach(role => {
-            role.permissions?.forEach(perm => {
-                permissions.push(perm.name.toLowerCase());
-            });
-        });
-
-        return permissions.includes(permission.toLowerCase());
-    }
-
-    async getCourses(): Promise<Course[]> {
-        const user: User | null = await User.findOne({
-            where: {
-                id: this.id,
-            },
-            include: [User.associations.courses],
-        });
-
-        return user?.courses ?? [];
-    }
+    hasRole = UserExtensions.hasRole.bind(this);
+    hasPermission = UserExtensions.hasPermission.bind(this);
+    getMentorGroups = UserExtensions.getMentorGroups.bind(this);
+    getGroupAdminMentorGroups = UserExtensions.getGroupAdminMentorGroups.bind(this);
+    getCourseCreatorMentorGroups = UserExtensions.getCourseCreatorMentorGroups.bind(this);
+    getCourses = UserExtensions.getCourses.bind(this);
+    canManageCourseInMentorGroup = UserExtensions.canManageCourseInMentorGroup.bind(this);
+    canEditCourse = UserExtensions.canEditCourse.bind(this);
 
     async isMemberOfCourse(uuid: string): Promise<boolean> {
         const course = await Course.findOne({
@@ -134,17 +113,17 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
         return user?.training_sessions ?? [];
     }
 
-    async getMentorGroups(): Promise<MentorGroup[]> {
-        const user = await User.findOne({
+    async isMentorGroupAdmin(mentorGroupID: number): Promise<boolean> {
+        // Find mentor group by ID and select the users
+        const userInMentorGroup = await UserBelongToMentorGroups.findOne({
             where: {
-                id: this.id,
-            },
-            include: {
-                association: User.associations.mentor_groups,
+                user_id: this.id,
+                group_id: mentorGroupID,
+                group_admin: true,
             },
         });
 
-        return user?.mentor_groups ?? [];
+        return userInMentorGroup != null;
     }
 
     async getMentorGroupsAndCourses(): Promise<MentorGroup[]> {

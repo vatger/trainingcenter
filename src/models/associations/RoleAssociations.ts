@@ -5,7 +5,7 @@ import { Permission } from "../Permission";
 
 export function registerRoleAssociations() {
     //
-    // Role -> Permissions
+    // Role -> Permissions.txt
     //
     Role.belongsToMany(Permission, {
         as: "permissions",
@@ -15,7 +15,7 @@ export function registerRoleAssociations() {
     });
 
     //
-    // Permissions -> Role
+    // Permissions.txt -> Role
     //
     Permission.belongsToMany(Role, {
         as: "roles",

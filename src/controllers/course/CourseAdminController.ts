@@ -7,6 +7,10 @@ import CourseAdminValidator from "../_validators/CourseAdminValidator";
 import { ValidatorType } from "../_validators/ValidatorType";
 import { HttpStatusCode } from "axios";
 import { TrainingType } from "../../models/TrainingType";
+import _CourseInformationAdminValidator from "./_CourseInformationAdmin.validator";
+
+// DEPRECATED
+// TODO REMOVE THIS CONTROLLER --> CourseAdministrationController
 
 /**
  * Gets all courses
@@ -69,28 +73,29 @@ async function getEditable(request: Request, response: Response) {
  * Creates a new course
  */
 async function create(request: Request, response: Response) {
-    const data = request.body.data as {
+    const user = request.body.user;
+    const data = request.body as {
         course_uuid: string;
         name_de: string;
         name_en: string;
         description_de: string;
         description_en: string;
-        active: string;
-        self_enrol: string;
-        training_id: string;
+        active: boolean;
+        self_enrol_enabled: boolean;
+        training_type_id: string;
         skill_template_id: string;
         mentor_group_id: string;
     };
 
-    const validation: ValidatorType = CourseAdminValidator.validateCreateRequest(data);
-
-    if (validation.invalid) {
-        response.status(HttpStatusCode.BadRequest).send({
-            validation: validation.message,
-            validation_failed: true,
-        });
-        return;
-    }
+    // const validation: ValidatorType = _CourseInformationAdminValidator.validateUpdateOrCreateRequest(data);
+    //
+    // if (validation.invalid) {
+    //     response.status(HttpStatusCode.BadRequest).send({
+    //         validation: validation.message,
+    //         validation_failed: true,
+    //     });
+    //     return;
+    // }
 
     const course: Course = await Course.create({
         uuid: data.course_uuid,
@@ -98,9 +103,9 @@ async function create(request: Request, response: Response) {
         name_en: data.name_en,
         description: data.description_de,
         description_en: data.description_en,
-        is_active: Number(data.active) == 1,
-        self_enrollment_enabled: Number(data.self_enrol) == 1,
-        initial_training_type: Number(data.training_id),
+        is_active: data.active,
+        self_enrollment_enabled: data.self_enrol_enabled,
+        initial_training_type: Number(data.training_type_id),
         skill_template_id: Number(data.skill_template_id) == 0 || isNaN(Number(data.skill_template_id)) ? null : Number(data.skill_template_id),
     });
     if (course == null) {

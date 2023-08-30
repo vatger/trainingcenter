@@ -3,6 +3,7 @@ import { User } from "./User";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { Course } from "./Course";
+import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
 
 export class MentorGroup extends Model<InferAttributes<MentorGroup>, InferCreationAttributes<MentorGroup>> {
     //
@@ -23,6 +24,11 @@ export class MentorGroup extends Model<InferAttributes<MentorGroup>, InferCreati
     //
     declare users?: NonAttribute<User[]>;
     declare courses?: NonAttribute<Course[]>;
+
+    //
+    // Through Association Placeholders
+    //
+    declare UserBelongToMentorGroups?: NonAttribute<UserBelongToMentorGroups>;
 
     declare static associations: {
         users: Association<MentorGroup, User>;

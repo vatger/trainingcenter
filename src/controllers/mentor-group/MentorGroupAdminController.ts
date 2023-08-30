@@ -120,13 +120,14 @@ async function getAll(request: Request, response: Response) {
  * @param response
  */
 async function getByID(request: Request, response: Response) {
-    const mentorGroupID = request.params.mentor_group_id;
+    const user: User = request.body.user;
+    const params = request.params;
 
     const validation = ValidationHelper.validate([
         {
             name: "id",
-            validationObject: mentorGroupID,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
+            validationObject: params.mentor_group_id,
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
         },
     ]);
 
@@ -135,9 +136,14 @@ async function getByID(request: Request, response: Response) {
         return;
     }
 
+    if (!(await user.isMentorGroupAdmin(Number(params.mentor_group_id)))) {
+        response.sendStatus(HttpStatusCode.Forbidden);
+        return;
+    }
+
     const mentorGroup = await MentorGroup.findOne({
         where: {
-            id: mentorGroupID,
+            id: params.mentor_group_id,
         },
         include: [
             {
@@ -255,14 +261,14 @@ async function addMember(request: Request, response: Response) {
 
     const validation = _MentorGroupAdminValidator.validateAddUser(body);
     if (validation.invalid) {
-        response.status(HttpStatusCode.BadRequest).send({
-            validation: validation.message,
-            validation_failed: true,
-        });
+        ValidationHelper.sendValidationErrorResponse(response, validation);
         return;
     }
 
-    // TODO: Add utility function to check if user is allowed to perform this action
+    if (!(await user.isMentorGroupAdmin(Number(body.mentor_group_id)))) {
+        response.sendStatus(HttpStatusCode.Forbidden);
+        return;
+    }
 
     try {
         await UserBelongToMentorGroups.create({

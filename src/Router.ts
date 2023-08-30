@@ -14,7 +14,7 @@ import UserInformationAdminController from "./controllers/user/UserInformationAd
 import UserNoteAdminController from "./controllers/user/UserNoteAdminController";
 import UserController from "./controllers/user/UserAdminController";
 import TrainingRequestAdminController from "./controllers/training-request/TrainingRequestAdminController";
-import CourseAdministrationController from "./controllers/course/CourseAdminController";
+import CourseAdminController from "./controllers/course/CourseAdminController";
 import CourseInformationAdministrationController from "./controllers/course/CourseInformationAdminController";
 import SkillTemplateAdministrationController from "./controllers/skill-template/SkillTemplateAdminController";
 import TrainingTypeAdministrationController from "./controllers/training-type/TrainingTypeAdminController";
@@ -30,6 +30,7 @@ import TrainingSessionController from "./controllers/training-session/TrainingSe
 import UserCourseAdminController from "./controllers/user/UserCourseAdminController";
 import SessionController from "./controllers/login/SessionController";
 import UserSettingsController from "./controllers/user/UserSettingsController";
+import CourseAdministrationController from "./controllers/course/CourseAdministrationController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -175,17 +176,19 @@ router.use(
         r.use(
             "/course",
             routerGroup((r: Router) => {
-                r.get("/", CourseAdministrationController.getAll);
-                r.put("/", CourseAdministrationController.create);
+                r.post("/", CourseAdministrationController.createCourse);
+                r.patch("/", CourseAdministrationController.updateCourse);
 
-                r.get("/mentorable", CourseAdministrationController.getMentorable);
-                r.get("/editable", CourseAdministrationController.getEditable);
+                // TODO: REFACTOR THIS INTO THE COURSEADMINISTRATIONCONTROLLER!
+                r.get("/", CourseAdminController.getAll);
 
-                r.get("/info/", CourseInformationAdministrationController.getByUUID);
+                r.get("/mentorable", CourseAdminController.getMentorable);
+                r.get("/editable", CourseAdminController.getEditable);
+
+                r.get("/info", CourseInformationAdministrationController.getByUUID);
                 r.get("/info/mentor-group", CourseInformationAdministrationController.getMentorGroups);
 
                 r.get("/info/user", CourseInformationAdministrationController.getUsers);
-                r.patch("/info/update", CourseInformationAdministrationController.update);
                 r.delete("/info/user", CourseInformationAdministrationController.deleteUser);
                 r.put("/info/mentor-group", CourseInformationAdministrationController.addMentorGroup);
                 r.delete("/info/mentor-group", CourseInformationAdministrationController.deleteMentorGroup);
@@ -193,7 +196,7 @@ router.use(
         );
 
         r.use(
-            "/course-skill-template",
+            "/skill-template",
             routerGroup((r: Router) => {
                 r.get("/", SkillTemplateAdministrationController.getAll);
             })
@@ -234,10 +237,9 @@ router.use(
         r.use(
             "/mentor-group",
             routerGroup((r: Router) => {
+                r.get("/", MentorGroupAdministrationController.getAll);
                 r.post("/", MentorGroupAdministrationController.create);
                 r.patch("/", MentorGroupAdministrationController.update);
-
-                r.get("/", MentorGroupAdministrationController.getAll);
 
                 r.get("/admin", MentorGroupAdministrationController.getAllAdmin);
                 r.get("/members", MentorGroupAdministrationController.getMembers);

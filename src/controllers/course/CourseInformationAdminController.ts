@@ -3,13 +3,12 @@ import { Request, Response } from "express";
 import { MentorGroupsBelongsToCourses } from "../../models/through/MentorGroupsBelongsToCourses";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { MentorGroup } from "../../models/MentorGroup";
-import CourseInformationAdminValidator from "../_validators/CourseInformationAdminValidator";
 import { ValidatorType } from "../_validators/ValidatorType";
 import { TrainingRequest } from "../../models/TrainingRequest";
-import { TrainingSession } from "../../models/TrainingSession";
-import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSessionBelongsToUsers";
 import { User } from "../../models/User";
 import { HttpStatusCode } from "axios";
+import ValidationHelper from "../../utility/helper/ValidationHelper";
+import _CourseInformationAdminValidator from "./_CourseInformationAdmin.validator";
 
 /**
  * Gets the basic course information associated with this course
@@ -38,7 +37,7 @@ async function getByUUID(request: Request, response: Response) {
  * @param response
  */
 async function getMentorGroups(request: Request, response: Response) {
-    const validation: ValidatorType = CourseInformationAdminValidator.validateGetMentorGroupsRequest(request.query.uuid);
+    const validation: ValidatorType = _CourseInformationAdminValidator.validateGetMentorGroupsRequest(request.query.uuid);
     if (validation.invalid) {
         response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
         return;
@@ -76,7 +75,7 @@ async function getMentorGroups(request: Request, response: Response) {
  * @param response
  */
 async function deleteMentorGroup(request: Request, response: Response) {
-    const validation: ValidatorType = CourseInformationAdminValidator.validateDeleteMentorGroupRequest(request.body.data);
+    const validation: ValidatorType = _CourseInformationAdminValidator.validateDeleteMentorGroupRequest(request.body.data);
     if (validation.invalid) {
         response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
         return;
@@ -99,7 +98,7 @@ async function deleteMentorGroup(request: Request, response: Response) {
 async function getUsers(request: Request, response: Response) {
     const uuid: string | undefined = request.query?.uuid?.toString();
 
-    const validation: ValidatorType = CourseInformationAdminValidator.validateGetUsersRequest(uuid);
+    const validation: ValidatorType = _CourseInformationAdminValidator.validateGetUsersRequest(uuid);
     if (validation.invalid) {
         response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
         return;
@@ -119,74 +118,88 @@ async function getUsers(request: Request, response: Response) {
     response.send(course?.users ?? []);
 }
 
+/**
+ * Removes a user from a course including all associated training requests
+ * @param request
+ * @param response
+ */
 async function deleteUser(request: Request, response: Response) {
-    const requestData = request.body.data;
+    const body = request.body as { course_uuid: string; user_id: number };
 
-    const validation: ValidatorType = CourseInformationAdminValidator.validateDeleteUserRequest(requestData);
+    const validation = _CourseInformationAdminValidator.validateDeleteUserRequest(body);
     if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
+        ValidationHelper.sendValidationErrorResponse(response, validation);
+        return;
+    }
+
+    const course = await Course.findOne({
+        where: {
+            uuid: body.course_uuid,
+        },
+    });
+
+    if (course == null) {
+        response.sendStatus(HttpStatusCode.InternalServerError);
         return;
     }
 
     await UsersBelongsToCourses.destroy({
         where: {
-            user_id: requestData.user_id,
-            course_id: requestData.course_id,
+            user_id: body.user_id,
+            course_id: course.id,
         },
     });
 
     await TrainingRequest.destroy({
         where: {
-            user_id: requestData.user_id,
-            course_id: requestData.course_id,
+            user_id: body.user_id,
+            course_id: course.id,
         },
     });
 
-    response.send({ message: "OK" });
+    response.sendStatus(HttpStatusCode.NoContent);
 }
 
 /**
  * Updates the course's information
  */
-async function update(request: Request, response: Response) {
-    const data = request.body.data;
+async function updateCourse(request: Request, response: Response) {
+    const body = request.body as {
+        course_uuid: string;
+        active: boolean;
+        self_enrol_enabled: boolean;
+        description_de: string;
+        description_en: string;
+        name_de: string;
+        name_en: string;
+        training_type_id: string;
+        skill_template_id?: string;
+    };
 
-    const validation: ValidatorType = CourseInformationAdminValidator.validateUpdateRequest(data);
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation: ValidatorType = _CourseInformationAdminValidator.validateUpdateOrCreateRequest(body);
+    // if (validation.invalid) {
+    //     ValidationHelper.sendValidationErrorResponse(response, validation);
+    //     return;
+    // }
 
     const updateObject = {
-        name: data.name_de,
-        name_en: data.name_en,
-        description: data.description_de,
-        description_en: data.description_en,
-        is_active: Number(data.active) == 1,
-        self_enrollment_enabled: Number(data.self_enrol) == 1,
-        initial_training_type: Number(data.training_id),
-        skill_template_id: Number(data.skill_template_id) == 0 || isNaN(Number(data.skill_template_id)) ? null : data.skill_template_id,
+        name: body.name_de,
+        name_en: body.name_en,
+        description: body.description_de,
+        description_en: body.description_en,
+        is_active: body.active,
+        self_enrollment_enabled: body.self_enrol_enabled,
+        initial_training_type: Number(body.training_type_id),
+        skill_template_id: body.skill_template_id != null && !isNaN(Number(body.skill_template_id)) ? Number(body.skill_template_id) : null,
     };
 
     await Course.update(updateObject, {
         where: {
-            uuid: data.course_uuid,
+            uuid: body.course_uuid,
         },
     });
 
-    const course: Course | null = await Course.findOne({
-        where: {
-            uuid: data.course_uuid,
-        },
-        include: [Course.associations.training_type, Course.associations.skill_template],
-    });
-
-    if (course == null) {
-        response.status(500).send();
-        return;
-    }
-
-    response.send(course);
+    response.sendStatus(HttpStatusCode.NoContent);
 }
 
 async function addMentorGroup(request: Request, response: Response) {
@@ -209,5 +222,5 @@ export default {
     deleteMentorGroup,
     getUsers,
     deleteUser,
-    update,
+    updateCourse,
 };
