@@ -14,8 +14,6 @@ import UserInformationAdminController from "./controllers/user/UserInformationAd
 import UserNoteAdminController from "./controllers/user/UserNoteAdminController";
 import UserController from "./controllers/user/UserAdminController";
 import TrainingRequestAdminController from "./controllers/training-request/TrainingRequestAdminController";
-import CourseAdminController from "./controllers/course/CourseAdminController";
-import CourseInformationAdministrationController from "./controllers/course/CourseInformationAdminController";
 import SkillTemplateAdministrationController from "./controllers/skill-template/SkillTemplateAdminController";
 import TrainingTypeAdministrationController from "./controllers/training-type/TrainingTypeAdminController";
 import FastTrackAdministrationController from "./controllers/fast-track/FastTrackAdminController";
@@ -176,22 +174,22 @@ router.use(
         r.use(
             "/course",
             routerGroup((r: Router) => {
+                // TODO: CLEANUP THE TOP 2
+                r.get("/mentorable", CourseAdministrationController.getMentorable);
+                r.get("/editable", CourseAdministrationController.getEditable);
+                // -----------------------
+
+                r.get("/", CourseAdministrationController.getAllCourses);
                 r.post("/", CourseAdministrationController.createCourse);
                 r.patch("/", CourseAdministrationController.updateCourse);
+                r.get("/:course_uuid", CourseAdministrationController.getCourse);
 
-                // TODO: REFACTOR THIS INTO THE COURSEADMINISTRATIONCONTROLLER!
-                r.get("/", CourseAdminController.getAll);
+                r.get("/user/:course_uuid", CourseAdministrationController.getCourseParticipants);
+                r.delete("/user/:course_uuid", CourseAdministrationController.removeCourseParticipant);
 
-                r.get("/mentorable", CourseAdminController.getMentorable);
-                r.get("/editable", CourseAdminController.getEditable);
-
-                r.get("/info", CourseInformationAdministrationController.getByUUID);
-                r.get("/info/mentor-group", CourseInformationAdministrationController.getMentorGroups);
-
-                r.get("/info/user", CourseInformationAdministrationController.getUsers);
-                r.delete("/info/user", CourseInformationAdministrationController.deleteUser);
-                r.put("/info/mentor-group", CourseInformationAdministrationController.addMentorGroup);
-                r.delete("/info/mentor-group", CourseInformationAdministrationController.deleteMentorGroup);
+                r.get("/mentor-group/:course_uuid", CourseAdministrationController.getCourseMentorGroups);
+                r.put("/mentor-group/:course_uuid", CourseAdministrationController.addMentorGroupToCourse);
+                r.delete("/mentor-group/:course_uuid", CourseAdministrationController.removeMentorGroupFromCourse);
             })
         );
 

@@ -42,11 +42,6 @@ async function getInformationByUUID(request: Request, response: Response) {
         return;
     }
 
-    if (userCourses.find((c: Course) => c.uuid == course.uuid) != null) {
-        response.send({ ...course.toJSON(), enrolled: true });
-        return;
-    }
-
     response.send(course);
 }
 

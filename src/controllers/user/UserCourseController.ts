@@ -11,10 +11,14 @@ import { TrainingRequest } from "../../models/TrainingRequest";
  * @param response
  */
 async function getAvailableCourses(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const user: User = request.body.user;
 
-    const myCourses: Course[] = await reqUser.getCourses();
-    const allCourses: Course[] = await Course.findAll();
+    const myCourses = await user.getCourses();
+    const allCourses = await Course.findAll({
+        where: {
+            is_active: true,
+        },
+    });
 
     const filteredCourses = allCourses.filter((course: Course) => {
         return myCourses.find((myCourse: Course) => myCourse.id === course.id) == null;
