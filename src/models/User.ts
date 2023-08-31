@@ -200,6 +200,11 @@ User.init(
                     exclude: ["access_token", "refresh_token"],
                 },
             },
+            internal: {
+                attributes: {
+                    exclude: [],
+                },
+            },
         },
     }
 );

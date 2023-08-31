@@ -29,6 +29,7 @@ import UserCourseAdminController from "./controllers/user/UserCourseAdminControl
 import SessionController from "./controllers/login/SessionController";
 import UserSettingsController from "./controllers/user/UserSettingsController";
 import CourseAdministrationController from "./controllers/course/CourseAdministrationController";
+import { UserData } from "./models/UserData";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -54,6 +55,8 @@ router.use(
     "/",
     routerGroup((r: Router) => {
         r.use(authMiddleware);
+
+        r.get("/user/update", LoginController.updateUserData);
 
         r.patch("/settings", UserSettingsController.updateSettings);
 

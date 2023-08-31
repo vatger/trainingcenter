@@ -7,6 +7,8 @@ import SessionLibrary, { removeSessionToken } from "../../libraries/session/Sess
 import { User } from "../../models/User";
 import { Role } from "../../models/Role";
 import UserSessionLibrary from "../../libraries/session/UserSessionLibrary";
+import dayjs from "dayjs";
+import axios, { HttpStatusCode } from "axios";
 
 // We can ignore all errors, since we are validating the .env
 const connect_options: ConnectOptions = {
@@ -109,6 +111,17 @@ async function getUserData(request: Request, response: Response) {
     response.send(user);
 }
 
+async function updateUserData(request: Request, response: Response) {
+    const user: User = request.body.user;
+    if (dayjs.utc().diff(user.updatedAt, "minutes") < 30) {
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
+    }
+
+    let vatsimConnectLibrary = new VatsimConnectLibrary(connect_options);
+    await vatsimConnectLibrary.updateUserData(request, response);
+}
+
 async function validateSessionToken(request: Request, response: Response) {
     response.send((await SessionLibrary.validateSessionToken(request)) != null);
 }
@@ -119,4 +132,5 @@ export default {
     logout,
     getUserData,
     validateSessionToken,
+    updateUserData,
 };

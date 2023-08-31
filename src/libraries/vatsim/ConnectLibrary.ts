@@ -1,4 +1,4 @@
-import axios, { Axios, AxiosResponse } from "axios";
+import axios, { Axios, AxiosResponse, HttpStatusCode } from "axios";
 import { Request, Response } from "express";
 import { VatsimOauthToken, VatsimScopes, VatsimUserData } from "./ConnectTypes";
 import { ConnectLibraryErrors, VatsimConnectException } from "../../exceptions/VatsimConnectException";
@@ -9,6 +9,8 @@ import { UserData } from "../../models/UserData";
 import { User } from "../../models/User";
 import { Role } from "../../models/Role";
 import { UserSettings } from "../../models/UserSettings";
+import dayjs from "dayjs";
+import { Config } from "../../core/Config";
 
 export type ConnectOptions = {
     client_id: string;
@@ -32,14 +34,14 @@ export class VatsimConnectLibrary {
     private m_response: Response | undefined = undefined;
     private m_request: Request | undefined = undefined;
 
-    constructor(connectOptions: ConnectOptions, remember: boolean) {
+    constructor(connectOptions?: ConnectOptions, remember?: boolean) {
         this.m_connectOptions = connectOptions;
-        this.m_remember = remember;
+        this.m_remember = remember ?? false;
 
         if (connectOptions == null) throw new VatsimConnectException();
 
         this.m_axiosInstance = axios.create({
-            baseURL: this.m_connectOptions.base_uri,
+            baseURL: this.m_connectOptions?.base_uri ?? Config.CONNECT_CONFIG.BASE_URL,
             timeout: 5000,
             headers: { "Accept-Encoding": "gzip,deflate,compress" },
         });
@@ -96,15 +98,9 @@ export class VatsimConnectLibrary {
                     Accept: "application/json",
                 },
             });
-        } catch (e) {
-            throw new VatsimConnectException(ConnectLibraryErrors.ERR_AXIOS_TIMEOUT);
-        }
+        } catch (e) {}
 
         const user_response_data: VatsimUserData | undefined = user_response?.data as VatsimUserData;
-
-        if (user_response_data == null) {
-            throw new VatsimConnectException();
-        }
 
         this.m_userData = user_response_data;
         return user_response_data;
@@ -164,21 +160,7 @@ export class VatsimConnectLibrary {
         return this.m_userData;
     }
 
-    /**
-     * Handle the login flow
-     * @throws VatsimConnectException
-     */
-    public async login(request: Request, response: Response, code: string | undefined) {
-        if (code == null) throw new VatsimConnectException(ConnectLibraryErrors.ERR_NO_CODE);
-
-        this.m_response = response;
-        this.m_request = request;
-
-        await this.queryAccessTokens(code);
-        await this.queryUserData();
-        await this.validateSuppliedScopes();
-        await this.checkIsUserSuspended();
-
+    private async updateDatabase() {
         if (this.m_userData == null) throw new VatsimConnectException();
 
         const tokenValid = this.m_userData.data.oauth.token_valid?.toLowerCase() === "true";
@@ -206,6 +188,33 @@ export class VatsimConnectLibrary {
             subdivision_name: this.m_userData.data.vatsim.subdivision.name,
             subdivision_code: this.m_userData.data.vatsim.subdivision.id,
         });
+    }
+
+    /**
+     * Handle the login flow
+     * @throws VatsimConnectException
+     */
+    public async login(request: Request, response: Response, code: string | undefined) {
+        if (code == null) throw new VatsimConnectException(ConnectLibraryErrors.ERR_NO_CODE);
+
+        this.m_response = response;
+        this.m_request = request;
+
+        await this.queryAccessTokens(code);
+        await this.queryUserData();
+
+        if (this.m_userData == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        this.validateSuppliedScopes();
+        await this.checkIsUserSuspended();
+
+        if (this.m_userData == null) throw new VatsimConnectException();
+
+        // Create database entries
+        await this.updateDatabase();
 
         await UserSettings.findOrCreate({
             where: {
@@ -256,5 +265,69 @@ export class VatsimConnectLibrary {
         }
 
         throw new VatsimConnectException(ConnectLibraryErrors.ERR_UNABLE_CREATE_SESSION);
+    }
+
+    public async updateUserData(request: Request, response: Response) {
+        const user: User = request.body.user;
+
+        const userWithAccessToken = await User.scope("internal").findOne({
+            where: {
+                id: user.id,
+            },
+        });
+
+        if (userWithAccessToken == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        this.m_accessToken = userWithAccessToken.access_token ?? undefined;
+        this.m_refreshToken = userWithAccessToken.refresh_token ?? undefined;
+
+        const newUserData = await this.queryUserData();
+        if (newUserData == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        // Create database entries
+        await this.updateDatabase();
+
+        const newUser = await User.scope("sensitive").findOne({
+            where: {
+                id: this.m_userData?.data.cid,
+            },
+            include: [
+                {
+                    association: User.associations.user_data,
+                    as: "user_data",
+                },
+                {
+                    association: User.associations.user_settings,
+                    as: "user_settings",
+                },
+                {
+                    association: User.associations.roles,
+                    as: "roles",
+                    attributes: ["name"],
+                    through: { attributes: [] },
+
+                    include: [
+                        {
+                            association: Role.associations.permissions,
+                            attributes: ["name"],
+                            through: { attributes: [] },
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (newUser == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        response.send(newUser);
     }
 }

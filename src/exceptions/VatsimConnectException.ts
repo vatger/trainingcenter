@@ -50,7 +50,7 @@ export class VatsimConnectException extends Error {
                 return;
 
             default:
-                response.status(500).send({ code: "ERR", message: "An unknown error occured" });
+                response.status(500).send({ code: "ERR", message: "An unknown error occurred" });
         }
     }
 }
