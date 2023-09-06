@@ -43,7 +43,7 @@ async function createCourse(request: Request, response: Response) {
         return;
     }
 
-    if (!user.hasPermission("course.create") || !(await user.canManageCourseInMentorGroup(Number(body.mentor_group_id)))) {
+    if (!(await user.canManageCourseInMentorGroup(Number(body.mentor_group_id)))) {
         response.sendStatus(HttpStatusCode.Forbidden);
         return;
     }
