@@ -157,7 +157,7 @@ router.use(
             "/course",
             routerGroup((r: Router) => {
                 r.get("/", CourseAdministrationController.getAll);
-                r.put("/", CourseAdministrationController.create);
+                r.post("/", CourseAdministrationController.create);
 
                 r.get("/editable", CourseAdministrationController.getEditable);
 
