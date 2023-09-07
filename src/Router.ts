@@ -167,6 +167,7 @@ router.use(
                 r.get("/:uuid", TrainingSessionAdminController.getByUUID);
                 r.patch("/:uuid", TrainingSessionAdminController.updateByUUID);
 
+                r.get("/training-types/:uuid", TrainingSessionAdminController.getCourseTrainingTypes);
                 r.get("/log-template/:uuid", TrainingSessionAdminController.getLogTemplate);
                 r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
 
@@ -207,7 +208,7 @@ router.use(
             "/training-type",
             routerGroup((r: Router) => {
                 r.get("/", TrainingTypeAdministrationController.getAll);
-                r.put("/", TrainingTypeAdministrationController.create);
+                r.post("/", TrainingTypeAdministrationController.create);
 
                 r.get("/:id", TrainingTypeAdministrationController.getByID);
                 r.patch("/:id", TrainingTypeAdministrationController.update);

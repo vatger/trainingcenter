@@ -13,6 +13,7 @@ import { Config } from "../../core/Config";
 import { TrainingType } from "../../models/TrainingType";
 import { Op } from "sequelize";
 import { TrainingLog } from "../../models/TrainingLog";
+import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -316,17 +317,49 @@ async function getLogTemplate(request: Request, response: Response) {
     });
 
     if (session == null || session.training_type?.log_template == null) {
-        response.sendStatus(HttpStatusCode.BadRequest);
+        response.sendStatus(HttpStatusCode.NotFound);
         return;
     }
 
     response.send(session.training_type?.log_template);
 }
 
+async function getCourseTrainingTypes(request: Request, response: Response) {
+    const user: User = request.body.user;
+    const params = request.params as { uuid: string };
+
+    const session = await TrainingSession.findOne({
+        where: {
+            uuid: params.uuid,
+        },
+        include: [
+            {
+                association: TrainingSession.associations.course,
+                include: [
+                    {
+                        association: Course.associations.training_types,
+                        attributes: ["id", "name", "type"],
+                        through: {
+                            attributes: [],
+                        },
+                    },
+                ],
+            },
+        ],
+    });
+
+    if (session == null || session.course?.training_types == null) {
+        response.sendStatus(HttpStatusCode.NotFound);
+        return;
+    }
+
+    response.send(session.course?.training_types);
+}
+
 async function createTrainingLogs(request: Request, response: Response) {
     const user: User = request.body.user;
     const params = request.params as { uuid: string };
-    const body = request.body as { user_id: number; log_public: boolean; passed: boolean; user_log: any[] }[];
+    const body = request.body as { user_id: number; next_training_id: number; log_public: boolean; passed: boolean; user_log: any[] }[];
 
     if (body == null || body.length == 0) {
         response.sendStatus(HttpStatusCode.BadRequest);
@@ -337,6 +370,7 @@ async function createTrainingLogs(request: Request, response: Response) {
         where: {
             uuid: params.uuid,
         },
+        include: [TrainingSession.associations.course],
     });
 
     if (session == null) {
@@ -378,6 +412,19 @@ async function createTrainingLogs(request: Request, response: Response) {
                 },
             }
         );
+
+        await UsersBelongsToCourses.update(
+            {
+                next_training_type: body[i].next_training_id,
+            },
+            {
+                where: {
+                    user_id: body[i].user_id,
+                    course_id: session.course?.id ?? -1,
+                    completed: false,
+                },
+            }
+        );
     }
 
     await session.update({
@@ -395,5 +442,6 @@ export default {
     getLogTemplate,
     deleteTrainingSession,
     createTrainingLogs,
+    getCourseTrainingTypes,
     getPlanned,
 };

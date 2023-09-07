@@ -3,6 +3,7 @@ import { TrainingType } from "../../models/TrainingType";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { TrainingStation } from "../../models/TrainingStation";
 import { TrainingStationBelongsToTrainingType } from "../../models/through/TrainingStationBelongsToTrainingType";
+import { HttpStatusCode } from "axios";
 
 /**
  * Gets all training types
@@ -65,17 +66,17 @@ async function getByID(request: Request, response: Response) {
  * @param response
  */
 async function create(request: Request, response: Response) {
-    const requestData = request.body.data;
+    const body = request.body as { name: string; type: "online" | "sim" | "lesson" | "cpt"; log_template_id?: string };
 
     const validation = ValidationHelper.validate([
         {
             name: "name",
-            validationObject: requestData.name,
+            validationObject: body.name,
             toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
         {
             name: "type",
-            validationObject: requestData.type,
+            validationObject: body.type,
             toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
     ]);
@@ -85,13 +86,14 @@ async function create(request: Request, response: Response) {
         return;
     }
 
+    const log_template_id = Number(body.log_template_id);
     const trainingType = await TrainingType.create({
-        name: requestData.name,
-        type: requestData.type,
-        log_template_id: !isNaN(requestData.log_template_id) && Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id),
+        name: body.name,
+        type: body.type,
+        log_template_id: !isNaN(log_template_id) || log_template_id == -1 ? null : log_template_id,
     });
 
-    response.send(trainingType);
+    response.status(HttpStatusCode.Created).send({ id: trainingType.id });
 }
 
 /**
@@ -154,18 +156,18 @@ async function update(request: Request, response: Response) {
 }
 
 async function addStation(request: Request, response: Response) {
-    const requestData = request.body.data;
+    const body = request.body as { training_station_id: string; training_type_id: string };
 
     const validation = ValidationHelper.validate([
         {
             name: "training_type_id",
-            validationObject: requestData.training_type_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
+            validationObject: body.training_type_id,
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
         },
         {
             name: "training_station_id",
-            validationObject: requestData.training_station_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
+            validationObject: body.training_station_id,
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
         },
     ]);
 
@@ -176,13 +178,13 @@ async function addStation(request: Request, response: Response) {
 
     const station = await TrainingStation.findOne({
         where: {
-            id: requestData.training_station_id,
+            id: body.training_station_id,
         },
     });
 
     const trainingType = await TrainingType.findOne({
         where: {
-            id: requestData.training_type_id,
+            id: body.training_type_id,
         },
     });
 
@@ -192,8 +194,8 @@ async function addStation(request: Request, response: Response) {
     }
 
     await TrainingStationBelongsToTrainingType.create({
-        training_station_id: requestData.training_station_id,
-        training_type_id: requestData.training_type_id,
+        training_station_id: Number(body.training_station_id),
+        training_type_id: Number(body.training_type_id),
     });
 
     response.send(station);
