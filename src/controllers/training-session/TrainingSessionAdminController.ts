@@ -360,7 +360,7 @@ async function getCourseTrainingTypes(request: Request, response: Response) {
 async function createTrainingLogs(request: Request, response: Response) {
     const user: User = request.body.user;
     const params = request.params as { uuid: string };
-    const body = request.body as { user_id: number; next_training_id: number; log_public: boolean; passed: boolean; user_log: any[] }[];
+    const body = request.body as { user_id: number; next_training_id: number; course_completed: boolean; log_public: boolean; passed: boolean; user_log: any[] }[];
 
     if (body == null || body.length == 0) {
         response.sendStatus(HttpStatusCode.BadRequest);
@@ -386,42 +386,44 @@ async function createTrainingLogs(request: Request, response: Response) {
         for (let i = 0; i < body.length; i++) {
             const user_id = body[i].user_id;
 
-                const trainingLog = await TrainingLog.create({
-                    uuid: generateUUID(),
-                    content: body[i].user_log,
-                    log_public: body[i].log_public,
-                    author_id: user.id,
-                }, {
+            const trainingLog = await TrainingLog.create({
+                uuid: generateUUID(),
+                content: body[i].user_log,
+                log_public: body[i].log_public,
+                author_id: user.id,
+            }, {
+                transaction: t
+            });
+
+            await TrainingSessionBelongsToUsers.update(
+                {
+                    log_id: trainingLog.id,
+                    passed: body[i].passed,
+                },
+                {
+                    where: {
+                        user_id: body[i].user_id,
+                        training_session_id: session?.id,
+                    },
                     transaction: t
-                });
+                }
+            );
 
-                await TrainingSessionBelongsToUsers.update(
-                    {
-                        log_id: trainingLog.id,
-                        passed: body[i].passed,
+            await TrainingRequest.update(
+                {
+                    status: "completed",
+                },
+                {
+                    where: {
+                        user_id: user_id,
+                        training_session_id: session.id,
                     },
-                    {
-                        where: {
-                            user_id: body[i].user_id,
-                            training_session_id: session?.id,
-                        },
-                        transaction: t
-                    }
-                );
+                    transaction: t
+                }
+            );
 
-                await TrainingRequest.update(
-                    {
-                        status: "completed",
-                    },
-                    {
-                        where: {
-                            user_id: user_id,
-                            training_session_id: session.id,
-                        },
-                        transaction: t
-                    }
-                );
-
+            // If the course is marked as completed, we need to update accordingly
+            if (body[i].course_completed) {
                 await UsersBelongsToCourses.update(
                     {
                         next_training_type: body[i].next_training_id,
@@ -435,6 +437,22 @@ async function createTrainingLogs(request: Request, response: Response) {
                         transaction: t
                     }
                 );
+            } else {
+                await UsersBelongsToCourses.update(
+                    {
+                        completed: true,
+                        next_training_type: null
+                    },
+                    {
+                        where: {
+                            user_id: body[i].user_id,
+                            course_id: session.course?.id ?? -1,
+                            completed: false,
+                        },
+                        transaction: t
+                    }
+                );
+            }
         }
 
         await session.update("completed", true, {transaction: t});
