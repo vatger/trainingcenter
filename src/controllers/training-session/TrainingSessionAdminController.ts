@@ -14,6 +14,7 @@ import { TrainingType } from "../../models/TrainingType";
 import { Op } from "sequelize";
 import { TrainingLog } from "../../models/TrainingLog";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
+import { sequelize } from "../../core/Sequelize";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -378,58 +379,71 @@ async function createTrainingLogs(request: Request, response: Response) {
         return;
     }
 
-    for (let i = 0; i < body.length; i++) {
-        const user_id = body[i].user_id;
+    // All of these steps MUST complete, else we are left in an undefined state
+    const t = await sequelize.transaction();
 
-        const trainingLog = await TrainingLog.create({
-            uuid: generateUUID(),
-            content: body[i].user_log,
-            log_public: body[i].log_public,
-            author_id: user.id,
-        });
+    try {
+        for (let i = 0; i < body.length; i++) {
+            const user_id = body[i].user_id;
 
-        await TrainingSessionBelongsToUsers.update(
-            {
-                log_id: trainingLog.id,
-                passed: body[i].passed,
-            },
-            {
-                where: {
-                    user_id: body[i].user_id,
-                    training_session_id: session?.id,
-                },
-            }
-        );
+                const trainingLog = await TrainingLog.create({
+                    uuid: generateUUID(),
+                    content: body[i].user_log,
+                    log_public: body[i].log_public,
+                    author_id: user.id,
+                }, {
+                    transaction: t
+                });
 
-        await TrainingRequest.update(
-            {
-                status: "completed",
-            },
-            {
-                where: {
-                    user_id: user_id,
-                    training_session_id: session.id,
-                },
-            }
-        );
+                await TrainingSessionBelongsToUsers.update(
+                    {
+                        log_id: trainingLog.id,
+                        passed: body[i].passed,
+                    },
+                    {
+                        where: {
+                            user_id: body[i].user_id,
+                            training_session_id: session?.id,
+                        },
+                        transaction: t
+                    }
+                );
 
-        await UsersBelongsToCourses.update(
-            {
-                next_training_type: body[i].next_training_id,
-            },
-            {
-                where: {
-                    user_id: body[i].user_id,
-                    course_id: session.course?.id ?? -1,
-                    completed: false,
-                },
-            }
-        );
+                await TrainingRequest.update(
+                    {
+                        status: "completed",
+                    },
+                    {
+                        where: {
+                            user_id: user_id,
+                            training_session_id: session.id,
+                        },
+                        transaction: t
+                    }
+                );
+
+                await UsersBelongsToCourses.update(
+                    {
+                        next_training_type: body[i].next_training_id,
+                    },
+                    {
+                        where: {
+                            user_id: body[i].user_id,
+                            course_id: session.course?.id ?? -1,
+                            completed: false,
+                        },
+                        transaction: t
+                    }
+                );
+        }
+
+        await session.update("completed", true, {transaction: t});
+        await t.commit();
+    } catch (e) {
+        await t.rollback();
+        response.sendStatus(HttpStatusCode.BadRequest);
+        return;
     }
-
-    await session.update({
-        completed: true,
-    });
 
     response.sendStatus(HttpStatusCode.Ok);
 }
