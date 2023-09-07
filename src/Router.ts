@@ -64,8 +64,20 @@ router.use(
         r.delete("/session", SessionController.deleteUserSession);
 
         r.get("/gdpr", GDPRController.getData);
-        r.get("/notifications", UserNotificationController.getNotifications);
-        r.get("/notifications/unread", UserNotificationController.getUnreadNotifications);
+
+        r.use(
+            "/notification",
+            routerGroup((r: Router) => {
+                r.get("/", UserNotificationController.getNotifications);
+                r.delete("/", UserNotificationController.deleteNotification);
+
+                r.get("/unread", UserNotificationController.getUnreadNotifications);
+
+                r.post("/toggle", UserNotificationController.toggleMarkNotificationRead);
+                r.post("/read", UserNotificationController.markNotificationRead);
+                r.post("/read/all", UserNotificationController.markAllNotificationsRead);
+            })
+        );
 
         r.use(
             "/course",

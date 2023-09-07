@@ -360,7 +360,14 @@ async function getCourseTrainingTypes(request: Request, response: Response) {
 async function createTrainingLogs(request: Request, response: Response) {
     const user: User = request.body.user;
     const params = request.params as { uuid: string };
-    const body = request.body as { user_id: number; next_training_id: number; course_completed: boolean; log_public: boolean; passed: boolean; user_log: any[] }[];
+    const body = request.body as {
+        user_id: number;
+        next_training_id: number;
+        course_completed: boolean;
+        log_public: boolean;
+        passed: boolean;
+        user_log: any[];
+    }[];
 
     if (body == null || body.length == 0) {
         response.sendStatus(HttpStatusCode.BadRequest);
@@ -386,14 +393,17 @@ async function createTrainingLogs(request: Request, response: Response) {
         for (let i = 0; i < body.length; i++) {
             const user_id = body[i].user_id;
 
-            const trainingLog = await TrainingLog.create({
-                uuid: generateUUID(),
-                content: body[i].user_log,
-                log_public: body[i].log_public,
-                author_id: user.id,
-            }, {
-                transaction: t
-            });
+            const trainingLog = await TrainingLog.create(
+                {
+                    uuid: generateUUID(),
+                    content: body[i].user_log,
+                    log_public: body[i].log_public,
+                    author_id: user.id,
+                },
+                {
+                    transaction: t,
+                }
+            );
 
             await TrainingSessionBelongsToUsers.update(
                 {
@@ -405,7 +415,7 @@ async function createTrainingLogs(request: Request, response: Response) {
                         user_id: body[i].user_id,
                         training_session_id: session?.id,
                     },
-                    transaction: t
+                    transaction: t,
                 }
             );
 
@@ -418,12 +428,36 @@ async function createTrainingLogs(request: Request, response: Response) {
                         user_id: user_id,
                         training_session_id: session.id,
                     },
-                    transaction: t
+                    transaction: t,
                 }
             );
 
             // If the course is marked as completed, we need to update accordingly
             if (body[i].course_completed) {
+                await UsersBelongsToCourses.update(
+                    {
+                        completed: true,
+                        next_training_type: null,
+                    },
+                    {
+                        where: {
+                            user_id: body[i].user_id,
+                            course_id: session.course?.id ?? -1,
+                            completed: false,
+                        },
+                        transaction: t,
+                    }
+                );
+
+                await NotificationLibrary.sendUserNotification({
+                    user_id: user_id,
+                    author_id: user.id,
+                    message_de: `Der Kurs ${session.course?.name ?? "N/A"} wurde als abgeschlossen markiert`,
+                    message_en: `The Course ${session.course?.name ?? "N/A"} was marked as complete`,
+                    icon: "check",
+                    severity: "success",
+                });
+            } else {
                 await UsersBelongsToCourses.update(
                     {
                         next_training_type: body[i].next_training_id,
@@ -434,34 +468,23 @@ async function createTrainingLogs(request: Request, response: Response) {
                             course_id: session.course?.id ?? -1,
                             completed: false,
                         },
-                        transaction: t
-                    }
-                );
-            } else {
-                await UsersBelongsToCourses.update(
-                    {
-                        completed: true,
-                        next_training_type: null
-                    },
-                    {
-                        where: {
-                            user_id: body[i].user_id,
-                            course_id: session.course?.id ?? -1,
-                            completed: false,
-                        },
-                        transaction: t
+                        transaction: t,
                     }
                 );
             }
         }
 
-        await session.update("completed", true, {transaction: t});
         await t.commit();
     } catch (e) {
         await t.rollback();
         response.sendStatus(HttpStatusCode.BadRequest);
+        console.error(e);
         return;
     }
+
+    await session.update({
+        completed: true,
+    });
 
     response.sendStatus(HttpStatusCode.Ok);
 }
