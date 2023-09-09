@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
 import _TrainingSessionAdminValidator from "./_TrainingSessionAdminValidator";
 import { Course } from "../../models/Course";
@@ -358,39 +358,39 @@ async function getCourseTrainingTypes(request: Request, response: Response) {
     response.send(session.course?.training_types);
 }
 
-async function createTrainingLogs(request: Request, response: Response) {
-    const user: User = request.body.user;
-    const params = request.params as { uuid: string };
-    const body = request.body as {
-        user_id: number;
-        next_training_id: number;
-        course_completed: boolean;
-        log_public: boolean;
-        passed: boolean;
-        user_log: any[];
-    }[];
-
-    if (body == null || body.length == 0) {
-        response.sendStatus(HttpStatusCode.BadRequest);
-        return;
-    }
-
-    const session = await TrainingSession.findOne({
-        where: {
-            uuid: params.uuid,
-        },
-        include: [TrainingSession.associations.course],
-    });
-
-    if (session == null) {
-        response.sendStatus(HttpStatusCode.InternalServerError);
-        return;
-    }
-
+async function createTrainingLogs(request: Request, response: Response, next: NextFunction) {
     // All of these steps MUST complete, else we are left in an undefined state
     const t = await sequelize.transaction();
 
     try {
+        const user: User = request.body.user;
+        const params = request.params as { uuid: string };
+        const body = request.body as {
+            user_id: number;
+            next_training_id: number;
+            course_completed: boolean;
+            log_public: boolean;
+            passed: boolean;
+            user_log: any[];
+        }[];
+
+        if (body == null || body.length == 0) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        const session = await TrainingSession.findOne({
+            where: {
+                uuid: params.uuid,
+            },
+            include: [TrainingSession.associations.course],
+        });
+
+        if (session == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
         for (let i = 0; i < body.length; i++) {
             const user_id = body[i].user_id;
 
@@ -476,18 +476,16 @@ async function createTrainingLogs(request: Request, response: Response) {
         }
 
         await t.commit();
+
+        await session.update({
+            completed: true,
+        });
+
+        response.sendStatus(HttpStatusCode.Ok);
     } catch (e) {
         await t.rollback();
-        response.sendStatus(HttpStatusCode.BadRequest);
-        console.error(e);
-        return;
+        next(e);
     }
-
-    await session.update({
-        completed: true,
-    });
-
-    response.sendStatus(HttpStatusCode.Ok);
 }
 
 export default {

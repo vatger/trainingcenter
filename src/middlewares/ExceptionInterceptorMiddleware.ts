@@ -5,6 +5,8 @@ import { ValidationException } from "../exceptions/ValidationException";
 import { UnauthorizedException } from "../exceptions/UnauthorizedException";
 import { VatsimConnectException } from "../exceptions/VatsimConnectException";
 
+const sequelizeErrors = ["SequelizeValidationError", "SequelizeForeignKeyConstraintError"];
+
 export async function exceptionInterceptorMiddleware(error: any, request: Request, response: Response, next: NextFunction) {
     if (error instanceof UnauthorizedException) {
         response.status(HttpStatusCode.Unauthorized).send({
@@ -42,7 +44,7 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
         return;
     }
 
-    if (error.name === "SequelizeValidationError") {
+    if (sequelizeErrors.includes(error.name)) {
         response.status(HttpStatusCode.InternalServerError).send({
             path: request.url,
             method: request.method,
@@ -52,7 +54,6 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
         return;
     }
 
-    console.error(error);
     response.status(HttpStatusCode.InternalServerError).send({
         path: request.url,
         method: request.method,

@@ -242,10 +242,11 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/template", LogTemplateAdministrationController.getAll);
                 r.post("/template", LogTemplateAdministrationController.create);
+                r.get("/template/min", LogTemplateAdministrationController.getAllMinimalData);
+
                 r.get("/template/:id", LogTemplateAdministrationController.getByID);
                 r.patch("/template/:id", LogTemplateAdministrationController.update);
-
-                r.get("/template/min", LogTemplateAdministrationController.getAllMinimalData);
+                r.delete("/template/:id", LogTemplateAdministrationController.destroy);
             })
         );
 

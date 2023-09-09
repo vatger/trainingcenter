@@ -114,10 +114,33 @@ async function update(request: Request, response: Response, next: NextFunction) 
     }
 }
 
+/**
+ * Delete a training log template
+ * @param request
+ * @param response
+ * @param next
+ */
+async function destroy(request: Request, response: Response, next: NextFunction) {
+    try {
+        const params = request.params as { id: string };
+
+        await TrainingLogTemplate.destroy({
+            where: {
+                id: params.id,
+            },
+        });
+
+        response.sendStatus(HttpStatusCode.Ok);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     getAll,
     getAllMinimalData,
     getByID,
     create,
     update,
+    destroy,
 };
