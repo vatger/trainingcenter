@@ -313,18 +313,18 @@ export class VatsimConnectLibrary {
             {
                 name: "cid",
                 validationObject: this.m_userData?.data.cid,
-                toValidate: [{val: ValidationOptions.NON_NULL}, {val: ValidationOptions.NUMBER}]
+                toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
             },
             {
                 name: "personal",
                 validationObject: this.m_userData?.data.personal,
-                toValidate: [{val: ValidationOptions.NON_NULL}]
+                toValidate: [{ val: ValidationOptions.NON_NULL }],
             },
             {
                 name: "vatsim",
                 validationObject: this.m_userData?.data.vatsim,
-                toValidate: [{val: ValidationOptions.NON_NULL}]
-            }
+                toValidate: [{ val: ValidationOptions.NON_NULL }],
+            },
         ]);
     }
 
@@ -336,32 +336,38 @@ export class VatsimConnectLibrary {
 
         try {
             // Create database entries
-            await User.upsert({
-                id: this.m_userData.data.cid,
-                first_name: this.m_userData.data.personal.name_first,
-                last_name: this.m_userData.data.personal.name_last,
-                email: this.m_userData.data.personal.email,
-                access_token: tokenValid ? this.m_accessToken : null,
-                refresh_token: tokenValid ? this.m_refreshToken : null,
-            }, {
-                transaction: t
-            });
+            await User.upsert(
+                {
+                    id: this.m_userData.data.cid,
+                    first_name: this.m_userData.data.personal.name_first,
+                    last_name: this.m_userData.data.personal.name_last,
+                    email: this.m_userData.data.personal.email,
+                    access_token: tokenValid ? this.m_accessToken : null,
+                    refresh_token: tokenValid ? this.m_refreshToken : null,
+                },
+                {
+                    transaction: t,
+                }
+            );
 
-            await UserData.upsert({
-                user_id: this.m_userData.data.cid,
-                rating_atc: this.m_userData.data.vatsim.rating.id,
-                rating_pilot: this.m_userData.data.vatsim.pilotrating.id,
-                country_code: this.m_userData.data.personal.country.id,
-                country_name: this.m_userData.data.personal.country.name,
-                region_name: this.m_userData.data.vatsim.region.name,
-                region_code: this.m_userData.data.vatsim.region.id,
-                division_name: this.m_userData.data.vatsim.division.name,
-                division_code: this.m_userData.data.vatsim.division.id,
-                subdivision_name: this.m_userData.data.vatsim.subdivision.name,
-                subdivision_code: this.m_userData.data.vatsim.subdivision.id,
-            }, {
-                transaction: t
-            });
+            await UserData.upsert(
+                {
+                    user_id: this.m_userData.data.cid,
+                    rating_atc: this.m_userData.data.vatsim.rating.id,
+                    rating_pilot: this.m_userData.data.vatsim.pilotrating.id,
+                    country_code: this.m_userData.data.personal.country.id,
+                    country_name: this.m_userData.data.personal.country.name,
+                    region_name: this.m_userData.data.vatsim.region.name,
+                    region_code: this.m_userData.data.vatsim.region.id,
+                    division_name: this.m_userData.data.vatsim.division.name,
+                    division_code: this.m_userData.data.vatsim.division.id,
+                    subdivision_name: this.m_userData.data.vatsim.subdivision.name,
+                    subdivision_code: this.m_userData.data.vatsim.subdivision.id,
+                },
+                {
+                    transaction: t,
+                }
+            );
 
             await t.commit();
         } catch (e) {

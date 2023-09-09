@@ -30,6 +30,7 @@ export enum ValidationOptions {
     NOT_EQUAL_NUM,
     IN_ARRAY,
     VALID_DATE,
+    VALID_JSON,
 }
 
 /**
@@ -104,6 +105,15 @@ function validate(options: ValidationType[]): { invalid: boolean; message: any[]
                     if (!dayjs(toCheck).isValid()) {
                         invalid = true;
                         message.push({ key: opt.name, code: "VAL_NOT_VALID_DATE", message: "Parameter is not a valid date." });
+                    }
+                    break;
+
+                case ValidationOptions.VALID_JSON:
+                    try {
+                        JSON.parse(JSON.stringify(toCheck));
+                    } catch (e) {
+                        invalid = true;
+                        message.push({ key: opt.name, code: "VAL_NOT_VALID_JSON", message: "Paramter is not valid JSON" });
                     }
                     break;
             }

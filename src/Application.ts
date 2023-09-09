@@ -9,6 +9,7 @@ import { syslogMiddleware } from "./middlewares/SyslogMiddleware";
 import { handleUncaughtException } from "./exceptions/handler/ExceptionHandler";
 import fileUpload from "express-fileupload";
 import { router } from "./Router";
+import { exceptionInterceptorMiddleware } from "./middlewares/ExceptionInterceptorMiddleware";
 
 const application: Express = express();
 
@@ -40,6 +41,7 @@ initializeApplication()
 
         application.use(syslogMiddleware);
         application.use("/", router);
+        application.use(exceptionInterceptorMiddleware);
     })
     .catch(() => {
         Logger.log(LogLevels.LOG_ERROR, "\n\nFatal Error detected. Application will now shutdown!\n\n");

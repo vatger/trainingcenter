@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
 import _CourseAdministrationValidator from "./_CourseAdministration.validator";
 import ValidationHelper from "../../utility/helper/ValidationHelper";
@@ -9,6 +9,7 @@ import { MentorGroup } from "../../models/MentorGroup";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { TrainingType } from "../../models/TrainingType";
+import { sequelize } from "../../core/Sequelize";
 
 // TODO: Move all course related things into this controller
 
@@ -32,84 +33,103 @@ interface ICourseBody {
  * Validates and creates a new course based on the request
  * @param request
  * @param response
+ * @param next
  */
-async function createCourse(request: Request, response: Response) {
-    const user: User = request.body.user;
-    const body: ICourseBody = request.body as ICourseBody;
+async function createCourse(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+        const body: ICourseBody = request.body as ICourseBody;
 
-    const validation = _CourseAdministrationValidator.validateUpdateOrCreateRequest(body);
-    if (validation.invalid) {
-        ValidationHelper.sendValidationErrorResponse(response, validation);
-        return;
+        _CourseAdministrationValidator.validateUpdateOrCreateRequest(body);
+
+        if (!(await user.canManageCourseInMentorGroup(Number(body.mentor_group_id)))) {
+            response.sendStatus(HttpStatusCode.Forbidden);
+            return;
+        }
+
+        const skillTemplateID = isNaN(Number(body.skill_template_id)) || body.skill_template_id == "-1" ? null : Number(body.skill_template_id);
+        const t = await sequelize.transaction();
+
+        try {
+            const course = await Course.create(
+                {
+                    uuid: body.course_uuid,
+                    name: body.name_de,
+                    name_en: body.name_en,
+                    description: body.description_de,
+                    description_en: body.description_en,
+                    is_active: body.active,
+                    self_enrollment_enabled: body.self_enrol_enabled,
+                    initial_training_type: Number(body.training_type_id),
+                    skill_template_id: skillTemplateID,
+                },
+                {
+                    transaction: t,
+                }
+            );
+
+            await MentorGroupsBelongsToCourses.create(
+                {
+                    mentor_group_id: Number(body.mentor_group_id),
+                    course_id: course.id,
+                    can_edit_course: true,
+                },
+                {
+                    transaction: t,
+                }
+            );
+
+            await t.commit();
+            response.status(HttpStatusCode.Created).send({ uuid: course.uuid });
+        } catch (e) {
+            await t.rollback();
+        }
+    } catch (e) {
+        next(e);
     }
-
-    if (!(await user.canManageCourseInMentorGroup(Number(body.mentor_group_id)))) {
-        response.sendStatus(HttpStatusCode.Forbidden);
-        return;
-    }
-
-    const skillTemplateID = isNaN(Number(body.skill_template_id)) || body.skill_template_id == "-1" ? null : Number(body.skill_template_id);
-    const course = await Course.create({
-        uuid: body.course_uuid,
-        name: body.name_de,
-        name_en: body.name_en,
-        description: body.description_de,
-        description_en: body.description_en,
-        is_active: body.active,
-        self_enrollment_enabled: body.self_enrol_enabled,
-        initial_training_type: Number(body.training_type_id),
-        skill_template_id: skillTemplateID,
-    });
-
-    await MentorGroupsBelongsToCourses.create({
-        mentor_group_id: Number(body.mentor_group_id),
-        course_id: course.id,
-        can_edit_course: true,
-    });
-
-    response.status(HttpStatusCode.Created).send({ uuid: course.uuid });
 }
 
 /**
  * Validates and updates a course based on the request
  * @param request
  * @param response
+ * @param next
  */
-async function updateCourse(request: Request, response: Response) {
-    const user: User = request.body.user;
-    const body: ICourseBody = request.body as ICourseBody;
+async function updateCourse(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+        const body: ICourseBody = request.body as ICourseBody;
 
-    const validation = _CourseAdministrationValidator.validateUpdateOrCreateRequest(body);
-    if (validation.invalid) {
-        ValidationHelper.sendValidationErrorResponse(response, validation);
-        return;
-    }
+        _CourseAdministrationValidator.validateUpdateOrCreateRequest(body);
 
-    if (!(await user.canEditCourse(body.course_uuid))) {
-        response.sendStatus(HttpStatusCode.Forbidden);
-        return;
-    }
-
-    const skillTemplateID = isNaN(Number(body.skill_template_id)) || body.skill_template_id == "-1" ? null : Number(body.skill_template_id);
-    await Course.update(
-        {
-            name: body.name_de,
-            name_en: body.name_en,
-            description: body.description_de,
-            description_en: body.description_en,
-            is_active: body.active,
-            self_enrollment_enabled: body.self_enrol_enabled,
-            initial_training_type: Number(body.training_type_id),
-            skill_template_id: skillTemplateID,
-        },
-        {
-            where: {
-                uuid: body.course_uuid,
-            },
+        if (!(await user.canEditCourse(body.course_uuid))) {
+            response.sendStatus(HttpStatusCode.Forbidden);
+            return;
         }
-    );
 
-    response.sendStatus(HttpStatusCode.NoContent);
+        const skillTemplateID = isNaN(Number(body.skill_template_id)) || body.skill_template_id == "-1" ? null : Number(body.skill_template_id);
+        await Course.update(
+            {
+                name: body.name_de,
+                name_en: body.name_en,
+                description: body.description_de,
+                description_en: body.description_en,
+                is_active: body.active,
+                self_enrollment_enabled: body.self_enrol_enabled,
+                initial_training_type: Number(body.training_type_id),
+                skill_template_id: skillTemplateID,
+            },
+            {
+                where: {
+                    uuid: body.course_uuid,
+                },
+            }
+        );
+
+        response.sendStatus(HttpStatusCode.NoContent);
+    } catch (e) {
+        next(e);
+    }
 }
 
 /**

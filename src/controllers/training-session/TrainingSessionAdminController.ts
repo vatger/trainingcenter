@@ -118,7 +118,7 @@ async function createTrainingSession(request: Request, response: Response) {
 async function updateByUUID(request: Request, response: Response) {
     const user = request.body.user;
     const sessionUUID = request.params.uuid;
-    const data = request.body as { date: string; training_station: string };
+    const data = request.body as { date: string; training_station?: string };
 
     const session = await TrainingSession.findOne({
         where: {
@@ -131,9 +131,10 @@ async function updateByUUID(request: Request, response: Response) {
         return;
     }
 
+    const training_station_id = Number(data.training_station);
     await session.update({
         date: dayjs.utc(data.date).toDate(),
-        training_station_id: data.training_station == "-1" ? null : Number(data.training_station),
+        training_station_id: isNaN(training_station_id) || training_station_id == -1 ? null : training_station_id,
     });
 
     response.sendStatus(HttpStatusCode.Ok);

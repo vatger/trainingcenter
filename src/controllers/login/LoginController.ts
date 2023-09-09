@@ -1,5 +1,5 @@
 import { Config } from "../../core/Config";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { ConnectOptions, VatsimConnectLibrary } from "../../libraries/vatsim/ConnectLibrary";
 import { VatsimConnectException } from "../../exceptions/VatsimConnectException";
 import Logger, { LogLevels } from "../../utility/Logger";
@@ -10,18 +10,13 @@ import UserSessionLibrary from "../../libraries/session/UserSessionLibrary";
 import dayjs from "dayjs";
 import axios, { HttpStatusCode } from "axios";
 
-// We can ignore all errors, since we are validating the .env
+// We can ignore all errors, since we are validating the .env at startup
 const connect_options: ConnectOptions = {
-    // @ts-ignore
-    client_id: Config.CONNECT_CONFIG.CLIENT_ID,
-    // @ts-ignore
-    client_secret: Config.CONNECT_CONFIG.SECRET,
-    // @ts-ignore
-    redirect_uri: encodeURI(Config.CONNECT_CONFIG.REDIRECT_URI),
-    // @ts-ignore
-    base_uri: Config.CONNECT_CONFIG.BASE_URL,
-    // @ts-ignore
-    client_scopes: Config.CONNECT_CONFIG.SCOPE,
+    client_id: Config.CONNECT_CONFIG.CLIENT_ID!,
+    client_secret: Config.CONNECT_CONFIG.SECRET!,
+    redirect_uri: encodeURI(Config.CONNECT_CONFIG.REDIRECT_URI!),
+    base_uri: Config.CONNECT_CONFIG.BASE_URL!,
+    client_scopes: Config.CONNECT_CONFIG.SCOPE!,
 };
 
 /**
@@ -46,20 +41,16 @@ function getRedirectUri(request: Request, response: Response) {
  * Signs the user in and returns the user model if successful including personal data
  * @param request
  * @param response
+ * @param next
  */
-async function login(request: Request, response: Response) {
-    const code = request.body.connect_code;
-    const remember: boolean = request.body.remember ?? false;
-    const vatsimConnectLibrary = new VatsimConnectLibrary(connect_options, remember);
-
+async function login(request: Request, response: Response, next: NextFunction) {
     try {
-        await vatsimConnectLibrary.login(request, response, code);
-    } catch (e: any) {
-        if (e instanceof VatsimConnectException) {
-            Logger.log(LogLevels.LOG_ERROR, e.message);
-            e.sendResponse(response);
-            return;
-        }
+        const body = request.body as { connect_code: string; remember?: boolean };
+        const vatsimConnectLibrary = new VatsimConnectLibrary(connect_options, body.remember ?? false);
+
+        await vatsimConnectLibrary.login(request, response, body.connect_code);
+    } catch (e) {
+        next(e);
     }
 }
 

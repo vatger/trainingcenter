@@ -1,4 +1,4 @@
-import { Sequelize, QueryOptions, QueryOptionsWithType, QueryTypes } from "sequelize";
+import { Sequelize } from "sequelize";
 import { SequelizeConfig } from "./Config";
 
 export const sequelize: Sequelize = new Sequelize(SequelizeConfig);

@@ -7,7 +7,7 @@ export class TrainingLogTemplate extends Model<InferAttributes<TrainingLogTempla
     // Attributes
     //
     declare name: string;
-    declare content: string;
+    declare content: string | object | object[];
 
     //
     // Optional Attributes

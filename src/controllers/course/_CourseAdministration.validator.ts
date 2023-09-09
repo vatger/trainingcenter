@@ -1,8 +1,9 @@
 import { ValidatorType } from "../_validators/ValidatorType";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
+import { ValidationException } from "../../exceptions/ValidationException";
 
-function validateUpdateOrCreateRequest(data: any): ValidatorType {
-    return ValidationHelper.validate([
+function validateUpdateOrCreateRequest(data: any) {
+    const validation = ValidationHelper.validate([
         {
             name: "course_uuid",
             validationObject: data.course_uuid,
@@ -44,6 +45,10 @@ function validateUpdateOrCreateRequest(data: any): ValidatorType {
             toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
         },
     ]);
+
+    if (validation.invalid) {
+        throw new ValidationException(validation);
+    }
 }
 
 function validateAddMentorGroupRequest(data: any): ValidatorType {
