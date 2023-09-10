@@ -5,7 +5,7 @@ import { ValidationException } from "../exceptions/ValidationException";
 import { UnauthorizedException } from "../exceptions/UnauthorizedException";
 import { VatsimConnectException } from "../exceptions/VatsimConnectException";
 
-const sequelizeErrors = ["SequelizeValidationError", "SequelizeForeignKeyConstraintError"];
+const sequelizeErrors = ["SequelizeValidationError", "SequelizeForeignKeyConstraintError", "SequelizeUniqueConstraintError"];
 
 export async function exceptionInterceptorMiddleware(error: any, request: Request, response: Response, next: NextFunction) {
     if (error instanceof UnauthorizedException) {

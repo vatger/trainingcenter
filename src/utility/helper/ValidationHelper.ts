@@ -2,6 +2,7 @@ import dayjs from "dayjs";
 import { Response } from "express";
 import { ValidatorType } from "../../controllers/_validators/ValidatorType";
 import { HttpStatusCode } from "axios";
+import { isArray } from "util";
 
 export function validateObject(object: any, keys: string[], checkStringNull = false) {
     let malformedKeys: any[] = [];
@@ -31,6 +32,7 @@ export enum ValidationOptions {
     IN_ARRAY,
     VALID_DATE,
     VALID_JSON,
+    LENGTH_GT,
 }
 
 /**
@@ -114,6 +116,13 @@ function validate(options: ValidationType[]): { invalid: boolean; message: any[]
                     } catch (e) {
                         invalid = true;
                         message.push({ key: opt.name, code: "VAL_NOT_VALID_JSON", message: "Paramter is not valid JSON" });
+                    }
+                    break;
+
+                case ValidationOptions.LENGTH_GT:
+                    if (!Array.isArray(toCheck) || toCheck.length <= val.value) {
+                        invalid = true;
+                        message.push({ key: opt.name, code: "VAL_INV_ARRAY", message: "Parameter is not array, or does not satisfy conditions" });
                     }
                     break;
             }

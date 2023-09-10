@@ -37,6 +37,7 @@ TrainingStation.init(
         callsign: {
             type: DataType.STRING(15),
             allowNull: false,
+            unique: true,
         },
         frequency: {
             type: DataType.FLOAT(6, 3),

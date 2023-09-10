@@ -29,6 +29,7 @@ import UserCourseAdminController from "./controllers/user/UserCourseAdminControl
 import SessionController from "./controllers/login/SessionController";
 import UserSettingsController from "./controllers/user/UserSettingsController";
 import CourseAdministrationController from "./controllers/course/CourseAdministrationController";
+import TrainingStationAdminController from "./controllers/training-station/TrainingStationAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -271,11 +272,12 @@ router.use(
         r.use(
             "/training-station",
             routerGroup((r: Router) => {
-                r.get("/", async (request, response) => {
-                    const d = await TrainingStation.findAll();
-                    // TODO: move to controller
-                    response.send(d);
-                });
+                r.get("/", TrainingStationAdminController.getAll);
+                r.get("/:id", TrainingStationAdminController.getByID);
+                r.delete("/:id", TrainingStationAdminController.destroy);
+                r.patch("/:id", TrainingStationAdminController.update);
+
+                r.post("/", TrainingStationAdminController.createStations);
             })
         );
 
