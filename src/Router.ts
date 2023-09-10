@@ -30,6 +30,7 @@ import SessionController from "./controllers/login/SessionController";
 import UserSettingsController from "./controllers/user/UserSettingsController";
 import CourseAdministrationController from "./controllers/course/CourseAdministrationController";
 import TrainingStationAdminController from "./controllers/training-station/TrainingStationAdminController";
+import TrainingLogController from "./controllers/training-log/TrainingLogController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -93,6 +94,13 @@ router.use(
                 r.get("/info/my", CourseInformationController.getUserCourseInformationByUUID);
                 r.get("/info/training", CourseInformationController.getCourseTrainingInformationByUUID);
                 r.get("/info/requirements/validate", CourseInformationController.validateCourseRequirements);
+            })
+        );
+
+        r.use(
+            "/training-log",
+            routerGroup((r: Router) => {
+                r.get("/:uuid", TrainingLogController.getByUUID);
             })
         );
 

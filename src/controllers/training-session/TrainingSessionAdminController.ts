@@ -475,11 +475,16 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
             }
         }
 
-        await t.commit();
-
-        await session.update({
-            completed: true,
+        await TrainingSession.update({
+            completed: true
+        }, {
+            where: {
+                id: session.id
+            },
+            transaction: t
         });
+
+        await t.commit();
 
         response.sendStatus(HttpStatusCode.Ok);
     } catch (e) {
