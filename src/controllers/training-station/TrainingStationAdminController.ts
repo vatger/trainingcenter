@@ -3,6 +3,7 @@ import axios, { HttpStatusCode } from "axios";
 import { sequelize } from "../../core/Sequelize";
 import { TrainingStation } from "../../models/TrainingStation";
 import _TrainingStationAdminValidator from "./_TrainingStationAdmin.validator";
+import { Config } from "../../core/Config";
 
 type HomepageStation = {
     id: number;
@@ -79,7 +80,7 @@ async function createStations(request: Request, response: Response, next: NextFu
 
         _TrainingStationAdminValidator.validateCreateStations(body);
 
-        const stationRequest = await axios.get("http://vatsim-germany.org/api/navigation/stations/EDDF_S_TWR", {
+        const stationRequest = await axios.get(`${Config.URI_CONFIG.VATGER_API_BASE}/navigation/stations`, {
             headers: {
                 Accept: "application/json",
                 Referer: "https://vatsim-germany.org",
@@ -95,7 +96,6 @@ async function createStations(request: Request, response: Response, next: NextFu
         homepageStations = stationRequest.data as HomepageStation[];
 
         for (const station of body) {
-            let frequency = 199.999;
             const hStationFound = homepageStations.find(s => s.ident.toLowerCase() == station.callsign.toLowerCase());
             if (hStationFound == null) {
                 continue;
