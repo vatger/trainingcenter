@@ -1,8 +1,6 @@
 const { DataType } = require("sequelize-typescript");
 
-const ratingEnum = ["s1", "s2", "s3", "c1", "c3"];
-
-const DataModelAttributes = {
+const EndorsementGroupBelongsToStationsModelAttributes = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -18,32 +16,15 @@ const DataModelAttributes = {
         onUpdate: "cascade",
         onDelete: "cascade",
     },
-    user_id: {
+    station_id: {
         type: DataType.INTEGER,
         allowNull: false,
         references: {
-            model: "users",
+            model: "training_stations",
             key: "id",
         },
         onUpdate: "cascade",
         onDelete: "cascade",
-    },
-    solo: {
-        type: DataType.BOOLEAN,
-        defaultValue: false,
-        allowNull: false,
-    },
-    solo_rating: {
-        type: DataType.ENUM(...ratingEnum),
-        allowNull: false,
-        defaultValue: "s1",
-    },
-    solo_expires: {
-        type: DataType.DATE,
-    },
-    solo_extension_count: {
-        type: DataType.INTEGER,
-        defaultValue: 0,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
@@ -51,12 +32,10 @@ const DataModelAttributes = {
 
 module.exports = {
     async up(queryInterface) {
-        await queryInterface.createTable("endorsement_groups_belong_to_users", DataModelAttributes);
+        await queryInterface.createTable("endorsement_group_belongs_to_stations", EndorsementGroupBelongsToStationsModelAttributes);
     },
 
     async down(queryInterface) {
-        await queryInterface.dropTable("endorsement_groups_belong_to_users");
+        await queryInterface.dropTable("endorsement_group_belongs_to_stations");
     },
-
-    DataModelAttributes,
 };

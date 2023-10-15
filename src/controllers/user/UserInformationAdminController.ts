@@ -31,6 +31,9 @@ async function getUserDataByID(request: Request, response: Response) {
             {
                 association: User.associations.courses,
             },
+            {
+                association: User.associations.endorsement_groups,
+            },
         ],
     });
 

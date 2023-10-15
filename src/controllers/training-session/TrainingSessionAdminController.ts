@@ -475,14 +475,17 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
             }
         }
 
-        await TrainingSession.update({
-            completed: true
-        }, {
-            where: {
-                id: session.id
+        await TrainingSession.update(
+            {
+                completed: true,
             },
-            transaction: t
-        });
+            {
+                where: {
+                    id: session.id,
+                },
+                transaction: t,
+            }
+        );
 
         await t.commit();
 

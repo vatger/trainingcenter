@@ -2,6 +2,7 @@ import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonA
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { User } from "./User";
+import { TrainingStation } from "./TrainingStation";
 
 export class EndorsementGroup extends Model<InferAttributes<EndorsementGroup>, InferCreationAttributes<EndorsementGroup>> {
     //
@@ -20,9 +21,11 @@ export class EndorsementGroup extends Model<InferAttributes<EndorsementGroup>, I
     // Association placeholders
     //
     declare users?: NonAttribute<User[]>;
+    declare stations?: NonAttribute<TrainingStation[]>;
 
     declare static associations: {
         users: Association<EndorsementGroup, User>;
+        stations: Association<EndorsementGroup, TrainingStation>;
     };
 }
 

@@ -14,6 +14,7 @@ import { UsersBelongsToCourses } from "./through/UsersBelongsToCourses";
 import { TrainingRequest } from "./TrainingRequest";
 import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
 import UserExtensions from "./extensions/UserExtensions";
+import { EndorsementGroupsBelongsToUsers } from "./through/EndorsementGroupsBelongsToUsers";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     //
@@ -52,6 +53,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     // Through Association Placeholders
     //
     declare UserBelongToMentorGroups?: NonAttribute<UserBelongToMentorGroups>;
+    declare UserBelongToEndorsementGroups?: NonAttribute<EndorsementGroupsBelongsToUsers>;
 
     declare static associations: {
         user_data: Association<User, UserData>;

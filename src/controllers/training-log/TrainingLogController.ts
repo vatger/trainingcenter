@@ -4,12 +4,12 @@ import { HttpStatusCode } from "axios";
 
 async function getByUUID(request: Request, response: Response, next: NextFunction) {
     try {
-        const params = request.params as {uuid: string};
+        const params = request.params as { uuid: string };
 
         const trainingLog = await TrainingLog.findOne({
             where: {
-                uuid: params.uuid
-            }
+                uuid: params.uuid,
+            },
         });
 
         if (trainingLog == null) {
@@ -23,4 +23,4 @@ async function getByUUID(request: Request, response: Response, next: NextFunctio
     }
 }
 
-export default {getByUUID}
+export default { getByUUID };

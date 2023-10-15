@@ -1,5 +1,4 @@
 import { Router } from "express";
-import { TrainingStation } from "./models/TrainingStation";
 import { authMiddleware } from "./middlewares/AuthMiddleware";
 import LoginController from "./controllers/login/LoginController";
 import GDPRController from "./controllers/user/GDPRController";
@@ -31,6 +30,7 @@ import UserSettingsController from "./controllers/user/UserSettingsController";
 import CourseAdministrationController from "./controllers/course/CourseAdministrationController";
 import TrainingStationAdminController from "./controllers/training-station/TrainingStationAdminController";
 import TrainingLogController from "./controllers/training-log/TrainingLogController";
+import ActionRequirementAdministrationController from "./controllers/action-requirement/ActionRequirementAdministrationController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -286,6 +286,13 @@ router.use(
                 r.patch("/:id", TrainingStationAdminController.update);
 
                 r.post("/", TrainingStationAdminController.createStations);
+            })
+        );
+
+        r.use(
+            "/action-requirement",
+            routerGroup((r: Router) => {
+                r.get("/", ActionRequirementAdministrationController.getAll);
             })
         );
 
