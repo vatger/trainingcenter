@@ -16,11 +16,6 @@ const DataModelAttributes = {
         allowNull: false,
         defaultValue: 199.998,
     },
-    deactivated: {
-        type: DataType.BOOLEAN,
-        allowNull: false,
-        defaultValue: false,
-    },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
 };

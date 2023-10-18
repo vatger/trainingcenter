@@ -199,7 +199,18 @@ router.use(
         r.use(
             "/endorsement-group",
             routerGroup((r: Router) => {
+                r.get("/", EndorsementGroupAdminController.getAll);
                 r.post("/", EndorsementGroupAdminController.createEndorsementGroup);
+
+                r.get("/:id", EndorsementGroupAdminController.getByID);
+                r.patch("/:id", EndorsementGroupAdminController.updateByID);
+
+                r.get("/:id/stations", EndorsementGroupAdminController.getStationsByID);
+                r.put("/:id/stations", EndorsementGroupAdminController.addStationByID);
+                r.delete("/:id/stations", EndorsementGroupAdminController.removeStationByID);
+
+                r.get("/:id/users", EndorsementGroupAdminController.getUsersByID);
+                r.delete("/:id/users", EndorsementGroupAdminController.removeUserByID);
             })
         );
 

@@ -15,7 +15,6 @@ export class TrainingStation extends Model<InferAttributes<TrainingStation>, Inf
 
     //
     // Optional Attributes
-    declare deactivated: boolean;
     //
     declare id: CreationOptional<number>;
     declare createdAt: CreationOptional<Date> | null;
@@ -41,10 +40,6 @@ TrainingStation.init(
         },
         frequency: {
             type: DataType.FLOAT(6, 3),
-            allowNull: false,
-        },
-        deactivated: {
-            type: DataType.BOOLEAN,
             allowNull: false,
         },
         createdAt: DataType.DATE,

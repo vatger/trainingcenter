@@ -45,7 +45,7 @@ async function getByID(request: Request, response: Response, next: NextFunction)
 async function update(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };
-        const body = request.body as { callsign: string; frequency: string; deactivated: boolean };
+        const body = request.body as { callsign: string; frequency: string };
 
         _TrainingStationAdminValidator.validateUpdateStation(body);
 
@@ -63,7 +63,6 @@ async function update(request: Request, response: Response, next: NextFunction) 
         await trainingStation.update({
             callsign: body.callsign,
             frequency: Number(body.frequency),
-            deactivated: body.deactivated,
         });
 
         response.sendStatus(HttpStatusCode.Ok);
@@ -75,7 +74,7 @@ async function update(request: Request, response: Response, next: NextFunction) 
 async function createStations(request: Request, response: Response, next: NextFunction) {
     const t = await sequelize.transaction();
     try {
-        const body = request.body as { callsign: string; deactivated: boolean }[];
+        const body = request.body as { callsign: string }[];
         let homepageStations: HomepageStation[];
 
         _TrainingStationAdminValidator.validateCreateStations(body);
@@ -104,7 +103,6 @@ async function createStations(request: Request, response: Response, next: NextFu
             await TrainingStation.create(
                 {
                     callsign: station.callsign.toUpperCase(),
-                    deactivated: station.deactivated,
                     frequency: hStationFound.frequency,
                 },
                 {
