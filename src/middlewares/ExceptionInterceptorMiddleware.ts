@@ -54,6 +54,7 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
         return;
     }
 
+    console.error(error);
     response.status(HttpStatusCode.InternalServerError).send({
         path: request.url,
         method: request.method,
