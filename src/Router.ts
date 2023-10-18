@@ -31,6 +31,7 @@ import CourseAdministrationController from "./controllers/course/CourseAdministr
 import TrainingStationAdminController from "./controllers/training-station/TrainingStationAdminController";
 import TrainingLogController from "./controllers/training-log/TrainingLogController";
 import ActionRequirementAdministrationController from "./controllers/action-requirement/ActionRequirementAdministrationController";
+import EndorsementGroupAdminController from "./controllers/endorsement-group/EndorsementGroupAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -192,6 +193,13 @@ router.use(
                 r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
 
                 r.put("/log/:uuid", TrainingSessionAdminController.createTrainingLogs);
+            })
+        );
+
+        r.use(
+            "/endorsement-group",
+            routerGroup((r: Router) => {
+                r.post("/", EndorsementGroupAdminController.createEndorsementGroup);
             })
         );
 

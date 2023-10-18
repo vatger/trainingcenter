@@ -11,13 +11,13 @@ export class EndorsementGroupBelongsToStations extends Model<
     //
     // Attributes
     //
-    declare id: number;
     declare endorsement_group_id: ForeignKey<EndorsementGroup["id"]>;
     declare station_id: ForeignKey<TrainingStation["id"]>;
 
     //
     // Optional Attributes
     //
+    declare id: CreationOptional<number>;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
 }

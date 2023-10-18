@@ -2,7 +2,6 @@ import dayjs from "dayjs";
 import { Response } from "express";
 import { ValidatorType } from "../../controllers/_validators/ValidatorType";
 import { HttpStatusCode } from "axios";
-import { isArray } from "util";
 
 export function validateObject(object: any, keys: string[], checkStringNull = false) {
     let malformedKeys: any[] = [];
@@ -30,6 +29,7 @@ export enum ValidationOptions {
     NOT_EQUAL,
     NOT_EQUAL_NUM,
     IN_ARRAY,
+    IS_ARRAY,
     VALID_DATE,
     VALID_JSON,
     LENGTH_GT,
@@ -99,7 +99,14 @@ function validate(options: ValidationType[]): { invalid: boolean; message: any[]
                     const arr = val.value as any[];
                     if (!arr.includes(toCheck)) {
                         invalid = true;
-                        message.push({ key: opt.name, code: "VAL_NOT_ARR", message: `Parameter is not contained in possible options: ${arr}.` });
+                        message.push({ key: opt.name, code: "VAL_NOT_IN_ARR", message: `Parameter is not contained in possible options: ${arr}.` });
+                    }
+                    break;
+
+                case ValidationOptions.IS_ARRAY:
+                    if (!Array.isArray(toCheck)) {
+                        invalid = true;
+                        message.push({ key: opt.name, code: "VAL_NOT_ARR", message: "Parameter is not an array" });
                     }
                     break;
 
