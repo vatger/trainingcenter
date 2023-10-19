@@ -11,13 +11,13 @@ export class TrainingTypesBelongsToCourses extends Model<
     //
     // Attributes
     //
-    declare id: number;
     declare training_type_id: ForeignKey<TrainingType["id"]>;
     declare course_id: ForeignKey<Course["id"]>;
 
     //
     // Optional Attributes
     //
+    declare id: CreationOptional<number>;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
 }

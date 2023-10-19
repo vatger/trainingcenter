@@ -22,6 +22,29 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
 }
 
 /**
+ * Returns a collection of Endorsementgroups with their respective stations
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getAllWithStations(request: Request, response: Response, next: NextFunction) {
+    try {
+        const endorsementGroups = await EndorsementGroup.findAll({
+            include: {
+                association: EndorsementGroup.associations.stations,
+                attributes: ["callsign", "frequency"],
+                through: {
+                    attributes: []
+                },
+            }
+        });
+        response.send(endorsementGroups);
+    } catch (e) {
+        next(e);
+    }
+}
+
+/**
  * Get single instance of endorsement group by ID (PK)
  * @param request
  * @param response
@@ -263,6 +286,7 @@ async function createEndorsementGroup(request: Request, response: Response, next
 
 export default {
     getAll,
+    getAllWithStations,
     getByID,
     updateByID,
     getStationsByID,

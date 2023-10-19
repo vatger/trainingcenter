@@ -200,6 +200,7 @@ router.use(
             "/endorsement-group",
             routerGroup((r: Router) => {
                 r.get("/", EndorsementGroupAdminController.getAll);
+                r.get("/with-stations", EndorsementGroupAdminController.getAllWithStations);
                 r.post("/", EndorsementGroupAdminController.createEndorsementGroup);
 
                 r.get("/:id", EndorsementGroupAdminController.getByID);
@@ -231,8 +232,12 @@ router.use(
                 r.delete("/user/:course_uuid", CourseAdministrationController.removeCourseParticipant);
 
                 r.get("/mentor-group/:course_uuid", CourseAdministrationController.getCourseMentorGroups);
-                r.put("/mentor-group/:course_uuid", CourseAdministrationController.addMentorGroupToCourse);
+                r.post("/mentor-group/:course_uuid", CourseAdministrationController.addMentorGroupToCourse);
                 r.delete("/mentor-group/:course_uuid", CourseAdministrationController.removeMentorGroupFromCourse);
+
+                r.get("/training-type/:course_uuid", CourseAdministrationController.getCourseTrainingTypes);
+                r.post("/training-type/:course_uuid", CourseAdministrationController.addCourseTrainingType);
+                r.delete("/training-type/:course_uuid", CourseAdministrationController.removeCourseTrainingType);
             })
         );
 

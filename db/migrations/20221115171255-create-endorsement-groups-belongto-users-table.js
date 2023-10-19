@@ -35,7 +35,7 @@ const DataModelAttributes = {
     },
     solo_rating: {
         type: DataType.ENUM(...ratingEnum),
-        allowNull: false,
+        allowNull: true,
         defaultValue: "s1",
     },
     solo_expires: {
