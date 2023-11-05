@@ -142,7 +142,7 @@ async function update(request: Request, response: Response) {
     await trainingType.update({
         name: requestData.name,
         type: requestData.type,
-        log_template_id: !isNaN(requestData.log_template_id) && Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id),
+        log_template_id: isNaN(requestData.log_template_id) || Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id),
     });
 
     response.sendStatus(HttpStatusCode.Ok);

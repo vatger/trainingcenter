@@ -3,17 +3,19 @@ import _UserCourseProgressAdministrationValidator from "./_UserCourseProgressAdm
 import { User } from "../../models/User";
 import { HttpStatusCode } from "axios";
 import { Course } from "../../models/Course";
+import {TrainingRequest} from "../../models/TrainingRequest";
+import {TrainingSession} from "../../models/TrainingSession";
 
 async function getInformation(request: Request, response: Response, next: NextFunction) {
     try {
         const query = request.query as { course_uuid: string; user_id: string };
-        console.log(query);
         _UserCourseProgressAdministrationValidator.validateGetAllRequest(query);
 
         const user = await User.findOne({
             where: {
                 id: query.user_id,
             },
+            plain: true,
             include: [
                 {
                     association: User.associations.courses,
@@ -31,10 +33,18 @@ async function getInformation(request: Request, response: Response, next: NextFu
                 },
                 {
                     association: User.associations.training_requests,
+                    include: [TrainingRequest.associations.training_type]
                 },
                 {
                     association: User.associations.training_sessions,
+                    through: {
+                        as: "training_session_belongs_to_users",
+                    },
+                    include: [TrainingSession.associations.training_type, TrainingSession.associations.mentor]
                 },
+                {
+                    association: User.associations.training_logs
+                }
             ],
         });
 
