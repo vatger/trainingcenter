@@ -34,9 +34,9 @@ async function getAllWithStations(request: Request, response: Response, next: Ne
                 association: EndorsementGroup.associations.stations,
                 attributes: ["callsign", "frequency"],
                 through: {
-                    attributes: []
+                    attributes: [],
                 },
-            }
+            },
         });
         response.send(endorsementGroups);
     } catch (e) {
@@ -63,6 +63,29 @@ async function getByID(request: Request, response: Response, next: NextFunction)
         }
 
         response.send(endorsementGroup);
+    } catch (e) {
+        next(e);
+    }
+}
+
+/**
+ * Deletes an endorsement group by its id
+ * @param request
+ * @param response
+ * @param next
+ */
+async function deleteByID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const params = request.params as { id: string };
+        EndorsementGroupValidator.validateDeleteRequest(params);
+
+        await EndorsementGroup.destroy({
+            where: {
+                id: params.id,
+            },
+        });
+
+        response.sendStatus(HttpStatusCode.NoContent);
     } catch (e) {
         next(e);
     }
@@ -288,6 +311,7 @@ export default {
     getAll,
     getAllWithStations,
     getByID,
+    deleteByID,
     updateByID,
     getStationsByID,
     addStationByID,

@@ -10,7 +10,7 @@ import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourse
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { TrainingType } from "../../models/TrainingType";
 import { sequelize } from "../../core/Sequelize";
-import {TrainingTypesBelongsToCourses} from "../../models/through/TrainingTypesBelongsToCourses";
+import { TrainingTypesBelongsToCourses } from "../../models/through/TrainingTypesBelongsToCourses";
 
 // TODO: Move all course related things into this controller
 
@@ -431,14 +431,14 @@ async function getEditable(request: Request, response: Response) {
  */
 async function getCourseTrainingTypes(request: Request, response: Response, next: NextFunction) {
     try {
-        const params = request.params as {course_uuid: string};
+        const params = request.params as { course_uuid: string };
         // TODO: Validate
 
         const course = await Course.findOne({
             where: {
-                uuid: params.course_uuid
+                uuid: params.course_uuid,
             },
-            include: [Course.associations.training_types]
+            include: [Course.associations.training_types],
         });
 
         if (course == null || course.training_types == null) {
@@ -460,15 +460,15 @@ async function getCourseTrainingTypes(request: Request, response: Response, next
  */
 async function addCourseTrainingType(request: Request, response: Response, next: NextFunction) {
     try {
-        const params = request.params as {course_uuid: string};
-        const body = request.body as {training_type_id: string};
+        const params = request.params as { course_uuid: string };
+        const body = request.body as { training_type_id: string };
         // TODO: Validate
 
-        const course = await Course.findOne({where: {uuid: params.course_uuid}});
+        const course = await Course.findOne({ where: { uuid: params.course_uuid } });
 
         await TrainingTypesBelongsToCourses.create({
             course_id: course?.id,
-            training_type_id: Number(body.training_type_id)
+            training_type_id: Number(body.training_type_id),
         });
 
         response.sendStatus(HttpStatusCode.Ok);
@@ -485,17 +485,17 @@ async function addCourseTrainingType(request: Request, response: Response, next:
  */
 async function removeCourseTrainingType(request: Request, response: Response, next: NextFunction) {
     try {
-        const params = request.params as {course_uuid: string};
-        const body = request.body as {training_type_id: string};
+        const params = request.params as { course_uuid: string };
+        const body = request.body as { training_type_id: string };
         // TODO: Validate
 
-        const course = await Course.findOne({where: {uuid: params.course_uuid}});
+        const course = await Course.findOne({ where: { uuid: params.course_uuid } });
 
         await TrainingTypesBelongsToCourses.destroy({
             where: {
                 course_id: course?.id,
-                training_type_id: Number(body.training_type_id)
-            }
+                training_type_id: Number(body.training_type_id),
+            },
         });
 
         response.sendStatus(HttpStatusCode.Ok);

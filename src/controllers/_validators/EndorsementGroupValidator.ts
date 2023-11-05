@@ -34,6 +34,20 @@ function validateGetByIDRequest(data: any) {
     }
 }
 
+function validateDeleteRequest(data: any) {
+    const validation = ValidationHelper.validate([
+        {
+            name: "id",
+            validationObject: data.id,
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+        },
+    ]);
+
+    if (validation.invalid) {
+        throw new ValidationException(validation);
+    }
+}
+
 function validateUpdateRequest(data: any) {
     const validation = ValidationHelper.validate([
         {
@@ -79,6 +93,7 @@ function validateRemoveUserRequest(data: any) {
 export default {
     validateCreateRequest,
     validateUpdateRequest,
+    validateDeleteRequest,
     validateGetByIDRequest,
     validateStationRequest,
     validateRemoveUserRequest,

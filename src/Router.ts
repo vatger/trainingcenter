@@ -32,6 +32,7 @@ import TrainingStationAdminController from "./controllers/training-station/Train
 import TrainingLogController from "./controllers/training-log/TrainingLogController";
 import ActionRequirementAdministrationController from "./controllers/action-requirement/ActionRequirementAdministrationController";
 import EndorsementGroupAdminController from "./controllers/endorsement-group/EndorsementGroupAdminController";
+import UserCourseProgressAdministrationController from "./controllers/user-course-progress/UserCourseProgressAdministrationController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -205,6 +206,7 @@ router.use(
 
                 r.get("/:id", EndorsementGroupAdminController.getByID);
                 r.patch("/:id", EndorsementGroupAdminController.updateByID);
+                r.delete("/:id", EndorsementGroupAdminController.deleteByID);
 
                 r.get("/:id/stations", EndorsementGroupAdminController.getStationsByID);
                 r.put("/:id/stations", EndorsementGroupAdminController.addStationByID);
@@ -238,6 +240,13 @@ router.use(
                 r.get("/training-type/:course_uuid", CourseAdministrationController.getCourseTrainingTypes);
                 r.post("/training-type/:course_uuid", CourseAdministrationController.addCourseTrainingType);
                 r.delete("/training-type/:course_uuid", CourseAdministrationController.removeCourseTrainingType);
+            })
+        );
+
+        r.use(
+            "/user-course-progress",
+            routerGroup((r: Router) => {
+                r.get("/", UserCourseProgressAdministrationController.getInformation);
             })
         );
 
