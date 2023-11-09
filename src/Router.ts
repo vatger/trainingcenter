@@ -247,6 +247,7 @@ router.use(
             "/user-course-progress",
             routerGroup((r: Router) => {
                 r.get("/", UserCourseProgressAdministrationController.getInformation);
+                r.patch("/", UserCourseProgressAdministrationController.updateInformation);
             })
         );
 

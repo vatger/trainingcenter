@@ -8,6 +8,8 @@ import { VatsimConnectException } from "../exceptions/VatsimConnectException";
 const sequelizeErrors = ["SequelizeValidationError", "SequelizeForeignKeyConstraintError", "SequelizeUniqueConstraintError"];
 
 export async function exceptionInterceptorMiddleware(error: any, request: Request, response: Response, next: NextFunction) {
+    console.error(error);
+
     if (error instanceof UnauthorizedException) {
         response.status(HttpStatusCode.Unauthorized).send({
             path: request.url,
@@ -54,7 +56,6 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
         return;
     }
 
-    console.error(error);
     response.status(HttpStatusCode.InternalServerError).send({
         path: request.url,
         method: request.method,
