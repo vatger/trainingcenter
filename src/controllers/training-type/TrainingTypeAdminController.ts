@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 import { TrainingType } from "../../models/TrainingType";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { TrainingStation } from "../../models/TrainingStation";
@@ -21,43 +21,47 @@ async function getAll(request: Request, response: Response) {
  * @param request
  * @param response
  */
-async function getByID(request: Request, response: Response) {
-    const requestID = request.params.id;
+async function getByID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const params = request.params as {id: string};
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "id",
-            validationObject: requestID,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
+        const validation = ValidationHelper.validate([
+            {
+                name: "id",
+                validationObject: params.id,
+                toValidate: [{val: ValidationOptions.NON_NULL}],
+            },
+        ]);
 
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
+        if (validation.invalid) {
+            response.status(400).send({validation: validation.message, validation_failed: validation.invalid});
+            return;
+        }
+
+        const trainingType = await TrainingType.findOne({
+            where: {
+                id: params.id,
+            },
+            include: [
+                {
+                    association: TrainingType.associations.log_template,
+                    attributes: {
+                        exclude: ["content"],
+                    },
+                },
+                {
+                    association: TrainingType.associations.training_stations,
+                    through: {
+                        attributes: [],
+                    },
+                },
+            ],
+        });
+
+        response.send(trainingType);
+    } catch (e) {
+        next(e);
     }
-
-    const trainingType = await TrainingType.findOne({
-        where: {
-            id: requestID?.toString(),
-        },
-        include: [
-            {
-                association: TrainingType.associations.log_template,
-                attributes: {
-                    exclude: ["content"],
-                },
-            },
-            {
-                association: TrainingType.associations.training_stations,
-                through: {
-                    attributes: [],
-                },
-            },
-        ],
-    });
-
-    response.send(trainingType);
 }
 
 /**
