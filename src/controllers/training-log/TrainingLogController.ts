@@ -10,6 +10,7 @@ async function getByUUID(request: Request, response: Response, next: NextFunctio
             where: {
                 uuid: params.uuid,
             },
+            include: [TrainingLog.associations.author]
         });
 
         if (trainingLog == null) {
