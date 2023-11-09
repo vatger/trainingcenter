@@ -133,7 +133,7 @@ async function getByUUID(request: Request, response: Response) {
                 include: [
                     {
                         association: TrainingType.associations.training_stations,
-                        attributes: ["id", "callsign", "deactivated"],
+                        attributes: ["id", "callsign"],
                         through: {
                             attributes: [],
                         },
