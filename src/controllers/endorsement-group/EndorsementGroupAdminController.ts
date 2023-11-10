@@ -5,6 +5,7 @@ import { EndorsementGroupBelongsToStations } from "../../models/through/Endorsem
 import { HttpStatusCode } from "axios";
 import { TrainingStation } from "../../models/TrainingStation";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
+import { User } from "../../models/User";
 
 /**
  * Gets a collection of all endorsement groups
@@ -231,6 +232,7 @@ async function getUsersByID(request: Request, response: Response, next: NextFunc
             include: [
                 {
                     association: EndorsementGroup.associations.users,
+                    include: [User.associations.user_solo],
                     through: { attributes: { exclude: ["id", "endorsement_group_id", "user_id", "solo_rating", "updated_at"] } },
                 },
             ],
