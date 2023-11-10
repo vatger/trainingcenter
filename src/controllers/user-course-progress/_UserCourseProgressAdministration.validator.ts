@@ -1,5 +1,5 @@
-import ValidationHelper, {ValidationOptions} from "../../utility/helper/ValidationHelper";
-import {ValidationException} from "../../exceptions/ValidationException";
+import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
+import { ValidationException } from "../../exceptions/ValidationException";
 
 function validateGetAllRequest(data: any) {
     const validation = ValidationHelper.validate([
@@ -30,13 +30,13 @@ function validateUpdateRequest(data: any) {
         {
             name: "user_id",
             validationObject: data.user_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, {val: ValidationOptions.NUMBER}],
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
         },
         {
             name: "course_uuid",
             validationObject: data.course_uuid,
             toValidate: [{ val: ValidationOptions.NON_NULL }],
-        }
+        },
     ]);
 
     if (validation.invalid) {
@@ -46,5 +46,5 @@ function validateUpdateRequest(data: any) {
 
 export default {
     validateGetAllRequest,
-    validateUpdateRequest
+    validateUpdateRequest,
 };

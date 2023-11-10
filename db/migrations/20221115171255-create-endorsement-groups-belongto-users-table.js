@@ -1,7 +1,5 @@
 const { DataType } = require("sequelize-typescript");
 
-const ratingEnum = ["s1", "s2", "s3", "c1", "c3"];
-
 const DataModelAttributes = {
     id: {
         type: DataType.INTEGER,
@@ -28,22 +26,27 @@ const DataModelAttributes = {
         onUpdate: "cascade",
         onDelete: "cascade",
     },
-    solo: {
-        type: DataType.BOOLEAN,
-        defaultValue: false,
-        allowNull: false,
-    },
-    solo_rating: {
-        type: DataType.ENUM(...ratingEnum),
-        allowNull: true,
-        defaultValue: "s1",
-    },
-    solo_expires: {
-        type: DataType.DATE,
-    },
-    solo_extension_count: {
+    created_by: {
         type: DataType.INTEGER,
-        defaultValue: 0,
+        allowNull: true,
+        references: {
+            model: "users",
+            key: "id",
+        },
+        onUpdate: "cascade",
+        onDelete: "set null",
+    },
+    solo_id: {
+        type: DataType.INTEGER,
+        allowNull: true,
+        references: {
+            model: "user_solos",
+            key: "id",
+        },
+        onUpdate: "cascade",
+        onDelete: "set null",
+        // The solo is only ever deleted IFF a rating change has taken place.
+        // Therefore, we can just set it null to indicate that the solo is over.
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

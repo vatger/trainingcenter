@@ -1,8 +1,8 @@
-import { CreationOptional, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
-
-const ratingEnum = ["s1", "s2", "s3", "c1", "c3"];
+import { UserSolo } from "../UserSolo";
+import { User } from "../User";
 
 export class EndorsementGroupsBelongsToUsers extends Model<
     InferAttributes<EndorsementGroupsBelongsToUsers>,
@@ -11,17 +11,15 @@ export class EndorsementGroupsBelongsToUsers extends Model<
     //
     // Attributes
     //
-    declare id: number;
     declare endorsement_group_id: number;
     declare user_id: number;
-    declare solo: boolean;
 
     //
     // Optional Attributes
     //
-    declare solo_rating: CreationOptional<"s1" | "s2" | "s3" | "c1" | "c3"> | null;
-    declare solo_expires: CreationOptional<Date> | null;
-    declare solo_extension_count: CreationOptional<number> | null;
+    declare id: CreationOptional<number>;
+    declare solo_id: CreationOptional<ForeignKey<UserSolo["id"]>> | null;
+    declare created_by: CreationOptional<ForeignKey<User["id"]>>;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
 }
@@ -53,19 +51,27 @@ EndorsementGroupsBelongsToUsers.init(
             onUpdate: "cascade",
             onDelete: "cascade",
         },
-        solo: {
-            type: DataType.BOOLEAN,
-            allowNull: false,
-        },
-        solo_rating: {
-            type: DataType.ENUM(...ratingEnum),
-            allowNull: false,
-        },
-        solo_expires: {
-            type: DataType.DATE,
-        },
-        solo_extension_count: {
+        created_by: {
             type: DataType.INTEGER,
+            allowNull: true,
+            references: {
+                model: "users",
+                key: "id",
+            },
+            onUpdate: "cascade",
+            onDelete: "set null",
+        },
+        solo_id: {
+            type: DataType.INTEGER,
+            allowNull: true,
+            references: {
+                model: "user_solos",
+                key: "id",
+            },
+            onUpdate: "cascade",
+            onDelete: "set null",
+            // The solo is only ever deleted IFF a rating change has taken place.
+            // Therefore, we can just set it null to indicate that the solo is over.
         },
         createdAt: DataType.DATE,
         updatedAt: DataType.DATE,

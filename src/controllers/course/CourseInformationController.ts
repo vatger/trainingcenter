@@ -108,7 +108,7 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
                 include: [
                     {
                         association: TrainingSession.associations.training_logs,
-                        attributes: ["uuid", "log_public", "id"],
+                        attributes: ["uuid", "id"],
                         through: { attributes: [] },
                     },
                     {

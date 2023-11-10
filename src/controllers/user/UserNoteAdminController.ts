@@ -10,12 +10,12 @@ import { generateUUID } from "../../utility/UUID";
  * @param response
  */
 async function getGeneralUserNotes(request: Request, response: Response) {
-    const user_id = request.query.user_id?.toString();
+    const query = request.query as { user_id: string };
 
     const validation = ValidationHelper.validate([
         {
             name: "user_id",
-            validationObject: user_id,
+            validationObject: query.user_id,
             toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
     ]);
@@ -27,7 +27,7 @@ async function getGeneralUserNotes(request: Request, response: Response) {
 
     const notes: UserNote[] = await UserNote.findAll({
         where: {
-            user_id: user_id,
+            user_id: query.user_id,
             course_id: null,
         },
         include: {

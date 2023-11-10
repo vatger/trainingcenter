@@ -8,7 +8,6 @@ export class TrainingLog extends Model<InferAttributes<TrainingLog>, InferCreati
     // Attributes
     //
     declare uuid: string;
-    declare log_public: boolean;
     declare content: any;
     declare author_id: ForeignKey<User["id"]>;
 
@@ -42,10 +41,6 @@ TrainingLog.init(
         },
         content: {
             type: DataType.JSON,
-            allowNull: false,
-        },
-        log_public: {
-            type: DataType.BOOLEAN,
             allowNull: false,
         },
         author_id: {

@@ -15,6 +15,7 @@ import { TrainingRequest } from "./TrainingRequest";
 import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
 import UserExtensions from "./extensions/UserExtensions";
 import { EndorsementGroupsBelongsToUsers } from "./through/EndorsementGroupsBelongsToUsers";
+import { UserSolo } from "./UserSolo";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     //
@@ -38,6 +39,8 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     //
     declare user_data?: NonAttribute<UserData>;
     declare user_settings?: NonAttribute<UserSettings>;
+    declare user_solo?: NonAttribute<UserSolo>;
+    declare solos_created?: NonAttribute<UserSolo[]>;
     declare mentor_groups?: NonAttribute<MentorGroup[]>;
     declare mentor_sessions?: NonAttribute<TrainingSession[]>;
     declare cpt_examiner_sessions?: NonAttribute<TrainingSession[]>;
@@ -58,6 +61,8 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     declare static associations: {
         user_data: Association<User, UserData>;
         user_settings: Association<User, UserSettings>;
+        user_solo: Association<User, UserSolo>;
+        solos_created: Association<User, UserSolo>;
         mentor_groups: Association<User, MentorGroup>;
         mentor_sessions: Association<User, TrainingSession>;
         cpt_examiner_sessions: Association<User, TrainingSession>;

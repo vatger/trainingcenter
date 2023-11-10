@@ -1,12 +1,13 @@
 const { DataType } = require("sequelize-typescript");
 
-const DataModelAttributes = {
+const UserSolosModelAttributes = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
     user_id: {
+        unique: true,
         type: DataType.INTEGER,
         allowNull: false,
         references: {
@@ -16,31 +17,33 @@ const DataModelAttributes = {
         onUpdate: "cascade",
         onDelete: "cascade",
     },
-    course_id: {
-        type: DataType.INTEGER,
-        allowNull: false,
-        references: {
-            model: "courses",
-            key: "id",
-        },
-        onUpdate: "cascade",
-        onDelete: "cascade",
-    },
-    next_training_type: {
+    created_by: {
         type: DataType.INTEGER,
         allowNull: true,
-        default: null,
         references: {
-            model: "training_types",
+            model: "users",
             key: "id",
         },
         onUpdate: "cascade",
         onDelete: "set null",
     },
-    completed: {
-        type: DataType.BOOLEAN,
+    solo_used: {
+        type: DataType.INTEGER,
+        default: 0,
         allowNull: false,
-        defaultValue: false,
+    },
+    extension_count: {
+        type: DataType.INTEGER,
+        default: 0,
+        allowNull: false,
+    },
+    current_solo_start: {
+        type: DataType.DATE,
+        allowNull: true,
+    },
+    current_solo_end: {
+        type: DataType.DATE,
+        allowNull: true,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
@@ -48,12 +51,10 @@ const DataModelAttributes = {
 
 module.exports = {
     async up(queryInterface) {
-        await queryInterface.createTable("users_belong_to_courses", DataModelAttributes);
+        await queryInterface.createTable("user_solos", UserSolosModelAttributes);
     },
 
     async down(queryInterface) {
-        await queryInterface.dropTable("users_belong_to_courses");
+        await queryInterface.dropTable("user_solos");
     },
-
-    DataModelAttributes,
 };

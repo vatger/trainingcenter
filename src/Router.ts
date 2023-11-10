@@ -13,7 +13,6 @@ import UserInformationAdminController from "./controllers/user/UserInformationAd
 import UserNoteAdminController from "./controllers/user/UserNoteAdminController";
 import UserController from "./controllers/user/UserAdminController";
 import TrainingRequestAdminController from "./controllers/training-request/TrainingRequestAdminController";
-import SkillTemplateAdministrationController from "./controllers/skill-template/SkillTemplateAdminController";
 import TrainingTypeAdministrationController from "./controllers/training-type/TrainingTypeAdminController";
 import FastTrackAdministrationController from "./controllers/fast-track/FastTrackAdminController";
 import LogTemplateAdministrationController from "./controllers/log-template/LogTemplateAdminController";
@@ -33,6 +32,8 @@ import TrainingLogController from "./controllers/training-log/TrainingLogControl
 import ActionRequirementAdministrationController from "./controllers/action-requirement/ActionRequirementAdministrationController";
 import EndorsementGroupAdminController from "./controllers/endorsement-group/EndorsementGroupAdminController";
 import UserCourseProgressAdministrationController from "./controllers/user-course-progress/UserCourseProgressAdministrationController";
+import SoloAdminController from "./controllers/solo/SoloAdminController";
+import UserEndorsementAdminController from "./controllers/user/UserEndorsementAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -188,6 +189,7 @@ router.use(
                 r.delete("/training", TrainingSessionAdminController.deleteTrainingSession);
                 r.get("/:uuid", TrainingSessionAdminController.getByUUID);
                 r.patch("/:uuid", TrainingSessionAdminController.updateByUUID);
+                r.get("/:uuid/mentors", TrainingSessionAdminController.getAvailableMentorsByUUID);
 
                 r.get("/training-types/:uuid", TrainingSessionAdminController.getCourseTrainingTypes);
                 r.get("/log-template/:uuid", TrainingSessionAdminController.getLogTemplate);
@@ -220,7 +222,6 @@ router.use(
         r.use(
             "/course",
             routerGroup((r: Router) => {
-                // TODO: CLEANUP THE TOP 2
                 r.get("/mentorable", CourseAdministrationController.getMentorable);
                 r.get("/editable", CourseAdministrationController.getEditable);
                 // -----------------------
@@ -248,13 +249,6 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/", UserCourseProgressAdministrationController.getInformation);
                 r.patch("/", UserCourseProgressAdministrationController.updateInformation);
-            })
-        );
-
-        r.use(
-            "/skill-template",
-            routerGroup((r: Router) => {
-                r.get("/", SkillTemplateAdministrationController.getAll);
             })
         );
 
@@ -290,6 +284,21 @@ router.use(
                 r.get("/template/:id", LogTemplateAdministrationController.getByID);
                 r.patch("/template/:id", LogTemplateAdministrationController.update);
                 r.delete("/template/:id", LogTemplateAdministrationController.destroy);
+            })
+        );
+
+        r.use(
+            "/endorsement",
+            routerGroup((r: Router) => {
+                r.post("/", UserEndorsementAdminController.addEndorsement);
+            })
+        );
+
+        r.use(
+            "/solo",
+            routerGroup((r: Router) => {
+                r.post("/", SoloAdminController.createSolo);
+                r.patch("/", SoloAdminController.updateSolo);
             })
         );
 

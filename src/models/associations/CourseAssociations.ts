@@ -5,7 +5,6 @@ import { MentorGroup } from "../MentorGroup";
 import { MentorGroupsBelongsToCourses } from "../through/MentorGroupsBelongsToCourses";
 import { User } from "../User";
 import { UsersBelongsToCourses } from "../through/UsersBelongsToCourses";
-import { CourseSkillTemplate } from "../CourseSkillTemplate";
 import { CourseInformation } from "../CourseInformation";
 
 export function registerCourseAssociations() {
@@ -26,15 +25,6 @@ export function registerCourseAssociations() {
         through: MentorGroupsBelongsToCourses,
         foreignKey: "course_id",
         otherKey: "mentor_group_id",
-    });
-
-    //
-    // Course -> CourseSkills
-    //
-    Course.hasOne(CourseSkillTemplate, {
-        as: "skill_template",
-        foreignKey: "id",
-        sourceKey: "skill_template_id",
     });
 
     //

@@ -4,7 +4,6 @@ import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { ActionRequirement } from "./ActionRequirement";
 import { MentorGroup } from "./MentorGroup";
-import { CourseSkillTemplate } from "./CourseSkillTemplate";
 import { User } from "./User";
 import { CourseInformation } from "./CourseInformation";
 
@@ -25,7 +24,6 @@ export class Course extends Model<InferAttributes<Course>, InferCreationAttribut
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare skill_template_id: CreationOptional<ForeignKey<CourseSkillTemplate["id"]>> | null;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
     declare deletedAt: CreationOptional<Date> | null;
@@ -37,7 +35,6 @@ export class Course extends Model<InferAttributes<Course>, InferCreationAttribut
     declare training_types?: NonAttribute<TrainingType[]>; // List of all training types assigned to this course
     declare action_requirements?: NonAttribute<ActionRequirement[]>;
     declare mentor_groups?: NonAttribute<MentorGroup[]>;
-    declare skill_template?: NonAttribute<CourseSkillTemplate>;
     declare users?: NonAttribute<User[]>;
     declare information?: NonAttribute<CourseInformation>;
 
@@ -46,7 +43,6 @@ export class Course extends Model<InferAttributes<Course>, InferCreationAttribut
         training_types: Association<Course, TrainingType>;
         action_requirements: Association<Course, ActionRequirement>;
         mentor_groups: Association<Course, MentorGroup>;
-        skill_template: Association<Course, CourseSkillTemplate>;
         users: Association<Course, User>;
         information: Association<Course, CourseInformation>;
     };
@@ -120,16 +116,6 @@ Course.init(
             allowNull: false,
             references: {
                 model: "training_types",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        skill_template_id: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "course_skill_templates",
                 key: "id",
             },
             onUpdate: "cascade",

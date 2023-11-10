@@ -15,11 +15,6 @@ const DataModelAttributes = {
         allowNull: false,
         default: [],
     },
-    log_public: {
-        type: DataType.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-    },
     author_id: {
         type: DataType.INTEGER,
         allowNull: false,

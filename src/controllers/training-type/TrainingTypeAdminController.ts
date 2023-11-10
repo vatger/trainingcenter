@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response} from "express";
+import { NextFunction, Request, Response } from "express";
 import { TrainingType } from "../../models/TrainingType";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { TrainingStation } from "../../models/TrainingStation";
@@ -23,18 +23,18 @@ async function getAll(request: Request, response: Response) {
  */
 async function getByID(request: Request, response: Response, next: NextFunction) {
     try {
-        const params = request.params as {id: string};
+        const params = request.params as { id: string };
 
         const validation = ValidationHelper.validate([
             {
                 name: "id",
                 validationObject: params.id,
-                toValidate: [{val: ValidationOptions.NON_NULL}],
+                toValidate: [{ val: ValidationOptions.NON_NULL }],
             },
         ]);
 
         if (validation.invalid) {
-            response.status(400).send({validation: validation.message, validation_failed: validation.invalid});
+            response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
             return;
         }
 

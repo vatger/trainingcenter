@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
 import { MentorGroup } from "../../models/MentorGroup";
 import { TrainingRequest } from "../../models/TrainingRequest";
@@ -6,6 +6,8 @@ import { Op } from "sequelize";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 import { TrainingType } from "../../models/TrainingType";
 import { TrainingSession } from "../../models/TrainingSession";
+import { Course } from "../../models/Course";
+import { HttpStatusCode } from "axios";
 
 /**
  * Returns all currently open training requests

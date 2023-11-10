@@ -18,7 +18,6 @@ export class UsersBelongsToCourses extends Model<InferAttributes<UsersBelongsToC
     //
     declare id: CreationOptional<number> | null;
     declare next_training_type: CreationOptional<ForeignKey<TrainingType>> | number | null; // Required for type inference - don't know why
-    declare skill_set: CreationOptional<string> | null;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
 
@@ -70,10 +69,6 @@ UsersBelongsToCourses.init(
             },
             onUpdate: "cascade",
             onDelete: "set null",
-        },
-        skill_set: {
-            type: DataType.JSON,
-            allowNull: true,
         },
         completed: {
             type: DataType.BOOLEAN,

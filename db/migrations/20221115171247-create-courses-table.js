@@ -52,16 +52,6 @@ const DataModelAttributes = {
         onUpdate: "cascade",
         onDelete: "cascade",
     },
-    skill_template_id: {
-        type: DataType.INTEGER,
-        allowNull: true,
-        references: {
-            model: "course_skill_templates",
-            key: "id",
-        },
-        onUpdate: "cascade",
-        onDelete: "set null",
-    },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
     deletedAt: {

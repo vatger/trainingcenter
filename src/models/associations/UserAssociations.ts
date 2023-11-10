@@ -11,6 +11,7 @@ import { RoleBelongsToUsers } from "../through/RoleBelongsToUsers";
 import { TrainingSession } from "../TrainingSession";
 import { TrainingLog } from "../TrainingLog";
 import { TrainingSessionBelongsToUsers } from "../through/TrainingSessionBelongsToUsers";
+import { UserSolo } from "../UserSolo";
 
 export function registerUserAssociations() {
     //
@@ -31,6 +32,46 @@ export function registerUserAssociations() {
         foreignKey: "user_id",
         targetKey: "id",
         as: "user",
+    });
+
+    //
+    // User -> UserSolo
+    // 1 : 1
+    //
+    User.hasOne(UserSolo, {
+        sourceKey: "id",
+        foreignKey: "user_id",
+        as: "user_solo",
+    });
+
+    //
+    // User <- UserSolo
+    // 1 : 1
+    //
+    UserSolo.belongsTo(User, {
+        foreignKey: "user_id",
+        targetKey: "id",
+        as: "user",
+    });
+
+    //
+    // User -> UserSolo
+    // 1 : 1
+    //
+    User.hasMany(UserSolo, {
+        sourceKey: "id",
+        foreignKey: "created_by",
+        as: "solos_created",
+    });
+
+    //
+    // User <- UserSolo
+    // 1 : 1
+    //
+    UserSolo.belongsTo(User, {
+        foreignKey: "created_by",
+        targetKey: "id",
+        as: "solo_creator",
     });
 
     //

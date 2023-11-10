@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import { User } from "../../models/User";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
+import { UserSolo } from "../../models/UserSolo";
 
 /**
  * Returns the user data for a user with id request.query.user_id
@@ -23,17 +24,13 @@ async function getUserDataByID(request: Request, response: Response) {
         },
         include: [
             {
-                association: User.associations.user_data,
+                association: User.associations.user_solo,
+                include: [UserSolo.associations.solo_creator],
             },
-            {
-                association: User.associations.mentor_groups,
-            },
-            {
-                association: User.associations.courses,
-            },
-            {
-                association: User.associations.endorsement_groups,
-            },
+            User.associations.user_data,
+            User.associations.mentor_groups,
+            User.associations.courses,
+            User.associations.endorsement_groups,
         ],
     });
 

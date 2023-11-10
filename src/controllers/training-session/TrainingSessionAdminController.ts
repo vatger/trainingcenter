@@ -15,6 +15,7 @@ import { Op } from "sequelize";
 import { TrainingLog } from "../../models/TrainingLog";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { sequelize } from "../../core/Sequelize";
+import { MentorGroup } from "../../models/MentorGroup";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -115,29 +116,34 @@ async function createTrainingSession(request: Request, response: Response) {
     response.send(trainingSession);
 }
 
-async function updateByUUID(request: Request, response: Response) {
-    const user = request.body.user;
-    const sessionUUID = request.params.uuid;
-    const data = request.body as { date: string; training_station?: string };
+async function updateByUUID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const params = request.params as { uuid: string };
+        const body = request.body as { date: string; mentor_id: string; training_station_id: string };
+        _TrainingSessionAdminValidator.validateUpdateRequest(body);
 
-    const session = await TrainingSession.findOne({
-        where: {
-            uuid: sessionUUID,
-        },
-    });
+        const session = await TrainingSession.findOne({
+            where: {
+                uuid: params.uuid,
+            },
+        });
 
-    if (session == null) {
-        response.sendStatus(HttpStatusCode.BadRequest);
-        return;
+        if (session == null) {
+            response.sendStatus(HttpStatusCode.NotFound);
+            return;
+        }
+
+        const trainingStationIDNum = Number(body.training_station_id);
+        await session.update({
+            mentor_id: Number(body.mentor_id),
+            date: dayjs.utc(body.date).toDate(),
+            training_station_id: trainingStationIDNum == -1 ? null : trainingStationIDNum,
+        });
+
+        response.sendStatus(HttpStatusCode.Ok);
+    } catch (e) {
+        next(e);
     }
-
-    const training_station_id = Number(data.training_station);
-    await session.update({
-        date: dayjs.utc(data.date).toDate(),
-        training_station_id: isNaN(training_station_id) || training_station_id == -1 ? null : training_station_id,
-    });
-
-    response.sendStatus(HttpStatusCode.Ok);
 }
 
 /**
@@ -369,7 +375,6 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
             user_id: number;
             next_training_id: number;
             course_completed: boolean;
-            log_public: boolean;
             passed: boolean;
             user_log: any[];
         }[];
@@ -398,7 +403,6 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
                 {
                     uuid: generateUUID(),
                     content: body[i].user_log,
-                    log_public: body[i].log_public,
                     author_id: user.id,
                 },
                 {
@@ -496,6 +500,55 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
     }
 }
 
+/**
+ * Returns all the available
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getAvailableMentorsByUUID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const params = request.params as { uuid: string };
+
+        // Find the training request, so we can find the course!
+        const trainingSession = await TrainingSession.findOne({
+            where: {
+                uuid: params.uuid,
+            },
+            include: [
+                {
+                    association: TrainingSession.associations.course,
+                    include: [
+                        {
+                            association: Course.associations.mentor_groups,
+                            include: [MentorGroup.associations.users],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (trainingSession == null || trainingSession.course == null) {
+            response.sendStatus(HttpStatusCode.NotFound);
+            return;
+        }
+
+        let mentors: any[] = [];
+
+        for (const mentorGroup of trainingSession.course.mentor_groups ?? []) {
+            for (const user of mentorGroup.users ?? []) {
+                if (mentors.find(u => u.id == user.id) == null) {
+                    mentors.push(user);
+                }
+            }
+        }
+
+        response.send(mentors);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     getByUUID,
     createTrainingSession,
@@ -506,4 +559,5 @@ export default {
     createTrainingLogs,
     getCourseTrainingTypes,
     getPlanned,
+    getAvailableMentorsByUUID,
 };

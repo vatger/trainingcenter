@@ -101,7 +101,7 @@ async function enrolInCourse(request: Request, response: Response) {
         where: {
             uuid: query.course_uuid,
         },
-        include: [Course.associations.training_type, Course.associations.skill_template],
+        include: [Course.associations.training_type],
     });
 
     // If Course-Instance couldn't be found, throw an error (caught locally)
@@ -120,7 +120,6 @@ async function enrolInCourse(request: Request, response: Response) {
             course_id: course.id,
             completed: false,
             next_training_type: course?.training_type?.id ?? null,
-            skill_set: course?.skill_template?.content ?? null,
         },
     });
 

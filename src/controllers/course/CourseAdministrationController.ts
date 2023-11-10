@@ -27,7 +27,6 @@ interface ICourseBody {
     self_enrol_enabled: boolean;
     training_type_id: string;
     mentor_group_id: string;
-    skill_template_id?: string;
 }
 
 /**
@@ -48,7 +47,6 @@ async function createCourse(request: Request, response: Response, next: NextFunc
             return;
         }
 
-        const skillTemplateID = isNaN(Number(body.skill_template_id)) || body.skill_template_id == "-1" ? null : Number(body.skill_template_id);
         const t = await sequelize.transaction();
 
         try {
@@ -62,7 +60,6 @@ async function createCourse(request: Request, response: Response, next: NextFunc
                     is_active: body.active,
                     self_enrollment_enabled: body.self_enrol_enabled,
                     initial_training_type: Number(body.training_type_id),
-                    skill_template_id: skillTemplateID,
                 },
                 {
                     transaction: t,
@@ -74,6 +71,16 @@ async function createCourse(request: Request, response: Response, next: NextFunc
                     mentor_group_id: Number(body.mentor_group_id),
                     course_id: course.id,
                     can_edit_course: true,
+                },
+                {
+                    transaction: t,
+                }
+            );
+
+            await TrainingTypesBelongsToCourses.create(
+                {
+                    course_id: course.id,
+                    training_type_id: Number(body.training_type_id),
                 },
                 {
                     transaction: t,
@@ -108,7 +115,6 @@ async function updateCourse(request: Request, response: Response, next: NextFunc
             return;
         }
 
-        const skillTemplateID = isNaN(Number(body.skill_template_id)) || body.skill_template_id == "-1" ? null : Number(body.skill_template_id);
         await Course.update(
             {
                 name: body.name_de,
@@ -118,7 +124,6 @@ async function updateCourse(request: Request, response: Response, next: NextFunc
                 is_active: body.active,
                 self_enrollment_enabled: body.self_enrol_enabled,
                 initial_training_type: Number(body.training_type_id),
-                skill_template_id: skillTemplateID,
             },
             {
                 where: {
@@ -145,7 +150,7 @@ async function getAllCourses(request: Request, response: Response) {
 
 /**
  * Gets basic course information based on the provided course UUID.
- * This includes the initial training type alongside the skill template used for this course (or null, if this is not set)
+ * This includes the initial training type used for this course
  * @param request
  * @param response
  */
@@ -156,7 +161,7 @@ async function getCourse(request: Request, response: Response) {
         where: {
             uuid: params.course_uuid,
         },
-        include: [Course.associations.training_type, Course.associations.skill_template],
+        include: [Course.associations.training_type],
     });
 
     if (course == null) {
