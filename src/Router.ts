@@ -325,10 +325,8 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/", TrainingStationAdminController.getAll);
                 r.get("/:id", TrainingStationAdminController.getByID);
-                r.delete("/:id", TrainingStationAdminController.destroy);
-                r.patch("/:id", TrainingStationAdminController.update);
 
-                r.post("/", TrainingStationAdminController.createStations);
+                r.post("/sync", TrainingStationAdminController.syncStations);
             })
         );
 

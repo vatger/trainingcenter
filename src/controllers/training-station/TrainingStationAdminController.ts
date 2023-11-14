@@ -42,94 +42,38 @@ async function getByID(request: Request, response: Response, next: NextFunction)
     }
 }
 
-async function update(request: Request, response: Response, next: NextFunction) {
-    try {
-        const params = request.params as { id: string };
-        const body = request.body as { callsign: string; frequency: string };
-
-        _TrainingStationAdminValidator.validateUpdateStation(body);
-
-        const trainingStation = await TrainingStation.findOne({
-            where: {
-                id: params.id,
-            },
-        });
-
-        if (trainingStation == null) {
-            response.sendStatus(HttpStatusCode.NotFound);
-            return;
-        }
-
-        await trainingStation.update({
-            callsign: body.callsign,
-            frequency: Number(body.frequency),
-        });
-
-        response.sendStatus(HttpStatusCode.Ok);
-    } catch (e) {
-        next(e);
-    }
+type DataHubStations = {
+    logon: string;
+    frequency: string;
+    abbreviation: string;
+    description: string;
 }
 
-async function createStations(request: Request, response: Response, next: NextFunction) {
-    const t = await sequelize.transaction();
+async function syncStations(request: Request, response: Response, next: NextFunction) {
     try {
-        const body = request.body as { callsign: string }[];
-        let homepageStations: HomepageStation[];
+        const res = await axios.get("https://raw.githubusercontent.com/VATGER-Nav/datahub/main/data.json");
+        const stations = res.data as DataHubStations[];
 
-        _TrainingStationAdminValidator.validateCreateStations(body);
+        for (const station of stations) {
+            if (station.logon.length === 0 || station.frequency.length === 0) continue;
 
-        const stationRequest = await axios.get(`${Config.URI_CONFIG.VATGER_API_BASE}/navigation/stations`, {
-            headers: {
-                Accept: "application/json",
-                Referer: "https://vatsim-germany.org",
-                "X-Requested-With": "XMLHttpRequest",
-            },
-        });
-
-        if (stationRequest.data == null || !Array.isArray(stationRequest.data)) {
-            next(new Error());
-            return;
-        }
-
-        homepageStations = stationRequest.data as HomepageStation[];
-
-        for (const station of body) {
-            const hStationFound = homepageStations.find(s => s.ident.toLowerCase() == station.callsign.toLowerCase());
-            if (hStationFound == null) {
+            const dbStation = await TrainingStation.findOne({where: {callsign: station.logon}});
+            if (dbStation == null) {
+                await TrainingStation.create({
+                    callsign: station.logon,
+                    frequency: Number(station.frequency)
+                });
                 continue;
             }
 
-            await TrainingStation.create(
-                {
-                    callsign: station.callsign.toUpperCase(),
-                    frequency: hStationFound.frequency,
-                },
-                {
-                    transaction: t,
-                }
-            );
+            await dbStation.update({
+                callsign: station.logon,
+                frequency: Number(station.frequency)
+            });
         }
 
-        await t.commit();
-        response.sendStatus(HttpStatusCode.Created);
-    } catch (e) {
-        await t.rollback();
-        next(e);
-    }
-}
-
-async function destroy(request: Request, response: Response, next: NextFunction) {
-    try {
-        const params = request.params as { id: string };
-
-        await TrainingStation.destroy({
-            where: {
-                id: params.id,
-            },
-        });
-
-        response.sendStatus(HttpStatusCode.Ok);
+        const newStations = await TrainingStation.findAll();
+        response.send(newStations);
     } catch (e) {
         next(e);
     }
@@ -138,7 +82,5 @@ async function destroy(request: Request, response: Response, next: NextFunction)
 export default {
     getAll,
     getByID,
-    update,
-    destroy,
-    createStations,
+    syncStations,
 };
