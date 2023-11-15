@@ -3,6 +3,7 @@ import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
 import { UserSolo } from "../UserSolo";
 import { User } from "../User";
+import {EndorsementGroup} from "../EndorsementGroup";
 
 export class EndorsementGroupsBelongsToUsers extends Model<
     InferAttributes<EndorsementGroupsBelongsToUsers>,
@@ -11,7 +12,7 @@ export class EndorsementGroupsBelongsToUsers extends Model<
     //
     // Attributes
     //
-    declare endorsement_group_id: number;
+    declare endorsement_group_id: ForeignKey<EndorsementGroup['id']>;
     declare user_id: number;
 
     //

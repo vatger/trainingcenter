@@ -1,10 +1,11 @@
-import { Request, Response } from "express";
+import {NextFunction, Request, Response} from "express";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { MentorGroup } from "../../models/MentorGroup";
 import { UserBelongToMentorGroups } from "../../models/through/UserBelongToMentorGroups";
 import { User } from "../../models/User";
 import { HttpStatusCode } from "axios";
 import _MentorGroupAdminValidator from "./_MentorGroupAdminValidator";
+import {MentorGroupsBelongToEndorsementGroups} from "../../models/through/MentorGroupsBelongToEndorsementGroups";
 
 // Type used to create the mentor group. The request is of type Array<UserInMentorGroupT>
 type UserInMentorGroupT = {
@@ -320,6 +321,46 @@ async function removeMember(request: Request, response: Response) {
     response.sendStatus(HttpStatusCode.NoContent);
 }
 
+async function getEndorsementGroupsByID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const params = request.params as {mentor_group_id: string};
+        // TODO: Validate
+
+        const mentorGroup = await MentorGroup.findOne({
+            where: {
+                id: params.mentor_group_id
+            },
+            include: [MentorGroup.associations.endorsement_groups]
+        });
+
+        if (mentorGroup == null) {
+            response.sendStatus(HttpStatusCode.NotFound);
+            return;
+        }
+
+        response.send(mentorGroup.endorsement_groups);
+    } catch (e) {
+        next(e);
+    }
+}
+
+async function addEndorsementGroupByID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const body = request.body as {mentor_group_id: string; endorsement_group_id: string};
+        // TODO: Validate
+
+        await MentorGroupsBelongToEndorsementGroups.create({
+            mentor_group_id: Number(body.mentor_group_id),
+            endorsement_group_id: Number(body.endorsement_group_id)
+        });
+
+        response.sendStatus(HttpStatusCode.Ok);
+
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     create,
     update,
@@ -331,4 +372,6 @@ export default {
     getAllAdmin,
     getMembers,
     getAllCourseManager,
+    getEndorsementGroupsByID,
+    addEndorsementGroupByID
 };

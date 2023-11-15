@@ -318,7 +318,10 @@ router.use(
 
                 r.get("/course-manager", MentorGroupAdministrationController.getAllCourseManager);
 
+                r.post("/endorsement-group", MentorGroupAdministrationController.addEndorsementGroupByID)
+
                 r.get("/:mentor_group_id", MentorGroupAdministrationController.getByID);
+                r.get("/:mentor_group_id/endorsement-group", MentorGroupAdministrationController.getEndorsementGroupsByID)
             })
         );
 
