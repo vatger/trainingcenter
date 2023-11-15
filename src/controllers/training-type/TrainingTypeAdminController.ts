@@ -94,7 +94,7 @@ async function create(request: Request, response: Response) {
     const trainingType = await TrainingType.create({
         name: body.name,
         type: body.type,
-        log_template_id: !isNaN(log_template_id) || log_template_id == -1 ? null : log_template_id,
+        log_template_id: isNaN(log_template_id) || log_template_id == -1 ? null : log_template_id,
     });
 
     response.status(HttpStatusCode.Created).send({ id: trainingType.id });

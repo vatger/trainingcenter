@@ -299,6 +299,8 @@ router.use(
             routerGroup((r: Router) => {
                 r.post("/", SoloAdminController.createSolo);
                 r.patch("/", SoloAdminController.updateSolo);
+
+                r.post("/extend", SoloAdminController.extendSolo);
             })
         );
 

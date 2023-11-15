@@ -54,7 +54,22 @@ function validateUpdateRequest(data: any) {
     }
 }
 
+function validateExtensionRequest(data: any) {
+    const validation = ValidationHelper.validate([
+        {
+            name: "trainee_id",
+            validationObject: data.trainee_id,
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+        },
+    ]);
+
+    if (validation.invalid) {
+        throw new ValidationException(validation);
+    }
+}
+
 export default {
     validateCreateRequest,
     validateUpdateRequest,
+    validateExtensionRequest,
 };

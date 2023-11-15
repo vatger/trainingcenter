@@ -47,7 +47,7 @@ type DataHubStations = {
     frequency: string;
     abbreviation: string;
     description: string;
-}
+};
 
 async function syncStations(request: Request, response: Response, next: NextFunction) {
     try {
@@ -57,18 +57,18 @@ async function syncStations(request: Request, response: Response, next: NextFunc
         for (const station of stations) {
             if (station.logon.length === 0 || station.frequency.length === 0) continue;
 
-            const dbStation = await TrainingStation.findOne({where: {callsign: station.logon}});
+            const dbStation = await TrainingStation.findOne({ where: { callsign: station.logon } });
             if (dbStation == null) {
                 await TrainingStation.create({
                     callsign: station.logon,
-                    frequency: Number(station.frequency)
+                    frequency: Number(station.frequency),
                 });
                 continue;
             }
 
             await dbStation.update({
                 callsign: station.logon,
-                frequency: Number(station.frequency)
+                frequency: Number(station.frequency),
             });
         }
 

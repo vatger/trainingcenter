@@ -40,6 +40,7 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
     declare training_station?: NonAttribute<TrainingStation>;
     declare course?: NonAttribute<Course>;
     declare training_session_belongs_to_users?: NonAttribute<TrainingSessionBelongsToUsers[]>;
+    declare TrainingSessionBelongsToUsers?: NonAttribute<TrainingSessionBelongsToUsers>;
 
     declare static associations: {
         users: Association<TrainingSession, User>;

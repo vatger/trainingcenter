@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../../models/User";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
 import { UserSolo } from "../../models/UserSolo";
+import { EndorsementGroup } from "../../models/EndorsementGroup";
 
 /**
  * Returns the user data for a user with id request.query.user_id
