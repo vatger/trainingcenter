@@ -17,7 +17,7 @@ const DataModelAttributes = {
     },
     mentor_id: {
         type: DataType.INTEGER,
-        allowNull: false,
+        allowNull: true, // Null for CPTs!
         references: {
             model: "users",
             key: "id",

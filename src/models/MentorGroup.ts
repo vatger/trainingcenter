@@ -4,7 +4,7 @@ import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { Course } from "./Course";
 import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
-import {EndorsementGroup} from "./EndorsementGroup";
+import { EndorsementGroup } from "./EndorsementGroup";
 
 export class MentorGroup extends Model<InferAttributes<MentorGroup>, InferCreationAttributes<MentorGroup>> {
     //

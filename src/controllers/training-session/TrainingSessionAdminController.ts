@@ -24,7 +24,14 @@ async function createTrainingSession(request: Request, response: Response) {
     // TODO: Check if the mentor of the course is even allowed to create such a session!
 
     const requestUser: User = request.body.user as User;
-    const data = request.body.data as { course_uuid?: string; date?: string; training_type_id?: number; training_station_id?: number; user_ids?: number[] };
+    const data = request.body as {
+        course_uuid?: string;
+        cpt_beisitzer?: boolean;
+        date?: string;
+        training_type_id?: number;
+        training_station_id?: number;
+        user_ids?: number[];
+    };
 
     const validation = _TrainingSessionAdminValidator.validateCreateSessionRequest(data);
 
@@ -46,7 +53,13 @@ async function createTrainingSession(request: Request, response: Response) {
         include: [Course.associations.users],
     });
 
-    if (course == null) {
+    const trainingType = await TrainingType.findOne({
+        where: {
+            id: data.training_type_id,
+        },
+    });
+
+    if (course == null || trainingType == null) {
         response.sendStatus(HttpStatusCode.BadRequest);
         return;
     }
@@ -63,15 +76,28 @@ async function createTrainingSession(request: Request, response: Response) {
         return;
     }
 
-    // Create Session
-    const trainingSession = await TrainingSession.create({
-        uuid: generateUUID(),
-        mentor_id: requestUser.id,
-        training_station_id: data.training_station_id,
-        date: dayjs.utc(data.date).toDate(),
-        training_type_id: data.training_type_id,
-        course_id: course.id,
-    });
+    let trainingSession;
+    if (trainingType.type != "cpt" || data.cpt_beisitzer) {
+        // Either the training type is NOT CPT, or - if it is CPT - the user wants to be beisitzer
+
+        // Create Session
+        trainingSession = await TrainingSession.create({
+            uuid: generateUUID(),
+            mentor_id: requestUser.id,
+            training_station_id: data.training_station_id,
+            date: dayjs.utc(data.date).toDate(),
+            training_type_id: data.training_type_id,
+            course_id: course.id,
+        });
+    } else {
+        trainingSession = await TrainingSession.create({
+            uuid: generateUUID(),
+            training_station_id: data.training_station_id,
+            date: dayjs.utc(data.date).toDate(),
+            training_type_id: data.training_type_id,
+            course_id: course.id,
+        });
+    }
 
     if (trainingSession == null) {
         response.sendStatus(HttpStatusCode.InternalServerError);
@@ -134,11 +160,19 @@ async function updateByUUID(request: Request, response: Response, next: NextFunc
         }
 
         const trainingStationIDNum = Number(body.training_station_id);
-        await session.update({
-            mentor_id: Number(body.mentor_id),
-            date: dayjs.utc(body.date).toDate(),
-            training_station_id: trainingStationIDNum == -1 ? null : trainingStationIDNum,
-        });
+        if (body.mentor_id == "-1") {
+            await session.update({
+                mentor_id: null,
+                date: dayjs.utc(body.date).toDate(),
+                training_station_id: trainingStationIDNum == -1 ? null : trainingStationIDNum,
+            });
+        } else {
+            await session.update({
+                mentor_id: Number(body.mentor_id),
+                date: dayjs.utc(body.date).toDate(),
+                training_station_id: trainingStationIDNum == -1 ? null : trainingStationIDNum,
+            });
+        }
 
         response.sendStatus(HttpStatusCode.Ok);
     } catch (e) {
@@ -212,6 +246,7 @@ async function getByUUID(request: Request, response: Response) {
         },
         include: [
             TrainingSession.associations.course,
+            TrainingSession.associations.cpt_examiner,
             {
                 association: TrainingSession.associations.users,
                 through: {

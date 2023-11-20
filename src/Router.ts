@@ -34,6 +34,7 @@ import EndorsementGroupAdminController from "./controllers/endorsement-group/End
 import UserCourseProgressAdministrationController from "./controllers/user-course-progress/UserCourseProgressAdministrationController";
 import SoloAdminController from "./controllers/solo/SoloAdminController";
 import UserEndorsementAdminController from "./controllers/user/UserEndorsementAdminController";
+import CPTAdminController from "./controllers/cpt/CPTAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -185,7 +186,7 @@ router.use(
             "/training-session",
             routerGroup((r: Router) => {
                 r.get("/planned", TrainingSessionAdminController.getPlanned);
-                r.put("/training", TrainingSessionAdminController.createTrainingSession);
+                r.post("/training", TrainingSessionAdminController.createTrainingSession);
                 r.delete("/training", TrainingSessionAdminController.deleteTrainingSession);
                 r.get("/:uuid", TrainingSessionAdminController.getByUUID);
                 r.patch("/:uuid", TrainingSessionAdminController.updateByUUID);
@@ -196,6 +197,13 @@ router.use(
                 r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
 
                 r.put("/log/:uuid", TrainingSessionAdminController.createTrainingLogs);
+            })
+        );
+
+        r.use(
+            "/cpt",
+            routerGroup((r: Router) => {
+                r.get("/available", CPTAdminController.getAvailable);
             })
         );
 
@@ -318,10 +326,10 @@ router.use(
 
                 r.get("/course-manager", MentorGroupAdministrationController.getAllCourseManager);
 
-                r.post("/endorsement-group", MentorGroupAdministrationController.addEndorsementGroupByID)
+                r.post("/endorsement-group", MentorGroupAdministrationController.addEndorsementGroupByID);
 
                 r.get("/:mentor_group_id", MentorGroupAdministrationController.getByID);
-                r.get("/:mentor_group_id/endorsement-group", MentorGroupAdministrationController.getEndorsementGroupsByID)
+                r.get("/:mentor_group_id/endorsement-group", MentorGroupAdministrationController.getEndorsementGroupsByID);
             })
         );
 

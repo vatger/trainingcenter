@@ -13,13 +13,13 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
     // Attributes
     //
     declare uuid: string;
-    declare mentor_id: number;
     declare course_id: number;
 
     //
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
+    declare mentor_id: CreationOptional<number> | null; // NULL for CPTs without Beisitzer ONLY!
     declare completed: CreationOptional<boolean>;
     declare date: CreationOptional<Date> | null;
     declare cpt_examiner_id: CreationOptional<number> | null;
@@ -72,7 +72,7 @@ TrainingSession.init(
         },
         mentor_id: {
             type: DataType.INTEGER,
-            allowNull: false,
+            allowNull: true,
             references: {
                 model: "users",
                 key: "id",

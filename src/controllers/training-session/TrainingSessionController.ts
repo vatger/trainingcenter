@@ -107,17 +107,19 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
         await session.destroy();
     }
 
-    await NotificationLibrary.sendUserNotification({
-        user_id: session.mentor_id,
-        message_de: `${user.first_name} ${user.last_name} (${user.id}) hat sich von der geplanten Session (${session.training_type?.name}) am ${dayjs(
-            session.date
-        ).format("DD.MM.YYYY")} abgemeldet`,
-        message_en: `${user.first_name} ${user.last_name} (${user.id}) withdrew from the planned session (${session.training_type?.name}) on ${dayjs(
-            session.date
-        ).format("DD.MM.YYYY")}`,
-        severity: "danger",
-        icon: "door-exit",
-    });
+    if (session.mentor_id) {
+        await NotificationLibrary.sendUserNotification({
+            user_id: session.mentor_id,
+            message_de: `${user.first_name} ${user.last_name} (${user.id}) hat sich von der geplanten Session (${session.training_type?.name}) am ${dayjs(
+                session.date
+            ).format("DD.MM.YYYY")} abgemeldet`,
+            message_en: `${user.first_name} ${user.last_name} (${user.id}) withdrew from the planned session (${session.training_type?.name}) on ${dayjs(
+                session.date
+            ).format("DD.MM.YYYY")}`,
+            severity: "danger",
+            icon: "door-exit",
+        });
+    }
 
     response.sendStatus(HttpStatusCode.NoContent);
 }

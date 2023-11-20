@@ -15,6 +15,11 @@ function validateCreateSessionRequest(data: any): ValidatorType {
             toValidate: [{ val: ValidationOptions.NON_NULL }],
         },
         {
+            name: "cpt_beisitzer",
+            validationObject: data.cpt_beisitzer,
+            toValidate: [{ val: ValidationOptions.NON_NULL }],
+        },
+        {
             name: "date",
             validationObject: data.date,
             toValidate: [{ val: ValidationOptions.VALID_DATE }],

@@ -32,6 +32,7 @@ async function _getOpenTrainingRequests(): Promise<TrainingRequest[]> {
 
 /**
  * Returns all training requests that the current user is able to mentor based on his mentor groups
+ * DOESN'T RETURN CPT REQUESTS!
  * @param request
  * @param response
  */
@@ -50,7 +51,7 @@ async function getOpen(request: Request, response: Response) {
     }
 
     trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
-        return courseIDs.includes(req.course_id);
+        return courseIDs.includes(req.course_id) && req.training_type?.type != "cpt";
     });
 
     response.send(trainingRequests);
