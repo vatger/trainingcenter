@@ -204,6 +204,8 @@ router.use(
             "/cpt",
             routerGroup((r: Router) => {
                 r.post("/", CPTAdminController.createCPT);
+                r.post("/mentor", CPTAdminController.addMentor);
+                r.delete("/mentor", CPTAdminController.removeMentor);
                 r.get("/open", CPTAdminController.getOpen);
                 r.get("/available", CPTAdminController.getAvailable);
             })

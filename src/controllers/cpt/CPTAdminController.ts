@@ -13,7 +13,7 @@ import { User } from "../../models/User";
 import { ValidationException } from "../../exceptions/ValidationException";
 
 /**
- * Returns a list of currently scheduled CPTs without a mentor (Beisitzer) assigned to it
+ * Returns a list of currently scheduled CPTs
  * @param request
  * @param response
  * @param next
@@ -25,9 +25,8 @@ async function getOpen(request: Request, response: Response, next: NextFunction)
     try {
         let requests = await TrainingSession.findAll({
             where: {
-                mentor_id: null,
                 date: {
-                    [Op.gt]: dayjs.utc().toDate(),
+                    [Op.gte]: dayjs.utc().toDate(),
                 },
             },
             include: [
@@ -60,7 +59,7 @@ async function getAvailable(request: Request, response: Response, next: NextFunc
         let availableCPTs = await TrainingSession.findAll({
             where: {
                 date: {
-                    [Op.gt]: dayjs.utc().toDate(),
+                    [Op.gte]: dayjs.utc().toDate(),
                 },
                 cpt_examiner_id: null,
             },
@@ -158,8 +157,64 @@ async function createCPT(request: Request, response: Response, next: NextFunctio
     }
 }
 
+async function addMentor(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+        const body = request.body as { training_session_id: string };
+        _CPTAdminValidator.validateAddMentorRequest(body);
+
+        const session = await TrainingSession.findOne({
+            where: {
+                id: body.training_session_id,
+            },
+        });
+
+        if (session == null || session?.mentor_id != null) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        await session.update({
+            mentor_id: user.id,
+        });
+
+        response.sendStatus(HttpStatusCode.Created);
+    } catch (e) {
+        next(e);
+    }
+}
+
+async function removeMentor(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+        const body = request.body as { training_session_id: string };
+        _CPTAdminValidator.validateRemoveMentorRequest(body);
+
+        const session = await TrainingSession.findOne({
+            where: {
+                id: body.training_session_id,
+            },
+        });
+
+        if (session == null || session?.mentor_id != user.id) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        await session.update({
+            mentor_id: null,
+        });
+
+        response.sendStatus(HttpStatusCode.Ok);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     getOpen,
     getAvailable,
     createCPT,
+    addMentor,
+    removeMentor,
 };

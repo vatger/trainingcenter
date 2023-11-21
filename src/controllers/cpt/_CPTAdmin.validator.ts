@@ -35,6 +35,36 @@ function validateCreateRequest(data: any) {
     }
 }
 
+function validateAddMentorRequest(data: any) {
+    const validation = ValidationHelper.validate([
+        {
+            name: "training_session_id",
+            validationObject: data.training_session_id,
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+        },
+    ]);
+
+    if (validation.invalid) {
+        throw new ValidationException(validation);
+    }
+}
+
+function validateRemoveMentorRequest(data: any) {
+    const validation = ValidationHelper.validate([
+        {
+            name: "training_session_id",
+            validationObject: data.training_session_id,
+            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+        },
+    ]);
+
+    if (validation.invalid) {
+        throw new ValidationException(validation);
+    }
+}
+
 export default {
     validateCreateRequest,
+    validateAddMentorRequest,
+    validateRemoveMentorRequest,
 };
