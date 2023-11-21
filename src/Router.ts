@@ -203,6 +203,8 @@ router.use(
         r.use(
             "/cpt",
             routerGroup((r: Router) => {
+                r.post("/", CPTAdminController.createCPT);
+                r.get("/open", CPTAdminController.getOpen);
                 r.get("/available", CPTAdminController.getAvailable);
             })
         );

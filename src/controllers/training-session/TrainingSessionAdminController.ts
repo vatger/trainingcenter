@@ -26,7 +26,6 @@ async function createTrainingSession(request: Request, response: Response) {
     const requestUser: User = request.body.user as User;
     const data = request.body as {
         course_uuid?: string;
-        cpt_beisitzer?: boolean;
         date?: string;
         training_type_id?: number;
         training_station_id?: number;
@@ -77,27 +76,15 @@ async function createTrainingSession(request: Request, response: Response) {
     }
 
     let trainingSession;
-    if (trainingType.type != "cpt" || data.cpt_beisitzer) {
-        // Either the training type is NOT CPT, or - if it is CPT - the user wants to be beisitzer
-
-        // Create Session
-        trainingSession = await TrainingSession.create({
-            uuid: generateUUID(),
-            mentor_id: requestUser.id,
-            training_station_id: data.training_station_id,
-            date: dayjs.utc(data.date).toDate(),
-            training_type_id: data.training_type_id,
-            course_id: course.id,
-        });
-    } else {
-        trainingSession = await TrainingSession.create({
-            uuid: generateUUID(),
-            training_station_id: data.training_station_id,
-            date: dayjs.utc(data.date).toDate(),
-            training_type_id: data.training_type_id,
-            course_id: course.id,
-        });
-    }
+    // Create Session
+    trainingSession = await TrainingSession.create({
+        uuid: generateUUID(),
+        mentor_id: requestUser.id,
+        training_station_id: data.training_station_id,
+        date: dayjs.utc(data.date).toDate(),
+        training_type_id: data.training_type_id,
+        course_id: course.id,
+    });
 
     if (trainingSession == null) {
         response.sendStatus(HttpStatusCode.InternalServerError);
@@ -160,19 +147,11 @@ async function updateByUUID(request: Request, response: Response, next: NextFunc
         }
 
         const trainingStationIDNum = Number(body.training_station_id);
-        if (body.mentor_id == "-1") {
-            await session.update({
-                mentor_id: null,
-                date: dayjs.utc(body.date).toDate(),
-                training_station_id: trainingStationIDNum == -1 ? null : trainingStationIDNum,
-            });
-        } else {
-            await session.update({
-                mentor_id: Number(body.mentor_id),
-                date: dayjs.utc(body.date).toDate(),
-                training_station_id: trainingStationIDNum == -1 ? null : trainingStationIDNum,
-            });
-        }
+        await session.update({
+            mentor_id: Number(body.mentor_id),
+            date: dayjs.utc(body.date).toDate(),
+            training_station_id: trainingStationIDNum == -1 ? null : trainingStationIDNum,
+        });
 
         response.sendStatus(HttpStatusCode.Ok);
     } catch (e) {
