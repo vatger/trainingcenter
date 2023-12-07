@@ -9,7 +9,7 @@ ARG NODE_ENV=development
 
 COPY package*.json ./
 
-RUN apk update && apk add --update nodejs nodejs-npm
+RUN apk update && apk add --update nodejs npm
 RUN npm install --quiet --unsafe-perm --no-progress --no-audit --include=dev
 
 COPY . .
