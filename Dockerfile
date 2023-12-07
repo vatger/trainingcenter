@@ -21,4 +21,4 @@ RUN /usr/bin/crontab /crontab.txt
 
 RUN npm run build
 
-CMD ["entry.sh"]
+CMD ["sh", "/entry.sh"]
