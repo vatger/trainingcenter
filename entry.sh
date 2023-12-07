@@ -1,7 +1,7 @@
 #!/bin/sh
 
 # start cron
-/usr/sbin/crond -f -l 8
+/usr/sbin/crond -l 8
 
 # Run Node
-cd opt/trainingcenter_backend && npm run run
+cd /opt/trainingcenter_backend && npm run run
