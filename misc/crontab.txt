@@ -1,0 +1,1 @@
+* * * * * cd /opt/trainingcenter_backend && node /opt/trainingcenter_backend/misc/CheckEndorsements.js >> /var/log/check_endorsement.log
