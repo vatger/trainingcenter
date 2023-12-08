@@ -14,7 +14,8 @@ type CreateSoloRequestBody = {
     endorsement_group_id: string;
 };
 
-type UpdateSoloRequestBody = Omit<CreateSoloRequestBody, "endorsement_group_id">;
+type Optional<T, K extends keyof T> = Pick<Partial<T>, K> & Omit<T, K>;
+type UpdateSoloRequestBody = Optional<CreateSoloRequestBody, "endorsement_group_id">;
 
 /**
  * Create a new Solo
@@ -44,6 +45,7 @@ async function createSolo(request: Request, response: Response, next: NextFuncti
 
         await EndorsementGroupsBelongsToUsers.create({
             user_id: body.trainee_id,
+            created_by: user.id,
             endorsement_group_id: Number(body.endorsement_group_id),
             solo_id: solo.id,
         });
@@ -75,7 +77,7 @@ async function createSolo(request: Request, response: Response, next: NextFuncti
  */
 async function updateSolo(request: Request, response: Response, next: NextFunction) {
     try {
-        const body = request.body as UpdateSoloRequestBody;
+        const body = request.body as UpdateSoloRequestBody & { endorsement_group_id?: string };
         _SoloAdminValidator.validateUpdateRequest(body);
 
         const currentSolo = await UserSolo.findOne({
@@ -87,6 +89,23 @@ async function updateSolo(request: Request, response: Response, next: NextFuncti
         if (currentSolo == null) {
             response.sendStatus(HttpStatusCode.NotFound);
             return;
+        }
+
+        if (body.endorsement_group_id != null) {
+            // We are trying to assign a new endorsement group, so remove all old ones first
+            await EndorsementGroupsBelongsToUsers.destroy({
+                where: {
+                    user_id: body.trainee_id,
+                    solo_id: currentSolo.id,
+                },
+            });
+
+            await EndorsementGroupsBelongsToUsers.create({
+                user_id: body.trainee_id,
+                endorsement_group_id: Number(body.endorsement_group_id),
+                solo_id: currentSolo.id,
+                created_by: request.body.user.id,
+            });
         }
 
         const newDuration = currentSolo.solo_used + Number(body.solo_duration);
@@ -109,7 +128,20 @@ async function updateSolo(request: Request, response: Response, next: NextFuncti
             });
         }
 
-        response.sendStatus(HttpStatusCode.Ok);
+        const returnUser = await User.findOne({
+            where: {
+                id: body.trainee_id,
+            },
+            include: [
+                {
+                    association: User.associations.user_solo,
+                    include: [UserSolo.associations.solo_creator],
+                },
+                User.associations.endorsement_groups,
+            ],
+        });
+
+        response.send(returnUser);
     } catch (e) {
         next(e);
     }
@@ -177,9 +209,13 @@ async function extendSolo(request: Request, response: Response, next: NextFuncti
         });
 
         if (solo == null) {
-            response.sendStatus(HttpStatusCode.InternalServerError);
+            response.sendStatus(HttpStatusCode.NotFound);
             return;
         }
+
+        await solo.update({
+            extension_count: solo.extension_count + 1,
+        });
 
         response.sendStatus(HttpStatusCode.Ok);
     } catch (e) {

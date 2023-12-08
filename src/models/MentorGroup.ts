@@ -5,6 +5,7 @@ import { sequelize } from "../core/Sequelize";
 import { Course } from "./Course";
 import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
 import { EndorsementGroup } from "./EndorsementGroup";
+import MentorGroupExtensions from "./extensions/MentorGroupExtensions";
 
 export class MentorGroup extends Model<InferAttributes<MentorGroup>, InferCreationAttributes<MentorGroup>> {
     //
@@ -38,6 +39,8 @@ export class MentorGroup extends Model<InferAttributes<MentorGroup>, InferCreati
         courses: Association<MentorGroup, Course>;
         endorsement_groups: Association<MentorGroup, EndorsementGroup>;
     };
+
+    getEndorsementGroups = MentorGroupExtensions.getEndorsementGroups.bind(this);
 }
 
 MentorGroup.init(

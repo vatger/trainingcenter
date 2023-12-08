@@ -3,22 +3,10 @@ import { Response } from "express";
 import { ValidatorType } from "../../controllers/_validators/ValidatorType";
 import { HttpStatusCode } from "axios";
 
-export function validateObject(object: any, keys: string[], checkStringNull = false) {
-    let malformedKeys: any[] = [];
-
-    keys.forEach(value => {
-        if (object[value] == null || (checkStringNull && object[value] == "")) {
-            malformedKeys.push(value);
-        }
-    });
-
-    return malformedKeys;
-}
-
 type ValidationType = {
     name: string;
     validationObject: any;
-    toValidate: Array<{ val: ValidationOptions; value?: any }>;
+    toValidate: Array<{ val: ValidationOptions; value?: any }> | ((arg0: any) => boolean);
 };
 
 export enum ValidationOptions {
@@ -49,6 +37,20 @@ function validate(options: ValidationType[]): { invalid: boolean; message: any[]
         let toCheck = opt.validationObject;
         // Replace spaces with nothing!
         if (typeof opt.validationObject == "string") toCheck = toCheck.replace(/\s/g, "");
+
+        if (typeof opt.toValidate == "function") {
+            if (!opt.toValidate(toCheck)) {
+                return {
+                    invalid: true,
+                    message: ["Unknown Validation Error (custom validation func)"],
+                };
+            }
+
+            return {
+                invalid: false,
+                message: [],
+            };
+        }
 
         opt.toValidate.forEach(val => {
             switch (val.val) {

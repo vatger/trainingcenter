@@ -47,6 +47,17 @@ function validateUpdateRequest(data: any) {
             validationObject: data.trainee_id,
             toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
         },
+        {
+            name: "endorsement_group_id_present",
+            validationObject: data,
+            toValidate: arg0 => {
+                if (arg0.solo_start != null) {
+                    return arg0.endorsement_group_id != null;
+                }
+
+                return true;
+            },
+        },
     ]);
 
     if (validation.invalid) {

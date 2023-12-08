@@ -214,6 +214,8 @@ router.use(
         r.use(
             "/endorsement-group",
             routerGroup((r: Router) => {
+                r.get("/mentorable", EndorsementGroupAdminController.getMentorable);
+
                 r.get("/", EndorsementGroupAdminController.getAll);
                 r.get("/with-stations", EndorsementGroupAdminController.getAllWithStations);
                 r.post("/", EndorsementGroupAdminController.createEndorsementGroup);

@@ -8,6 +8,34 @@ import { EndorsementGroupsBelongsToUsers } from "../../models/through/Endorsemen
 import { User } from "../../models/User";
 
 /**
+ * Returns all Endorsement groups that are mentorable by the current user
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getMentorable(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+        const userMentorGroups = await user.getMentorGroups();
+
+        let endorsementGroups: EndorsementGroup[] = [];
+        for (const m of userMentorGroups) {
+            const egs = await m.getEndorsementGroups();
+
+            for (const eg of egs) {
+                if (endorsementGroups.find(e => e.id === eg.id) == null) {
+                    endorsementGroups.push(eg);
+                }
+            }
+        }
+
+        response.send(endorsementGroups);
+    } catch (e) {
+        next(e);
+    }
+}
+
+/**
  * Gets a collection of all endorsement groups
  * @param request
  * @param response
@@ -310,6 +338,7 @@ async function createEndorsementGroup(request: Request, response: Response, next
 }
 
 export default {
+    getMentorable,
     getAll,
     getAllWithStations,
     getByID,
