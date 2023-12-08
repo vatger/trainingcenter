@@ -13,11 +13,6 @@ function validateCreateRequest(data: any) {
             validationObject: data.endorsement_group_id,
             toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
         },
-        {
-            name: "solo",
-            validationObject: data.solo,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
     ]);
 
     if (validation.invalid) {

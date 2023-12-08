@@ -313,6 +313,7 @@ router.use(
             routerGroup((r: Router) => {
                 r.post("/", SoloAdminController.createSolo);
                 r.patch("/", SoloAdminController.updateSolo);
+                r.delete("/", SoloAdminController.deleteSolo);
 
                 r.post("/extend", SoloAdminController.extendSolo);
             })

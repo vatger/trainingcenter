@@ -6,6 +6,7 @@ import { HttpStatusCode } from "axios";
 import { User } from "../../models/User";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 import { TrainingSession } from "../../models/TrainingSession";
+import PermissionHelper from "../../utility/helper/PermissionHelper";
 
 type CreateSoloRequestBody = {
     solo_duration: string;
@@ -223,8 +224,47 @@ async function extendSolo(request: Request, response: Response, next: NextFuncti
     }
 }
 
+async function deleteSolo(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+        const body = request.body as { trainee_id: string; solo_id: string };
+
+        if (!PermissionHelper.checkUserHasPermission(user, response, "atd.solo.delete", true)) return;
+
+        if (body.solo_id == null || body.trainee_id == null) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        // 1. Delete all endorsements that are linked to the solo.
+        await EndorsementGroupsBelongsToUsers.destroy({
+            where: {
+                solo_id: body.solo_id,
+            },
+        });
+
+        await UserSolo.destroy({
+            where: {
+                id: body.solo_id,
+            },
+        });
+
+        const returnUser = await User.findOne({
+            where: {
+                id: body.trainee_id,
+            },
+            include: [User.associations.endorsement_groups],
+        });
+
+        response.send(returnUser);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     createSolo,
     updateSolo,
     extendSolo,
+    deleteSolo,
 };

@@ -31,6 +31,7 @@ const allPerms = [
     "lm.view",
 
     "atd.view",
+    "atd.solo.delete", // Allow User to delete Solos (reset them)
     "atd.examiner.view",
     "atd.fast_track.view",
     "atd.atsim.view",
