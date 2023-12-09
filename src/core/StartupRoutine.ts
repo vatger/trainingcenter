@@ -5,6 +5,7 @@ import { Config } from "./Config";
 import { registerAssociations } from "../models/associations/_RegisterAssociations";
 import { initScheduledJobs } from "./TaskScheduler";
 import dayjs from "dayjs";
+import Mailer from "./Mailer";
 
 let non_critical_count = 0;
 
@@ -19,6 +20,8 @@ export const initializeApplication = async () => {
     await initScheduledJobs();
 
     await checkDatabaseConnection();
+
+    await checkMailConnection();
 
     await registerModelAssociations();
 
@@ -50,20 +53,34 @@ async function checkDatabaseConnection() {
                 LogLevels.LOG_ERROR,
                 `\0 \u2A2F Failed to connect to Database. Error: ${e.name} \n\t To check the stack-trace, navigate to log/sequelize.log`
             );
-            await Logger.logToFile(e.stack, "sequelize.log");
+            Logger.logToFile(e.stack, "sequelize.log");
         }
         throw e;
     }
     Logger.log(LogLevels.LOG_SUCCESS, "\0 \u2713 Database Connection established.\n");
 }
 
+async function checkMailConnection() {
+    Logger.log(LogLevels.LOG_INFO, `Checking Database Connection [${Config.EMAIL_CONFIG.SMTP_HOST}:${Config.EMAIL_CONFIG.SMTP_PORT}]`);
+    try {
+        await Mailer.verify();
+    } catch (e: any) {
+        Logger.log(
+            LogLevels.LOG_ERROR,
+            `\0 \u2A2F Failed to connect to Mailserver. Error: ${e.name} \n\t To check the stack-trace, navigate to log/sequelize.log`
+        );
+        Logger.logToFile(e.message, "sequelize.log");
+    }
+    Logger.log(LogLevels.LOG_SUCCESS, "\0 \u2713 Mailserver Connection established.\n");
+}
+
 async function registerModelAssociations() {
     Logger.log(LogLevels.LOG_INFO, `Registering Associations`);
     try {
-        await registerAssociations();
+        registerAssociations();
     } catch (e: any) {
         Logger.log(LogLevels.LOG_ERROR, `\0 \u2A2F Failed to register some (or all) associations. Check log/sequelize.log for more information`);
-        await Logger.logToFile(e.stack, "sequelize.log");
+        Logger.logToFile(e.stack, "sequelize.log");
 
         throw e;
     }

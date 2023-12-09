@@ -4,6 +4,7 @@ import Logger, { LogLevels } from "../utility/Logger";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import path from "path";
+import SMTPTransport from "nodemailer/lib/smtp-transport";
 
 dayjs.extend(utc);
 
@@ -22,6 +23,7 @@ const required_env: Array<string> = [
     "APP_KEY",
     "APP_HOST",
     "APP_CORS_ALLOW",
+    "FRONTEND_URI",
     "SESSION_COOKIE_NAME",
     "VATSIM_API_BASE",
     "VATGER_API_BASE",
@@ -30,6 +32,10 @@ const required_env: Array<string> = [
     "CONNECT_CLIENT_ID",
     "CONNECT_REDIRECT_URI",
     "CONNECT_SECRET",
+    "SMTP_HOST",
+    "SMTP_PORT",
+    "SMTP_USERNAME",
+    "SMTP_PASSWORD",
 ];
 
 let env_missing: boolean = false;
@@ -49,9 +55,11 @@ export const Config = {
 
     // Read from package JSON
     APP_VERSION: process.env.APP_VERSION ?? "N/A",
+    FRONTEND_URI: process.env.FRONTEND_URI,
 
     // Read from .env
     APP_DEBUG: process.env.APP_DEBUG?.toLowerCase() == "true",
+    DEBUG_EMAIL: process.env.DEBUG_EMAIL,
     APP_LOG_SQL: process.env.APP_LOG_SQL?.toLowerCase() == "true",
     APP_CORS_ALLOW: process.env.APP_CORS_ALLOW,
 
@@ -85,6 +93,14 @@ export const Config = {
         PORT: Number(process.env.DB_PORT),
     },
 
+    EMAIL_CONFIG: {
+        SMTP_HOST: process.env.SMTP_HOST,
+        SMTP_PORT: process.env.SMTP_PORT,
+        SMTP_USERNAME: process.env.SMTP_USERNAME,
+        SMTP_PASSWORD: process.env.SMTP_PASSWORD,
+        DEBUG_EMAIL: process.env.DEBUG_EMAIL,
+    },
+
     DATE_FORMAT: "DD.MM.YYYY",
     DATETIME_FORMAT: "DD.MM.YYYY HH:mm",
 };
@@ -101,5 +117,16 @@ export const SequelizeConfig: Options = {
     logging: message => {
         if (!Config.APP_LOG_SQL) return;
         Logger.log(LogLevels.LOG_INFO, message + "\n", false, "SQL");
+    },
+};
+
+export const MailConfig: SMTPTransport.Options = {
+    host: Config.EMAIL_CONFIG.SMTP_HOST,
+    port: Number(Config.EMAIL_CONFIG.SMTP_PORT),
+    secure: true,
+    auth: {
+        type: "login",
+        user: Config.EMAIL_CONFIG.SMTP_USERNAME!,
+        pass: Config.EMAIL_CONFIG.SMTP_PASSWORD!,
     },
 };

@@ -2,6 +2,9 @@ node_modules
 dist
 .github
 
+misc/mail-templates
+mist/crontab.txt
+
 package.json
 package-lock.json
 

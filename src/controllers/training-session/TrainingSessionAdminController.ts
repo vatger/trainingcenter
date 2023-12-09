@@ -16,6 +16,7 @@ import { TrainingLog } from "../../models/TrainingLog";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { sequelize } from "../../core/Sequelize";
 import { MentorGroup } from "../../models/MentorGroup";
+import EmailHelper from "../../utility/helper/EmailHelper";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -23,7 +24,7 @@ import { MentorGroup } from "../../models/MentorGroup";
 async function createTrainingSession(request: Request, response: Response) {
     // TODO: Check if the mentor of the course is even allowed to create such a session!
 
-    const requestUser: User = request.body.user as User;
+    const user: User = request.body.user as User;
     const data = request.body as {
         course_uuid?: string;
         date?: string;
@@ -75,11 +76,10 @@ async function createTrainingSession(request: Request, response: Response) {
         return;
     }
 
-    let trainingSession;
     // Create Session
-    trainingSession = await TrainingSession.create({
+    const trainingSession = await TrainingSession.create({
         uuid: generateUUID(),
-        mentor_id: requestUser.id,
+        mentor_id: user.id,
         training_station_id: data.training_station_id,
         date: dayjs.utc(data.date).toDate(),
         training_type_id: data.training_type_id,
@@ -127,6 +127,22 @@ async function createTrainingSession(request: Request, response: Response) {
     }
 
     response.send(trainingSession);
+
+    //
+    // Response done, now we can send the mails
+    //
+    for (const userID of courseParticipants) {
+        const trainee = await User.scope("sensitive").findByPk(userID);
+        if (trainee == null) continue;
+
+        await EmailHelper.sendMail(trainee.email, "New Training", "message.html", {
+            name: trainee.first_name + " " + trainee.last_name,
+            message: `es wurde ein neues Training am ${dayjs.utc(trainingSession.date).format(Config.DATETIME_FORMAT)} im Kurs ${
+                course.name
+            } angelegt. Wir wünschen Dir viel Spaß und Erfolg!`,
+            date_now: dayjs.utc().format(Config.DATETIME_FORMAT),
+        });
+    }
 }
 
 async function updateByUUID(request: Request, response: Response, next: NextFunction) {
@@ -200,6 +216,7 @@ async function deleteTrainingSession(request: Request, response: Response) {
         {
             status: "requested",
             training_session_id: null,
+            expires: dayjs.utc().add(2, "months"),
         },
         {
             where: {

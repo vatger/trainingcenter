@@ -1,4 +1,4 @@
-import {NextFunction, Request, Response} from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
 import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { TrainingRequest } from "../../models/TrainingRequest";
@@ -6,9 +6,7 @@ import { generateUUID } from "../../utility/UUID";
 import { TrainingSession } from "../../models/TrainingSession";
 import dayjs from "dayjs";
 import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSessionBelongsToUsers";
-import { Op } from "sequelize";
-import {takeCoverage} from "node:v8";
-import {HttpStatusCode} from "axios";
+import { HttpStatusCode } from "axios";
 
 /**
  * Creates a new training request
@@ -46,7 +44,7 @@ async function create(request: Request, response: Response) {
         status: "requested",
         comment: requestData.comment?.length == 0 ? null : requestData.comment,
         expires: dayjs().add(2, "month").toDate(), // Expires in 2 months from now
-    })
+    });
 
     if (trainingRequest == null) {
         response.status(500).send({ message: "Failed to create training request" });
@@ -178,14 +176,13 @@ async function getByUUID(request: Request, response: Response) {
 async function confirmInterest(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = request.body.user;
-        const body = request.body as {token: string};
+        const body = request.body as { token: string };
         const token = atob(body.token).split(".");
 
-        console.log(token)
+        console.log(token);
         if (body.token == null || token.length != 3) {
             response.sendStatus(HttpStatusCode.BadRequest);
             return;
-
         }
         const trainingRequestUUID = token[0];
         const cid = Number(token[1]);
@@ -193,8 +190,8 @@ async function confirmInterest(request: Request, response: Response, next: NextF
 
         const trainingRequest = await TrainingRequest.findOne({
             where: {
-                uuid: trainingRequestUUID
-            }
+                uuid: trainingRequestUUID,
+            },
         });
 
         if (trainingRequest == null) {
@@ -212,7 +209,7 @@ async function confirmInterest(request: Request, response: Response, next: NextF
         }
 
         await trainingRequest.update({
-            expires: dayjs.utc().add(2, 'months'),
+            expires: dayjs.utc().add(2, "months"),
         });
 
         response.send(trainingRequest);
@@ -227,5 +224,5 @@ export default {
     getOpen,
     getPlanned,
     getByUUID,
-    confirmInterest
+    confirmInterest,
 };

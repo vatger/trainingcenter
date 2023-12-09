@@ -17,9 +17,6 @@ async function _getOpenTrainingRequests(): Promise<TrainingRequest[]> {
     return await TrainingRequest.findAll({
         where: {
             [Op.and]: {
-                expires: {
-                    [Op.gte]: new Date(),
-                },
                 status: {
                     [Op.like]: "requested",
                 },
