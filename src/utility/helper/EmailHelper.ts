@@ -13,7 +13,7 @@ async function sendMail(to: string, subject: string, templateName: string, repla
         const template = handlebars.compile(file);
 
         let message = {
-            to: to,
+            to: Config.APP_DEBUG ? Config.EMAIL_CONFIG.DEBUG_EMAIL : to,
             from: Config.EMAIL_CONFIG.SMTP_USERNAME,
             subject: subject,
             html: template(replacements),

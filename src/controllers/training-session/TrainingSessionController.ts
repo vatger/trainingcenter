@@ -81,7 +81,7 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
         {
             status: "requested",
             training_session_id: null,
-            expires: dayjs().add(1, "month").toDate(),
+            expires: dayjs().add(2, "months").toDate(),
         },
         {
             where: {
