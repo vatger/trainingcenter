@@ -26,16 +26,15 @@ seq.query(
     .then(res => {
         res.forEach(async solo => {
             if (dayjs.utc(solo.current_solo_end).isBefore(dayjs.utc())) {
-                console.log(`Solo ID ${solo.solo_id} has expired. Removing Endorsement Group...`);
+                console.log(`Solo ID ${solo.solo_id} [user_id = ${solo.user_id}] has expired. Removing Endorsement Group...`);
+                await seq.query("DELETE FROM endorsement_groups_belong_to_users WHERE ID = ?", { replacements: [solo.id], type: Sequelize.QueryTypes.DELETE });
             } else {
                 console.log(
-                    `Solo ID ${solo.solo_id} is expiring on ${dayjs.utc(solo.current_solo_end)} (${Math.abs(
+                    `Solo ID ${solo.solo_id} [user_id = ${solo.user_id}] is expiring on ${dayjs.utc(solo.current_solo_end)} (${Math.abs(
                         dayjs.utc(solo.current_solo_end).diff(dayjs.utc(), "day")
                     )} Day(s) remaining).`
                 );
             }
-
-            await seq.query("DELETE FROM endorsement_groups_belong_to_users WHERE ID = ?", { replacements: [solo.id], type: Sequelize.QueryTypes.DELETE });
         });
     })
     .finally(async () => {
