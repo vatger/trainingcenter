@@ -129,6 +129,8 @@ router.use(
                 r.get("/open", TrainingRequestController.getOpen);
                 r.get("/planned", TrainingRequestController.getPlanned);
                 r.get("/:request_uuid", TrainingRequestController.getByUUID);
+
+                r.post("/confirm-interest", TrainingRequestController.confirmInterest);
             })
         );
 
