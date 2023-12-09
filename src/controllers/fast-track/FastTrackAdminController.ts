@@ -111,7 +111,7 @@ async function getAttachmentByID(request: Request, response: Response, next: Nex
             return;
         }
 
-        const filePath = path.join(Config.ROOT_PATH, Config.FILE_STORAGE_LOCATION, pendingFastTracks.file_name ?? "");
+        const filePath = path.join(process.cwd(), Config.FILE_STORAGE_LOCATION, pendingFastTracks.file_name ?? "");
         response.sendFile(filePath);
     } catch (e) {
         next(e);
