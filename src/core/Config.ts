@@ -3,6 +3,7 @@ import { Dialect, Options } from "sequelize";
 import Logger, { LogLevels } from "../utility/Logger";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
+import path from "path";
 
 dayjs.extend(utc);
 
@@ -44,6 +45,8 @@ Logger.log(LogLevels.LOG_SUCCESS, `.env contains all required keys. \n`);
 
 // If all environment variables are present, we can continue to create the config!
 export const Config = {
+    ROOT_PATH: path.resolve(__dirname + "../../../"),
+
     // Read from package JSON
     APP_VERSION: process.env.APP_VERSION ?? "N/A",
 

@@ -283,8 +283,14 @@ router.use(
         r.use(
             "/fast-track",
             routerGroup((r: Router) => {
+                r.get("/", FastTrackAdministrationController.getAll);
                 r.post("/", FastTrackAdministrationController.create);
                 r.get("/user", FastTrackAdministrationController.getByUserID);
+                r.get("/pending", FastTrackAdministrationController.getAllPending);
+                r.get("/attachment/:id", FastTrackAdministrationController.getAttachmentByID);
+
+                r.get("/:id", FastTrackAdministrationController.getByID);
+                r.patch("/:id", FastTrackAdministrationController.updateByID);
             })
         );
 
