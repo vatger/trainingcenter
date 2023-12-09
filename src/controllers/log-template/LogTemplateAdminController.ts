@@ -32,18 +32,18 @@ async function getByID(request: Request, response: Response, next: NextFunction)
 
         _LogTemplateAdminValidator.validateGetByID(params);
 
-        const trainingLog = await TrainingLogTemplate.findOne({
+        const trainingLogTemplate = await TrainingLogTemplate.findOne({
             where: {
                 id: params.id,
             },
         });
 
-        if (trainingLog == null) {
+        if (trainingLogTemplate == null) {
             response.sendStatus(HttpStatusCode.NotFound);
             return;
         }
 
-        response.send(trainingLog);
+        response.send(trainingLogTemplate);
     } catch (e) {
         next(e);
     }
@@ -80,7 +80,7 @@ async function create(request: Request, response: Response) {
         content: data.content,
     });
 
-    response.sendStatus(HttpStatusCode.Created).send({ id: logTemplate.id });
+    response.sendStatus(HttpStatusCode.Created).send(logTemplate);
 }
 
 /**
@@ -108,7 +108,13 @@ async function update(request: Request, response: Response, next: NextFunction) 
             }
         );
 
-        response.sendStatus(HttpStatusCode.Ok);
+        const trainingLogTemplate = await TrainingLogTemplate.findOne({
+            where: {
+                id: params.id,
+            },
+        });
+
+        response.send(trainingLogTemplate);
     } catch (e) {
         next(e);
     }
