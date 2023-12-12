@@ -21,7 +21,9 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
         const user: User = request.body.user;
         if (!PermissionHelper.checkUserHasPermission(user, response, "atd.fast-track.all.view", true)) return;
 
-        const fastTracks = await FastTrackRequest.findAll();
+        const fastTracks = await FastTrackRequest.findAll({
+            include: [FastTrackRequest.associations.user],
+        });
 
         response.send(fastTracks);
     } catch (e) {
@@ -42,14 +44,18 @@ async function getAllPending(request: Request, response: Response, next: NextFun
 
         const pendingFastTracks = await FastTrackRequest.findAll({
             where: {
-                [Op.or]: {
-                    [Op.not]: {
-                        status: 4,
+                [Op.and]: [
+                    {
+                        [Op.not]: {
+                            status: 4,
+                        },
                     },
-                    [Op.not]: {
-                        status: 5,
+                    {
+                        [Op.not]: {
+                            status: 5,
+                        },
                     },
-                },
+                ],
             },
             include: [FastTrackRequest.associations.user],
         });

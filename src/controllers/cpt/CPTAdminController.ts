@@ -184,6 +184,46 @@ async function addMentor(request: Request, response: Response, next: NextFunctio
     }
 }
 
+/**
+ * Adds a CPT Examiner to the Session
+ * @param request
+ * @param response
+ * @param next
+ */
+async function addExaminer(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+        const body = request.body as { training_session_id: string };
+        _CPTAdminValidator.validateAddMentorRequest(body);
+
+        const session = await TrainingSession.findOne({
+            where: {
+                [Op.and]: [
+                    {
+                        id: body.training_session_id,
+                    },
+                    {
+                        cpt_examiner_id: null,
+                    },
+                ],
+            },
+        });
+
+        if (session == null || session?.mentor_id != null) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        await session.update({
+            cpt_examiner_id: user.id,
+        });
+
+        response.sendStatus(HttpStatusCode.Created);
+    } catch (e) {
+        next(e);
+    }
+}
+
 async function removeMentor(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = request.body.user;
@@ -205,7 +245,52 @@ async function removeMentor(request: Request, response: Response, next: NextFunc
             mentor_id: null,
         });
 
-        response.sendStatus(HttpStatusCode.Ok);
+        response.sendStatus(HttpStatusCode.NoContent);
+    } catch (e) {
+        next(e);
+    }
+}
+
+async function getMyExaminerCPTs(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+
+        const cpts = await TrainingSession.findAll({
+            where: {
+                cpt_examiner_id: user.id,
+                completed: false,
+            },
+            include: [TrainingSession.associations.mentor, TrainingSession.associations.users, TrainingSession.associations.training_station],
+        });
+
+        response.send(cpts);
+    } catch (e) {
+        next(e);
+    }
+}
+
+async function removeMyExaminerCPT(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = request.body.user;
+        const body = request.body as { training_session_id: string };
+        _CPTAdminValidator.validateRemoveMentorRequest(body);
+
+        const session = await TrainingSession.findOne({
+            where: {
+                id: body.training_session_id,
+            },
+        });
+
+        if (session == null || session?.cpt_examiner_id != user.id) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        await session.update({
+            cpt_examiner_id: null,
+        });
+
+        response.sendStatus(HttpStatusCode.NoContent);
     } catch (e) {
         next(e);
     }
@@ -216,5 +301,8 @@ export default {
     getAvailable,
     createCPT,
     addMentor,
+    addExaminer,
     removeMentor,
+    getMyExaminerCPTs,
+    removeMyExaminerCPT,
 };

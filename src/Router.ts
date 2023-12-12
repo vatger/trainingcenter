@@ -210,6 +210,9 @@ router.use(
                 r.delete("/mentor", CPTAdminController.removeMentor);
                 r.get("/open", CPTAdminController.getOpen);
                 r.get("/available", CPTAdminController.getAvailable);
+                r.post("/examiner", CPTAdminController.addExaminer);
+                r.delete("/examiner", CPTAdminController.removeMyExaminerCPT);
+                r.get("/examiner/my", CPTAdminController.getMyExaminerCPTs);
             })
         );
 
