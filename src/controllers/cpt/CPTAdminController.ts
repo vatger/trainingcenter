@@ -11,6 +11,8 @@ import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSess
 import { sequelize } from "../../core/Sequelize";
 import { User } from "../../models/User";
 import { ValidationException } from "../../exceptions/ValidationException";
+import { TrainingType } from "../../models/TrainingType";
+import { TrainingStation } from "../../models/TrainingStation";
 
 /**
  * Returns a list of currently scheduled CPTs
@@ -56,23 +58,34 @@ async function getOpen(request: Request, response: Response, next: NextFunction)
  */
 async function getAvailable(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = request.body.user;
+
         let availableCPTs = await TrainingSession.findAll({
             where: {
                 date: {
                     [Op.gte]: dayjs.utc().toDate(),
                 },
-                cpt_examiner_id: null,
+                [Op.or]: [
+                    {
+                        cpt_examiner_id: null,
+                    },
+                    {
+                        mentor_id: null,
+                    },
+                ],
             },
             include: [
                 TrainingSession.associations.training_type,
                 TrainingSession.associations.users,
                 TrainingSession.associations.training_station,
                 TrainingSession.associations.mentor,
+                TrainingSession.associations.cpt_examiner,
             ],
         });
 
         availableCPTs = availableCPTs.filter(c => {
-            return c.training_type?.type == "cpt";
+            const isUserInvolved = user.id == c.cpt_examiner_id || user.id == c.mentor_id;
+            return c.training_type?.type == "cpt" && !isUserInvolved;
         });
 
         response.send(availableCPTs);
@@ -193,7 +206,7 @@ async function addMentor(request: Request, response: Response, next: NextFunctio
 async function addExaminer(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = request.body.user;
-        const body = request.body as { training_session_id: string };
+        const body = request.body as { training_session_id: string; examiner: boolean };
         _CPTAdminValidator.validateAddMentorRequest(body);
 
         const session = await TrainingSession.findOne({
@@ -202,21 +215,29 @@ async function addExaminer(request: Request, response: Response, next: NextFunct
                     {
                         id: body.training_session_id,
                     },
-                    {
-                        cpt_examiner_id: null,
-                    },
                 ],
             },
         });
 
-        if (session == null || session?.mentor_id != null) {
+        if (
+            session == null ||
+            (session?.mentor_id != null && !body.examiner) ||
+            (session?.cpt_examiner_id != null && body.examiner) ||
+            [session?.mentor_id, session?.cpt_examiner_id].includes(user.id)
+        ) {
             response.sendStatus(HttpStatusCode.BadRequest);
             return;
         }
 
-        await session.update({
-            cpt_examiner_id: user.id,
-        });
+        if (body.examiner) {
+            await session.update({
+                cpt_examiner_id: user.id,
+            });
+        } else {
+            await session.update({
+                mentor_id: user.id,
+            });
+        }
 
         response.sendStatus(HttpStatusCode.Created);
     } catch (e) {
@@ -257,10 +278,22 @@ async function getMyExaminerCPTs(request: Request, response: Response, next: Nex
 
         const cpts = await TrainingSession.findAll({
             where: {
-                cpt_examiner_id: user.id,
+                [Op.or]: [
+                    {
+                        cpt_examiner_id: user.id,
+                    },
+                    {
+                        mentor_id: user.id,
+                    },
+                ],
                 completed: false,
             },
-            include: [TrainingSession.associations.mentor, TrainingSession.associations.users, TrainingSession.associations.training_station],
+            include: [
+                TrainingSession.associations.mentor,
+                TrainingSession.associations.users,
+                TrainingSession.associations.training_station,
+                TrainingSession.associations.cpt_examiner,
+            ],
         });
 
         response.send(cpts);
@@ -281,14 +314,20 @@ async function removeMyExaminerCPT(request: Request, response: Response, next: N
             },
         });
 
-        if (session == null || session?.cpt_examiner_id != user.id) {
+        if (session == null || (session?.cpt_examiner_id != user.id && session?.mentor_id != user.id)) {
             response.sendStatus(HttpStatusCode.BadRequest);
             return;
         }
 
-        await session.update({
-            cpt_examiner_id: null,
-        });
+        if (session.cpt_examiner_id == user.id) {
+            await session.update({
+                cpt_examiner_id: null,
+            });
+        } else if (session.mentor_id == user.id) {
+            await session.update({
+                mentor_id: null,
+            });
+        }
 
         response.sendStatus(HttpStatusCode.NoContent);
     } catch (e) {
@@ -296,7 +335,55 @@ async function removeMyExaminerCPT(request: Request, response: Response, next: N
     }
 }
 
+async function getAll(request: Request, response: Response, next: NextFunction) {
+    try {
+        // TODO: Check if user is allowed to access CPTs
+        const cpts = await TrainingSession.findAll({
+            include: [
+                {
+                    association: TrainingSession.associations.training_type,
+                    where: {
+                        type: "cpt",
+                    },
+                },
+                TrainingSession.associations.cpt_examiner,
+                TrainingSession.associations.users,
+                TrainingSession.associations.training_station,
+            ],
+        });
+
+        response.send(cpts);
+    } catch (e) {
+        next(e);
+    }
+}
+
+async function deleteCPT(request: Request, response: Response, next: NextFunction) {
+    try {
+        // TODO: Check if user is allowed to delete CPT & Validation
+        const body = request.body as { cpt_id: string };
+
+        const trainingSession = await TrainingSession.findOne({
+            where: {
+                id: body.cpt_id,
+            },
+            include: [TrainingSession.associations.training_type],
+        });
+
+        if (trainingSession == null || trainingSession.training_type?.type != "cpt") {
+            response.sendStatus(HttpStatusCode.NotFound);
+        }
+
+        await trainingSession?.destroy();
+        response.sendStatus(HttpStatusCode.NoContent);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
+    getAll,
+    deleteCPT,
     getOpen,
     getAvailable,
     createCPT,
