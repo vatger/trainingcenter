@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { generateUUID } from "../../utility/UUID";
 import { TrainingSession } from "../../models/TrainingSession";
@@ -14,35 +13,30 @@ import { HttpStatusCode } from "axios";
  * @param response
  */
 async function create(request: Request, response: Response) {
-    const requestData: { course_id: number; training_type_id: number; comment?: string; training_station_id?: number } = request.body.data;
-    const requestUser: User = request.body.user;
+    const body = request.body as { course_id: number; training_type_id: number; comment?: string; training_station_id?: number };
+    const user: User = response.locals.user;
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "course_id",
-            validationObject: requestData.course_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "training_type_id",
-            validationObject: requestData.training_type_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "course_id",
+    //         validationObject: requestData.course_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "training_type_id",
+    //         validationObject: requestData.training_type_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     const trainingRequest = await TrainingRequest.create({
         uuid: generateUUID(),
-        user_id: requestUser.id,
-        training_type_id: requestData.training_type_id,
-        course_id: requestData.course_id ?? -1,
-        training_station_id: requestData.training_station_id ?? null,
+        user_id: user.id,
+        training_type_id: body.training_type_id,
+        course_id: body.course_id ?? -1,
+        training_station_id: body.training_station_id ?? null,
         status: "requested",
-        comment: requestData.comment?.length == 0 ? null : requestData.comment,
+        comment: body.comment?.length == 0 ? null : body.comment,
         expires: dayjs().add(2, "month").toDate(), // Expires in 2 months from now
     });
 
@@ -66,25 +60,21 @@ async function create(request: Request, response: Response) {
  * @param response
  */
 async function destroy(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
-    const training_request_uuid: string | undefined = request.body.data?.request_uuid?.toString();
+    const user: User = response.locals.user;
+    const body = request.body as { uuid: string };
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "training_request_uuid",
-            validationObject: training_request_uuid,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "training_request_uuid",
+    //         validationObject: training_request_uuid,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     const trainingRequest = await TrainingRequest.findOne({
         where: {
-            uuid: training_request_uuid,
-            user_id: reqUser.id,
+            uuid: body.uuid,
+            user_id: user.id,
         },
     });
     if (trainingRequest == null) {
@@ -97,12 +87,12 @@ async function destroy(request: Request, response: Response) {
 }
 
 /**
- * Gets all training requests for the currently logged in user
+ * Gets all training requests for the currently logged-in user
  * @param request
  * @param response
  */
 async function getOpen(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const trainingRequests = await TrainingRequest.findAll({
         where: {
@@ -121,7 +111,7 @@ async function getOpen(request: Request, response: Response) {
  * @param response
  */
 async function getPlanned(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     const sessions: TrainingSessionBelongsToUsers[] = await TrainingSessionBelongsToUsers.findAll({
         where: {
@@ -142,18 +132,13 @@ async function getPlanned(request: Request, response: Response) {
 async function getByUUID(request: Request, response: Response) {
     const reqData = request.params;
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "training_request_uuid",
-            validationObject: reqData.request_uuid,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "training_request_uuid",
+    //         validationObject: reqData.request_uuid,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     const trainingRequest = await TrainingRequest.findOne({
         where: {
@@ -175,7 +160,7 @@ async function getByUUID(request: Request, response: Response) {
 
 async function confirmInterest(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body = request.body as { token: string };
         const token = atob(body.token).split(".");
 

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { MentorGroup } from "../../models/MentorGroup";
 import { UserBelongToMentorGroups } from "../../models/through/UserBelongToMentorGroups";
 import { User } from "../../models/User";
@@ -23,28 +22,23 @@ async function create(request: Request, response: Response) {
     const mentorGroupName = request.body.data.name;
     const users = request.body.data.users as UserInMentorGroupT[];
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "name",
-            validationObject: mentorGroupName,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "users",
-            validationObject: users,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "fir",
-            validationObject: request.body.data?.fir,
-            toValidate: [{ val: ValidationOptions.IN_ARRAY, value: ["", "edgg", "edww", "edmm"] }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "name",
+    //         validationObject: mentorGroupName,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "users",
+    //         validationObject: users,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "fir",
+    //         validationObject: request.body.data?.fir,
+    //         toValidate: [{ val: ValidationOptions.IN_ARRAY, value: ["", "edgg", "edww", "edmm"] }],
+    //     },
+    // ]);
 
     const mentorGroup = await MentorGroup.create({
         name: mentorGroupName,
@@ -69,17 +63,17 @@ async function create(request: Request, response: Response) {
 }
 
 async function update(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const body = request.body as { mentor_group_id: number; name: string; fir?: "-1" | "edgg" | "edww" | "edmm" };
 
     const validation = _MentorGroupAdminValidator.validateUpdate(body);
-    if (validation.invalid) {
-        response.status(HttpStatusCode.BadRequest).send({
-            validation: validation.message,
-            validation_failed: true,
-        });
-        return;
-    }
+    // if (validation.invalid) {
+    //     response.status(HttpStatusCode.BadRequest).send({
+    //         validation: validation.message,
+    //         validation_failed: true,
+    //     });
+    //     return;
+    // }
 
     await MentorGroup.update(
         {
@@ -121,21 +115,16 @@ async function getAll(request: Request, response: Response) {
  * @param response
  */
 async function getByID(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const params = request.params;
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "id",
-            validationObject: params.mentor_group_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "id",
+    //         validationObject: params.mentor_group_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+    //     },
+    // ]);
 
     if (!(await user.isMentorGroupAdmin(Number(params.mentor_group_id)))) {
         response.sendStatus(HttpStatusCode.Forbidden);
@@ -161,12 +150,12 @@ async function getByID(request: Request, response: Response) {
 }
 
 /**
- * Gets all mentor groups in which the request.body.user is an admin in
+ * Gets all mentor groups in which the response.locals.user is an admin in
  * @param request
  * @param response
  */
 async function getAllAdmin(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const userInMentorGroup: UserBelongToMentorGroups[] = await UserBelongToMentorGroups.findAll({
         where: {
@@ -185,7 +174,7 @@ async function getAllAdmin(request: Request, response: Response) {
 }
 
 async function getMembers(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const query = request.query;
 
     // Check if the mentor group is even a number
@@ -231,12 +220,12 @@ async function getMembers(request: Request, response: Response) {
 }
 
 /**
- * Gets all mentor groups in which the request.body.user is a course manager in
+ * Gets all mentor groups in which the response.locals.user is a course manager in
  * @param request
  * @param response
  */
 async function getAllCourseManager(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const userInMentorGroup: UserBelongToMentorGroups[] = await UserBelongToMentorGroups.findAll({
         where: {
@@ -257,14 +246,10 @@ async function getAllCourseManager(request: Request, response: Response) {
 }
 
 async function addMember(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const body = request.body as { user_id: string; mentor_group_id: string; group_admin: boolean; can_manage_course: boolean };
 
     const validation = _MentorGroupAdminValidator.validateAddUser(body);
-    if (validation.invalid) {
-        ValidationHelper.sendValidationErrorResponse(response, validation);
-        return;
-    }
 
     if (!(await user.isMentorGroupAdmin(Number(body.mentor_group_id)))) {
         response.sendStatus(HttpStatusCode.Forbidden);
@@ -294,17 +279,10 @@ async function addMember(request: Request, response: Response) {
 }
 
 async function removeMember(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const body = request.body as { mentor_group_id: number; user_id: number };
 
     const validation = _MentorGroupAdminValidator.validateRemoveUser(body);
-    if (validation.invalid) {
-        response.status(HttpStatusCode.BadRequest).send({
-            validation: validation.message,
-            validation_failed: true,
-        });
-        return;
-    }
 
     try {
         await UserBelongToMentorGroups.destroy({

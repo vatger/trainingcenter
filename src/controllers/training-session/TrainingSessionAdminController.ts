@@ -24,7 +24,7 @@ import EmailHelper from "../../utility/helper/EmailHelper";
 async function createTrainingSession(request: Request, response: Response) {
     // TODO: Check if the mentor of the course is even allowed to create such a session!
 
-    const user: User = request.body.user as User;
+    const user: User = response.locals.user as User;
     const data = request.body as {
         course_uuid?: string;
         date?: string;
@@ -32,16 +32,6 @@ async function createTrainingSession(request: Request, response: Response) {
         training_station_id?: number;
         user_ids?: number[];
     };
-
-    const validation = _TrainingSessionAdminValidator.validateCreateSessionRequest(data);
-
-    if (validation.invalid) {
-        response.status(400).send({
-            validation: validation.message,
-            validation_failed: true,
-        });
-        return;
-    }
 
     // 1. Find out which of these users is actually enrolled in the course. To do this, query the course and it's members, and check against the array of user_ids. Create a new actual array with only those people
     // that are actually enrolled in this course.
@@ -180,7 +170,7 @@ async function updateByUUID(request: Request, response: Response, next: NextFunc
  * All users that are participants of this course are placed back in the queue
  */
 async function deleteTrainingSession(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const data = request.body as { training_session_id: number };
 
     const session = await TrainingSession.findOne({
@@ -233,7 +223,7 @@ async function deleteTrainingSession(request: Request, response: Response) {
 }
 
 async function getByUUID(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const params = request.params as { uuid: string };
 
     const trainingSession = await TrainingSession.findOne({
@@ -279,7 +269,7 @@ async function getByUUID(request: Request, response: Response) {
  * @param response
  */
 async function getPlanned(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     let trainingSession = await TrainingSession.findAll({
         where: {
@@ -304,7 +294,7 @@ async function getPlanned(request: Request, response: Response) {
 }
 
 async function getParticipants(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const params = request.params as { uuid: string };
 
     const session = await TrainingSession.findOne({
@@ -334,7 +324,7 @@ async function getParticipants(request: Request, response: Response) {
 }
 
 async function getLogTemplate(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const params = request.params as { uuid: string };
 
     const session = await TrainingSession.findOne({
@@ -364,7 +354,7 @@ async function getLogTemplate(request: Request, response: Response) {
 }
 
 async function getCourseTrainingTypes(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const params = request.params as { uuid: string };
 
     const session = await TrainingSession.findOne({
@@ -400,7 +390,7 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
     const t = await sequelize.transaction();
 
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const params = request.params as { uuid: string };
         const body = request.body as {
             user_id: number;

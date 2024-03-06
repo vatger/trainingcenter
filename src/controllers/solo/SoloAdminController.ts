@@ -26,7 +26,7 @@ type UpdateSoloRequestBody = Optional<CreateSoloRequestBody, "endorsement_group_
  */
 async function createSolo(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body = request.body as CreateSoloRequestBody;
         _SoloAdminValidator.validateCreateRequest(body);
 
@@ -105,7 +105,7 @@ async function updateSolo(request: Request, response: Response, next: NextFuncti
                 user_id: body.trainee_id,
                 endorsement_group_id: Number(body.endorsement_group_id),
                 solo_id: currentSolo.id,
-                created_by: request.body.user.id,
+                created_by: response.locals.user.id,
             });
         }
 
@@ -114,7 +114,7 @@ async function updateSolo(request: Request, response: Response, next: NextFuncti
         // If solo_start == NULL, then the solo is still active
         if (body.solo_start == null) {
             await currentSolo.update({
-                created_by: request.body.user.id,
+                created_by: response.locals.user.id,
                 solo_used: newDuration,
                 current_solo_end: dayjs.utc(currentSolo.current_solo_start).add(newDuration, "days").toDate(),
             });
@@ -122,7 +122,7 @@ async function updateSolo(request: Request, response: Response, next: NextFuncti
             // If solo_start != NULL, then the solo is inactive and the new days have to be calculated (newDuration, for example, isn't correct! It's start_date + Number(body.solo_duration)
             // Else we'll add the entire solo duration to the length again :).
             await currentSolo.update({
-                created_by: request.body.user.id,
+                created_by: response.locals.user.id,
                 solo_used: newDuration,
                 current_solo_start: dayjs.utc(body.solo_start).toDate(),
                 current_solo_end: dayjs.utc(body.solo_start).add(Number(body.solo_duration), "days").toDate(),
@@ -226,10 +226,10 @@ async function extendSolo(request: Request, response: Response, next: NextFuncti
 
 async function deleteSolo(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body = request.body as { trainee_id: string; solo_id: string };
 
-        if (!PermissionHelper.checkUserHasPermission(user, response, "atd.solo.delete", true)) return;
+        PermissionHelper.checkUserHasPermission(user, "atd.solo.delete", true);
 
         if (body.solo_id == null || body.trainee_id == null) {
             response.sendStatus(HttpStatusCode.BadRequest);

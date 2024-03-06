@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { TrainingType } from "../../models/TrainingType";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { TrainingStation } from "../../models/TrainingStation";
 import { TrainingStationBelongsToTrainingType } from "../../models/through/TrainingStationBelongsToTrainingType";
 import { HttpStatusCode } from "axios";
@@ -25,18 +24,13 @@ async function getByID(request: Request, response: Response, next: NextFunction)
     try {
         const params = request.params as { id: string };
 
-        const validation = ValidationHelper.validate([
-            {
-                name: "id",
-                validationObject: params.id,
-                toValidate: [{ val: ValidationOptions.NON_NULL }],
-            },
-        ]);
-
-        if (validation.invalid) {
-            response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-            return;
-        }
+        // const validation = ValidationHelper.validate([
+        //     {
+        //         name: "id",
+        //         validationObject: params.id,
+        //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+        //     },
+        // ]);
 
         const trainingType = await TrainingType.findOne({
             where: {
@@ -72,23 +66,18 @@ async function getByID(request: Request, response: Response, next: NextFunction)
 async function create(request: Request, response: Response) {
     const body = request.body as { name: string; type: "online" | "sim" | "lesson" | "cpt"; log_template_id?: string };
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "name",
-            validationObject: body.name,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "type",
-            validationObject: body.type,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "name",
+    //         validationObject: body.name,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "type",
+    //         validationObject: body.type,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     const log_template_id = Number(body.log_template_id);
     const trainingType = await TrainingType.create({
@@ -109,28 +98,23 @@ async function update(request: Request, response: Response) {
     const training_type_id = request.params.id;
     const requestData = request.body.data;
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "id",
-            validationObject: training_type_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "name",
-            validationObject: requestData.name,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "type",
-            validationObject: requestData.type,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "id",
+    //         validationObject: training_type_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "name",
+    //         validationObject: requestData.name,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "type",
+    //         validationObject: requestData.type,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     let trainingType = await TrainingType.findOne({
         where: {
@@ -155,23 +139,18 @@ async function update(request: Request, response: Response) {
 async function addStation(request: Request, response: Response) {
     const body = request.body as { training_station_id: string; training_type_id: string };
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "training_type_id",
-            validationObject: body.training_type_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-        },
-        {
-            name: "training_station_id",
-            validationObject: body.training_station_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "training_type_id",
+    //         validationObject: body.training_type_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+    //     },
+    //     {
+    //         name: "training_station_id",
+    //         validationObject: body.training_station_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+    //     },
+    // ]);
 
     const station = await TrainingStation.findOne({
         where: {

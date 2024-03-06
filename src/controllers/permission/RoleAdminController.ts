@@ -1,8 +1,8 @@
 import { Request, Response } from "express";
 import { Role } from "../../models/Role";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { RoleHasPermissions } from "../../models/through/RoleHasPermissions";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
+import { User } from "../../models/User";
 
 /**
  * Gets all roles
@@ -58,18 +58,13 @@ async function update(request: Request, response: Response) {
     const role_id = request.params.role_id;
     const role_name = request.body.data.name;
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "name",
-            validationObject: role_name,
-            toValidate: [{ val: ValidationOptions.MIN_LENGTH, value: 1 }, { val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "name",
+    //         validationObject: role_name,
+    //         toValidate: [{ val: ValidationOptions.MIN_LENGTH, value: 1 }, { val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     let role = await Role.findOne({
         where: { id: role_id },
@@ -93,33 +88,29 @@ async function update(request: Request, response: Response) {
  * @param response
  */
 async function removePermission(request: Request, response: Response) {
-    const role_id = request.params.role_id;
-    const permission_id = request.body.permission_id;
+    const user: User = response.locals.user;
+    const params = request.params;
+    const body = request.body;
 
-    if (!PermissionHelper.checkUserHasPermission(request.body.user, response, "tech.permissions.role.edit", true)) return;
+    PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit", true);
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "role_id",
-            validationObject: role_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "permission_id",
-            validationObject: permission_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "role_id",
+    //         validationObject: role_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "permission_id",
+    //         validationObject: permission_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     const permissionBelongsToRole = await RoleHasPermissions.findOne({
         where: {
-            role_id: role_id,
-            permission_id: permission_id,
+            role_id: params.role_id,
+            permission_id: body.permission_id,
         },
     });
 
@@ -138,32 +129,28 @@ async function removePermission(request: Request, response: Response) {
  * @param response
  */
 async function addPermission(request: Request, response: Response) {
-    const role_id = request.params.role_id;
-    const permission_id = request.body.permission_id;
+    const user: User = response.locals.user;
+    const params = request.params;
+    const body = request.body;
 
-    if (!PermissionHelper.checkUserHasPermission(request.body.user, response, "tech.permissions.role.edit", true)) return;
+    PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit", true);
 
-    const validate = ValidationHelper.validate([
-        {
-            name: "role_id",
-            validationObject: role_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-        },
-        {
-            name: "permission_id",
-            validationObject: permission_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-        },
-    ]);
-
-    if (validate.invalid) {
-        response.status(400).send({ error: validate.message });
-        return;
-    }
+    // const validate = ValidationHelper.validate([
+    //     {
+    //         name: "role_id",
+    //         validationObject: role_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+    //     },
+    //     {
+    //         name: "permission_id",
+    //         validationObject: permission_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
+    //     },
+    // ]);
 
     const res = await RoleHasPermissions.create({
-        role_id: Number(role_id),
-        permission_id: Number(permission_id),
+        role_id: Number(params.role_id),
+        permission_id: Number(body.permission_id),
     });
 
     response.send(res);

@@ -2,7 +2,6 @@ import { User } from "../../models/User";
 import { Request, Response } from "express";
 import { Course } from "../../models/Course";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { TrainingRequest } from "../../models/TrainingRequest";
 
 /**
@@ -11,7 +10,7 @@ import { TrainingRequest } from "../../models/TrainingRequest";
  * @param response
  */
 async function getAvailableCourses(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     const myCourses = await user.getCourses();
     const allCourses = await Course.findAll({
@@ -33,7 +32,7 @@ async function getAvailableCourses(request: Request, response: Response) {
  * @param response
  */
 async function getActiveCourses(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const userInCourses = await UsersBelongsToCourses.findAll({
         where: {
@@ -57,7 +56,7 @@ async function getActiveCourses(request: Request, response: Response) {
  * @param response
  */
 async function getMyCourses(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const user = await User.findOne({
         where: {
@@ -80,21 +79,16 @@ async function getMyCourses(request: Request, response: Response) {
  * @param response
  */
 async function enrolInCourse(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const query = request.body as { course_uuid: string };
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "course_uuid",
-            validationObject: query.course_uuid,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "course_uuid",
+    //         validationObject: query.course_uuid,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     // Get course in question
     const course: Course | null = await Course.findOne({
@@ -132,7 +126,7 @@ async function enrolInCourse(request: Request, response: Response) {
  * @param response
  */
 async function withdrawFromCourseByUUID(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const courseID = request.body.course_id;
 
     if (courseID == null) {

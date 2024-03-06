@@ -58,7 +58,7 @@ async function getOpen(request: Request, response: Response, next: NextFunction)
  */
 async function getAvailable(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
 
         let availableCPTs = await TrainingSession.findAll({
             where: {
@@ -172,7 +172,7 @@ async function createCPT(request: Request, response: Response, next: NextFunctio
 
 async function addMentor(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body = request.body as { training_session_id: string };
         _CPTAdminValidator.validateAddMentorRequest(body);
 
@@ -205,7 +205,7 @@ async function addMentor(request: Request, response: Response, next: NextFunctio
  */
 async function addExaminer(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body = request.body as { training_session_id: string; examiner: boolean };
         _CPTAdminValidator.validateAddMentorRequest(body);
 
@@ -247,7 +247,7 @@ async function addExaminer(request: Request, response: Response, next: NextFunct
 
 async function removeMentor(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body = request.body as { training_session_id: string };
         _CPTAdminValidator.validateRemoveMentorRequest(body);
 
@@ -274,7 +274,7 @@ async function removeMentor(request: Request, response: Response, next: NextFunc
 
 async function getMyExaminerCPTs(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
 
         const cpts = await TrainingSession.findAll({
             where: {
@@ -304,7 +304,7 @@ async function getMyExaminerCPTs(request: Request, response: Response, next: Nex
 
 async function removeMyExaminerCPT(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body = request.body as { training_session_id: string };
         _CPTAdminValidator.validateRemoveMentorRequest(body);
 

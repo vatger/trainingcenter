@@ -9,6 +9,7 @@ export enum ConnectLibraryErrors {
     ERR_INV_CODE,
     ERR_NO_AUTH_RESPONSE,
     ERR_AXIOS_TIMEOUT,
+    ERR_VALIDATION,
 }
 
 export class VatsimConnectException extends Error {
@@ -47,6 +48,10 @@ export class VatsimConnectException extends Error {
 
             case ConnectLibraryErrors.ERR_NO_AUTH_RESPONSE:
                 response.status(500).send({ code: "ERR_NO_AUTH_RESPONSE", message: "No response from VATSIM auth server" });
+                return;
+
+            case ConnectLibraryErrors.ERR_VALIDATION:
+                response.status(500).send({ code: "ERR_VALIDATION", message: "Failed to validate response from VATSIM" });
                 return;
 
             default:

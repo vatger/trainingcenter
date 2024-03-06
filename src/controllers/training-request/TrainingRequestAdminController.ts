@@ -34,7 +34,7 @@ async function _getOpenTrainingRequests(): Promise<TrainingRequest[]> {
  * @param response
  */
 async function getOpen(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
     const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
     let trainingRequests: TrainingRequest[] = await _getOpenTrainingRequests();
 
@@ -61,7 +61,7 @@ async function getOpen(request: Request, response: Response) {
  * @param response
  */
 async function getOpenTrainingRequests(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
     const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
     let trainingRequests: TrainingRequest[] = (await _getOpenTrainingRequests()).filter((trainingRequest: TrainingRequest) => {
         return trainingRequest.training_type?.type != "lesson";
@@ -90,7 +90,7 @@ async function getOpenTrainingRequests(request: Request, response: Response) {
  * @param response
  */
 async function getOpenLessonRequests(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
     const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
     let trainingRequests: TrainingRequest[] = (await _getOpenTrainingRequests()).filter((trainingRequest: TrainingRequest) => {
         return trainingRequest.training_type?.type == "lesson";
@@ -177,7 +177,7 @@ async function destroyByUUID(request: Request, response: Response) {
         user_id: trainingRequest.user_id,
         message_de: `Deine Trainingsanfrage für "${trainingRequest.training_type?.name}" wurde von $author gelöscht`,
         message_en: `$author has deleted your training request for "${trainingRequest.training_type?.name}"`,
-        author_id: request.body.user.id,
+        author_id: response.locals.user.id,
         severity: "default",
         icon: "trash",
     });

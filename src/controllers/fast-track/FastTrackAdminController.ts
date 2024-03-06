@@ -2,13 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
 import { handleUpload } from "../../libraries/upload/FileUploadLibrary";
 import { FastTrackRequest } from "../../models/FastTrackRequest";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
 import { Op } from "sequelize";
 import { HttpStatusCode } from "axios";
-import fileUpload from "express-fileupload";
 import { Config } from "../../core/Config";
 import path from "path";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
  * Returns a list of all fast track requests
@@ -18,8 +17,8 @@ import path from "path";
  */
 async function getAll(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
-        if (!PermissionHelper.checkUserHasPermission(user, response, "atd.fast-track.all.view", true)) return;
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.all.view", true);
 
         const fastTracks = await FastTrackRequest.findAll({
             include: [FastTrackRequest.associations.user],
@@ -39,8 +38,8 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
  */
 async function getAllPending(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
-        if (!PermissionHelper.checkUserHasPermission(user, response, "atd.fast-track.pending.view", true)) return;
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.pending.view", true);
 
         const pendingFastTracks = await FastTrackRequest.findAll({
             where: {
@@ -72,7 +71,7 @@ async function getAllPending(request: Request, response: Response, next: NextFun
  * @param response
  */
 async function create(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
     const data = request.body;
     const file_name = handleUpload(request);
 
@@ -101,9 +100,9 @@ async function create(request: Request, response: Response) {
  */
 async function getAttachmentByID(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
-        if (!PermissionHelper.checkUserHasPermission(user, response, "atd.fast-track.pending.view", true)) return;
+        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.pending.view", true);
 
         const pendingFastTracks = await FastTrackRequest.findOne({
             where: {
@@ -132,9 +131,9 @@ async function getAttachmentByID(request: Request, response: Response, next: Nex
  */
 async function getByID(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
-        if (!PermissionHelper.checkUserHasPermission(user, response, "atd.fast-track.pending.view", true)) return;
+        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.pending.view", true);
 
         const pendingFastTracks = await FastTrackRequest.findOne({
             where: {
@@ -162,10 +161,10 @@ async function getByID(request: Request, response: Response, next: NextFunction)
  */
 async function updateByID(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
         const body = request.body as { comment?: string; status: number };
-        if (!PermissionHelper.checkUserHasPermission(user, response, "atd.fast-track.update", true)) return;
+        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.update", true);
 
         if (body.status == null || params.id == null) {
             response.sendStatus(HttpStatusCode.BadRequest);
@@ -218,24 +217,15 @@ async function updateByID(request: Request, response: Response, next: NextFuncti
  * @param response
  */
 async function getByUserID(request: Request, response: Response) {
-    const requestData: { user_id: number } = request.query as any;
+    const query: { user_id: number } = request.query as any;
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "user_id",
-            validationObject: requestData.user_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    Validator.validate(query, {
+        user_id: [ValidationTypeEnum.NON_NULL],
+    });
 
     const fastTrackRequests = await FastTrackRequest.findAll({
         where: {
-            user_id: requestData.user_id,
+            user_id: query.user_id,
         },
     });
 

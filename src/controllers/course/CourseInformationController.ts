@@ -13,7 +13,7 @@ import { HttpStatusCode } from "axios";
  */
 async function getInformationByUUID(request: Request, response: Response) {
     const uuid: string = request.query.uuid?.toString() ?? "";
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     const userCourses: Course[] = await user.getCourses();
 
@@ -52,11 +52,11 @@ async function getInformationByUUID(request: Request, response: Response) {
  * @param response
  */
 async function getUserCourseInformationByUUID(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
     const course_uuid: string = request.query.uuid?.toString() ?? "";
 
     if (!(await reqUser.isMemberOfCourse(course_uuid))) {
-        response.status(403).send({ message: "You are not enrolled in this course" });
+        response.status(HttpStatusCode.Forbidden).send({ message: "You are not enrolled in this course" });
         return;
     }
 
@@ -83,11 +83,11 @@ async function getUserCourseInformationByUUID(request: Request, response: Respon
  * @param response
  */
 async function getCourseTrainingInformationByUUID(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const course_uuid: string = request.query.uuid?.toString() ?? "";
 
     if (!(await user.isMemberOfCourse(course_uuid))) {
-        response.status(403).send({ message: "You are not enroled in this course" });
+        response.status(HttpStatusCode.Forbidden).send({ message: "You are not enroled in this course" });
         return;
     }
 
@@ -145,7 +145,7 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
 }
 
 async function validateCourseRequirements(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const query = request.query as { course_uuid: string };
     const course = await Course.findOne({
         where: {

@@ -4,6 +4,9 @@ import { HttpStatusCode } from "axios";
 import { ValidationException } from "../exceptions/ValidationException";
 import { UnauthorizedException } from "../exceptions/UnauthorizedException";
 import { VatsimConnectException } from "../exceptions/VatsimConnectException";
+import { MissingPermissionException } from "../exceptions/MissingPermissionException";
+import { SysLog } from "../models/SysLog";
+import { User } from "../models/User";
 
 const sequelizeErrors = ["SequelizeValidationError", "SequelizeForeignKeyConstraintError", "SequelizeUniqueConstraintError"];
 
@@ -17,6 +20,29 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
             code: HttpStatusCode.Unauthorized,
             message: error.message,
         });
+        return;
+    }
+
+    if (error instanceof MissingPermissionException) {
+        response.status(HttpStatusCode.Forbidden).send({
+            path: request.path,
+            method: request.method,
+            message: "Missing required permission",
+            permission: error.getMissingPermission(),
+            stay: error.getPageStayAttribute(),
+        });
+
+        const user: User = response.locals.user;
+        await SysLog.create({
+            path: request.path,
+            method: request.method,
+            user_id: user?.id.toString(),
+            remote_addr: request.ip,
+            message: `User ${user.id} attempted to access ${
+                request.path
+            } without required permission. The missing permission was: ${error.getMissingPermission()}. Server responded with forbidden status.`,
+        });
+
         return;
     }
 
@@ -35,7 +61,7 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
             path: request.url,
             method: request.method,
             code: HttpStatusCode.BadRequest,
-            message: error.message,
+            message: "Validation checks have failed",
             validation: error.getErrorMessages(),
         });
         return;

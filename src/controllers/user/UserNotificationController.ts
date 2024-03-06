@@ -5,7 +5,7 @@ import { Op } from "sequelize";
 import { HttpStatusCode } from "axios";
 
 async function getNotifications(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     const notifications: Notification[] = await Notification.findAll({
         where: {
@@ -29,7 +29,7 @@ async function getNotifications(request: Request, response: Response) {
  * @param response
  */
 async function getUnreadNotifications(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     const notifications: Notification[] = await Notification.findAll({
         where: {
@@ -54,7 +54,7 @@ async function getUnreadNotifications(request: Request, response: Response) {
  * @param response
  */
 async function markAllNotificationsRead(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     await Notification.update(
         {
@@ -74,7 +74,7 @@ async function markAllNotificationsRead(request: Request, response: Response) {
  * Marks a single notification as read
  */
 async function markNotificationRead(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const body = request.body as { notification_id: string };
 
     await Notification.update(
@@ -96,7 +96,7 @@ async function markNotificationRead(request: Request, response: Response) {
  * Deletes a single notification
  */
 async function deleteNotification(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const body = request.body as { notification_id: string };
 
     await Notification.destroy({
@@ -115,7 +115,7 @@ async function deleteNotification(request: Request, response: Response) {
  * @param response
  */
 async function toggleMarkNotificationRead(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const body = request.body as { notification_id: string };
 
     const notification = await Notification.findOne({

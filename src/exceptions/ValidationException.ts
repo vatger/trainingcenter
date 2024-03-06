@@ -1,14 +1,12 @@
-import { ValidatorType } from "../controllers/_validators/ValidatorType";
-
 export class ValidationException extends Error {
-    public readonly validation_: ValidatorType;
+    public readonly validation_: object;
 
-    constructor(validation: ValidatorType) {
+    constructor(validation: object) {
         super();
         this.validation_ = validation;
     }
 
-    public getErrorMessages(): any[] {
-        return this.validation_.message;
+    public getErrorMessages(): object {
+        return this.validation_;
     }
 }

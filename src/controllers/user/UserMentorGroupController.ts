@@ -9,7 +9,7 @@ import { MentorGroup } from "../../models/MentorGroup";
  * @param response
  */
 async function getMentorGroups(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const userInMentorGroups = await UserBelongToMentorGroups.findAll({
         where: {
@@ -32,7 +32,7 @@ async function getMentorGroups(request: Request, response: Response) {
  * @param response
  */
 async function getCourseManagerMentorGroups(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const userInMentorGroups = await UserBelongToMentorGroups.findAll({
         where: {

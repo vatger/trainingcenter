@@ -1,4 +1,4 @@
-import { Router } from "express";
+import { NextFunction, Request, Response, Router } from "express";
 import { authMiddleware } from "./middlewares/AuthMiddleware";
 import LoginController from "./controllers/login/LoginController";
 import GDPRController from "./controllers/user/GDPRController";
@@ -35,6 +35,7 @@ import UserCourseProgressAdministrationController from "./controllers/user-cours
 import SoloAdminController from "./controllers/solo/SoloAdminController";
 import UserEndorsementAdminController from "./controllers/user/UserEndorsementAdminController";
 import CPTAdminController from "./controllers/cpt/CPTAdminController";
+import { handleUpload } from "./libraries/upload/FileUploadLibrary";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -43,6 +44,12 @@ const routerGroup = (callback: (router: Router) => void) => {
 };
 
 export const router = Router();
+
+router.post("/test", (req, res) => {
+    handleUpload(req);
+
+    res.sendStatus(200);
+});
 
 router.use(
     "/auth",

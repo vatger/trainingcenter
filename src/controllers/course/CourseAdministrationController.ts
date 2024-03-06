@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
 import _CourseAdministrationValidator from "./_CourseAdministration.validator";
-import ValidationHelper from "../../utility/helper/ValidationHelper";
 import { Course } from "../../models/Course";
 import { MentorGroupsBelongsToCourses } from "../../models/through/MentorGroupsBelongsToCourses";
 import { HttpStatusCode } from "axios";
@@ -11,6 +10,7 @@ import { TrainingRequest } from "../../models/TrainingRequest";
 import { TrainingType } from "../../models/TrainingType";
 import { sequelize } from "../../core/Sequelize";
 import { TrainingTypesBelongsToCourses } from "../../models/through/TrainingTypesBelongsToCourses";
+import { generateUUID } from "../../utility/UUID";
 
 // TODO: Move all course related things into this controller
 
@@ -36,9 +36,17 @@ interface ICourseBody {
  * @param next
  */
 async function createCourse(request: Request, response: Response, next: NextFunction) {
+    const transaction = await sequelize.transaction();
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body: ICourseBody = request.body as ICourseBody;
+
+        // Validator.validate(body, [
+        //     {
+        //         name: "course_uuid",
+        //         toValidate: [ValidationOptions.NON_NULL]
+        //     }
+        // ])
 
         _CourseAdministrationValidator.validateUpdateOrCreateRequest(body);
 
@@ -47,52 +55,49 @@ async function createCourse(request: Request, response: Response, next: NextFunc
             return;
         }
 
-        const t = await sequelize.transaction();
+        const uuid = generateUUID();
 
-        try {
-            const course = await Course.create(
-                {
-                    uuid: body.course_uuid,
-                    name: body.name_de,
-                    name_en: body.name_en,
-                    description: body.description_de,
-                    description_en: body.description_en,
-                    is_active: body.active,
-                    self_enrollment_enabled: body.self_enrol_enabled,
-                    initial_training_type: Number(body.training_type_id),
-                },
-                {
-                    transaction: t,
-                }
-            );
+        const course = await Course.create(
+            {
+                uuid: uuid,
+                name: body.name_de,
+                name_en: body.name_en,
+                description: body.description_de,
+                description_en: body.description_en,
+                is_active: body.active,
+                self_enrollment_enabled: body.self_enrol_enabled,
+                initial_training_type: Number(body.training_type_id),
+            },
+            {
+                transaction: transaction,
+            }
+        );
 
-            await MentorGroupsBelongsToCourses.create(
-                {
-                    mentor_group_id: Number(body.mentor_group_id),
-                    course_id: course.id,
-                    can_edit_course: true,
-                },
-                {
-                    transaction: t,
-                }
-            );
+        await MentorGroupsBelongsToCourses.create(
+            {
+                mentor_group_id: Number(body.mentor_group_id),
+                course_id: course.id,
+                can_edit_course: true,
+            },
+            {
+                transaction: transaction,
+            }
+        );
 
-            await TrainingTypesBelongsToCourses.create(
-                {
-                    course_id: course.id,
-                    training_type_id: Number(body.training_type_id),
-                },
-                {
-                    transaction: t,
-                }
-            );
+        await TrainingTypesBelongsToCourses.create(
+            {
+                course_id: course.id,
+                training_type_id: Number(body.training_type_id),
+            },
+            {
+                transaction: transaction,
+            }
+        );
 
-            await t.commit();
-            response.status(HttpStatusCode.Created).send({ uuid: course.uuid });
-        } catch (e) {
-            await t.rollback();
-        }
+        await transaction.commit();
+        response.status(HttpStatusCode.Created).send(course);
     } catch (e) {
+        await transaction.rollback();
         next(e);
     }
 }
@@ -105,7 +110,7 @@ async function createCourse(request: Request, response: Response, next: NextFunc
  */
 async function updateCourse(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body: ICourseBody = request.body as ICourseBody;
 
         _CourseAdministrationValidator.validateUpdateOrCreateRequest(body);
@@ -205,10 +210,6 @@ async function removeCourseParticipant(request: Request, response: Response) {
     const body = request.body as { user_id: number };
 
     const validation = _CourseAdministrationValidator.validateRemoveParticipantRequest(body);
-    if (validation.invalid) {
-        ValidationHelper.sendValidationErrorResponse(response, validation);
-        return;
-    }
 
     const courseID = await Course.getIDFromUUID(params.course_uuid);
     if (courseID == -1) {
@@ -282,10 +283,6 @@ async function addMentorGroupToCourse(request: Request, response: Response) {
     const body = request.body as { course_uuid: string; mentor_group_id: number; can_edit: boolean };
 
     const validation = _CourseAdministrationValidator.validateAddMentorGroupRequest(body);
-    if (validation.invalid) {
-        ValidationHelper.sendValidationErrorResponse(response, validation);
-        return;
-    }
 
     const courseID = await Course.getIDFromUUID(body.course_uuid);
     if (courseID == -1) {
@@ -311,10 +308,6 @@ async function removeMentorGroupFromCourse(request: Request, response: Response)
     const body = request.body as { course_uuid: string; mentor_group_id: number };
 
     const validation = _CourseAdministrationValidator.validateRemoveMentorGroupRequest(body);
-    if (validation.invalid) {
-        ValidationHelper.sendValidationErrorResponse(response, validation);
-        return;
-    }
 
     const courseID = await Course.getIDFromUUID(body.course_uuid);
     if (courseID == -1) {
@@ -333,7 +326,7 @@ async function removeMentorGroupFromCourse(request: Request, response: Response)
 }
 
 async function getMentorable(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     const userWithCourses = await User.findOne({
         where: {
@@ -386,7 +379,7 @@ async function getMentorable(request: Request, response: Response) {
  * mentor groups, where admin = true!
  */
 async function getEditable(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const user = await User.findOne({
         where: {

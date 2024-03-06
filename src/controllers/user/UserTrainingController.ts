@@ -11,7 +11,7 @@ import { Op } from "sequelize";
  * @param response
  */
 async function getRequests(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
     const user = await User.findOne({
         where: {
             id: reqUser.id,
@@ -28,7 +28,7 @@ async function getRequests(request: Request, response: Response) {
  * @param response
  */
 async function getRequestsByUUID(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
     const course_uuid: string | undefined = request.params?.course_uuid?.toString();
 
     const course_id = await Course.getIDFromUUID(course_uuid);
@@ -49,7 +49,7 @@ async function getRequestsByUUID(request: Request, response: Response) {
 }
 
 async function getActiveRequestsByUUID(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const params = request.params as { course_uuid: string };
 
     const course = await Course.findOne({

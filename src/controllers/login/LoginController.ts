@@ -1,14 +1,12 @@
 import { Config } from "../../core/Config";
 import { NextFunction, Request, Response } from "express";
 import { ConnectOptions, VatsimConnectLibrary } from "../../libraries/vatsim/ConnectLibrary";
-import { VatsimConnectException } from "../../exceptions/VatsimConnectException";
-import Logger, { LogLevels } from "../../utility/Logger";
 import SessionLibrary, { removeSessionToken } from "../../libraries/session/SessionLibrary";
 import { User } from "../../models/User";
 import { Role } from "../../models/Role";
 import UserSessionLibrary from "../../libraries/session/UserSessionLibrary";
 import dayjs from "dayjs";
-import axios, { HttpStatusCode } from "axios";
+import { HttpStatusCode } from "axios";
 
 // We can ignore all errors, since we are validating the .env at startup
 const connect_options: ConnectOptions = {
@@ -103,7 +101,7 @@ async function getUserData(request: Request, response: Response) {
 }
 
 async function updateUserData(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     if (dayjs.utc().diff(user.updatedAt, "minutes") < 30) {
         response.sendStatus(HttpStatusCode.BadRequest);
         return;

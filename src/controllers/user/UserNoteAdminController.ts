@@ -1,5 +1,4 @@
 import { Request, Response } from "express";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { UserNote } from "../../models/UserNote";
 import { User } from "../../models/User";
 import { generateUUID } from "../../utility/UUID";
@@ -12,18 +11,13 @@ import { generateUUID } from "../../utility/UUID";
 async function getGeneralUserNotes(request: Request, response: Response) {
     const query = request.query as { user_id: string };
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "user_id",
-            validationObject: query.user_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "user_id",
+    //         validationObject: query.user_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     const notes: UserNote[] = await UserNote.findAll({
         where: {
@@ -61,29 +55,24 @@ async function getNotesByCourseID(request: Request, response: Response) {
 }
 
 async function createUserNote(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "user_id",
-            validationObject: request.body.user_id,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "content",
-            validationObject: request.body.content,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "user_id",
+    //         validationObject: response.locals.user_id,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "content",
+    //         validationObject: request.body.content,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    // ]);
 
     const note: UserNote = await UserNote.create({
         uuid: generateUUID(),
-        user_id: request.body.user_id,
+        user_id: response.locals.user_id,
         course_id: request.body.course_id == "-1" ? null : request.body.course_id,
         content: request.body.content.toString(),
         author_id: reqUser.id,

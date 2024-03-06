@@ -12,6 +12,6 @@ export async function authMiddleware(request: Request, response: Response, next:
         return;
     }
 
-    request.body.user = user;
+    response.locals.user = user;
     next();
 }

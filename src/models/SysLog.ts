@@ -11,6 +11,7 @@ export class SysLog extends Model<InferAttributes<SysLog>, InferCreationAttribut
     declare path: CreationOptional<string> | null;
     declare method: CreationOptional<string> | null;
     declare remote_addr: CreationOptional<string> | null;
+    declare message: CreationOptional<string> | null;
 
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
@@ -34,6 +35,9 @@ SysLog.init(
         },
         remote_addr: {
             type: DataType.STRING,
+        },
+        message: {
+            type: DataType.TEXT,
         },
         createdAt: DataType.DATE,
         updatedAt: DataType.DATE,

@@ -5,7 +5,6 @@ import { HttpStatusCode } from "axios";
 import { Course } from "../../models/Course";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { TrainingSession } from "../../models/TrainingSession";
-import _GenericValidator from "../_validators/_GenericValidator";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 
 async function getInformation(request: Request, response: Response, next: NextFunction) {

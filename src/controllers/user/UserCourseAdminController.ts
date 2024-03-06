@@ -10,7 +10,7 @@ import { Course } from "../../models/Course";
  * @param response
  */
 async function getUserCourseMatch(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
     const userID = request.query.user_id;
     const mentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
 

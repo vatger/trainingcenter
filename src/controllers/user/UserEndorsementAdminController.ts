@@ -6,7 +6,7 @@ import { HttpStatusCode } from "axios";
 
 async function addEndorsement(request: Request, response: Response, next: NextFunction) {
     try {
-        const requestingUser: User = request.body.user;
+        const requestingUser: User = response.locals.user;
         const body = request.body as { user_id: string; endorsement_group_id: string };
         _UserAdminValidator.validateCreateRequest(body);
 

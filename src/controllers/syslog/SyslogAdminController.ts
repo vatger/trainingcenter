@@ -1,50 +1,51 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
 import { SysLog } from "../../models/SysLog";
 import { User } from "../../models/User";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
  * Gets all system log entries
  * @param request
  * @param response
+ * @param next
  */
-async function getAll(request: Request, response: Response) {
-    const user: User = request.body.user;
+async function getAll(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "tech.syslog.view");
 
-    if (!PermissionHelper.checkUserHasPermission(user, response, "tech.syslog.view")) return;
+        const sysLogs = await SysLog.findAll({
+            order: [["id", "desc"]],
+            attributes: ["id", "method", "path", "createdAt"],
+        });
 
-    const sysLogs = await SysLog.findAll({
-        order: [["id", "desc"]],
-        attributes: ["id", "method", "path", "createdAt"],
-    });
-
-    response.send(sysLogs);
+        response.send(sysLogs);
+    } catch (e) {
+        next(e);
+    }
 }
 
-async function getInformationByID(request: Request, response: Response) {
-    const syslogID = request.params.id;
+async function getInformationByID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const params = request.params;
+        PermissionHelper.checkUserHasPermission(user, "tech.syslog.view");
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "id",
-            validationObject: syslogID,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-    ]);
+        Validator.validate(params, {
+            id: [ValidationTypeEnum.NON_NULL],
+        });
 
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
+        const sysLog = await SysLog.findOne({
+            where: {
+                id: params.id,
+            },
+        });
+
+        response.send(sysLog);
+    } catch (e) {
+        next(e);
     }
-
-    const sysLog = await SysLog.findOne({
-        where: {
-            id: syslogID,
-        },
-    });
-
-    response.send(sysLog);
 }
 
 export default {

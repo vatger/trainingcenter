@@ -15,7 +15,7 @@ import { User } from "../../models/User";
  */
 async function getMentorable(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const userMentorGroups = await user.getMentorGroups();
 
         let endorsementGroups: EndorsementGroup[] = [];

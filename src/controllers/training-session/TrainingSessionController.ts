@@ -14,7 +14,7 @@ import { HttpStatusCode } from "axios";
  * @param response
  */
 async function getByUUID(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const sessionUUID: string = request.params.uuid;
 
     const session: TrainingSession | null = await TrainingSession.findOne({
@@ -61,7 +61,7 @@ async function getByUUID(request: Request, response: Response) {
 }
 
 async function withdrawFromSessionByUUID(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const sessionUUID: string = request.params.uuid;
 
     const session: TrainingSession | null = await TrainingSession.findOne({

@@ -4,7 +4,7 @@ import { UserSession } from "../../models/UserSession";
 import { HttpStatusCode } from "axios";
 
 async function getUserSessions(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
 
     const sessions = await UserSession.findAll({
         where: {
@@ -19,7 +19,7 @@ async function getUserSessions(request: Request, response: Response) {
 }
 
 async function deleteUserSession(request: Request, response: Response) {
-    const user: User = request.body.user;
+    const user: User = response.locals.user;
     const query = request.body as { session_id: number };
 
     await UserSession.destroy({

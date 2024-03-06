@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { TrainingLogTemplate } from "../../models/TrainingLogTemplate";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
 import { HttpStatusCode } from "axios";
 import _LogTemplateAdminValidator from "./_LogTemplateAdmin.validator";
 
@@ -57,23 +56,18 @@ async function getByID(request: Request, response: Response, next: NextFunction)
 async function create(request: Request, response: Response) {
     const data = request.body as { name: string; content: object | object[] };
 
-    const validation = ValidationHelper.validate([
-        {
-            name: "name",
-            validationObject: data.name,
-            toValidate: [{ val: ValidationOptions.NON_NULL }],
-        },
-        {
-            name: "content",
-            validationObject: data.content,
-            toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.VALID_JSON }],
-        },
-    ]);
-
-    if (validation.invalid) {
-        response.status(400).send({ validation: validation.message, validation_failed: validation.invalid });
-        return;
-    }
+    // const validation = ValidationHelper.validate([
+    //     {
+    //         name: "name",
+    //         validationObject: data.name,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
+    //     },
+    //     {
+    //         name: "content",
+    //         validationObject: data.content,
+    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.VALID_JSON }],
+    //     },
+    // ]);
 
     const logTemplate = await TrainingLogTemplate.create({
         name: data.name,

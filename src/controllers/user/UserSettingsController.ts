@@ -5,7 +5,7 @@ import { HttpStatusCode } from "axios";
 
 async function updateSettings(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
         const body = request.body as { language: "de" | "en" };
 
         await UserSettings.update(

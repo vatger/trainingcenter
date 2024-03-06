@@ -11,8 +11,7 @@ import { Role } from "../../models/Role";
 import { UserSettings } from "../../models/UserSettings";
 import { Config } from "../../core/Config";
 import { sequelize } from "../../core/Sequelize";
-import { ValidatorType } from "../../controllers/_validators/ValidatorType";
-import ValidationHelper, { ValidationOptions } from "../../utility/helper/ValidationHelper";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 export type ConnectOptions = {
     client_id: string;
@@ -134,7 +133,7 @@ export class VatsimConnectLibrary {
      * @param response
      */
     public async updateUserData(request: Request, response: Response) {
-        const user: User = request.body.user;
+        const user: User = response.locals.user;
 
         const userWithAccessToken = await User.scope("internal").findOne({
             where: {
@@ -308,28 +307,16 @@ export class VatsimConnectLibrary {
      * Returns true, if the structure is valid
      * @private
      */
-    private _validateUserData(): ValidatorType {
-        return ValidationHelper.validate([
-            {
-                name: "cid",
-                validationObject: this.m_userData?.data.cid,
-                toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-            },
-            {
-                name: "personal",
-                validationObject: this.m_userData?.data.personal,
-                toValidate: [{ val: ValidationOptions.NON_NULL }],
-            },
-            {
-                name: "vatsim",
-                validationObject: this.m_userData?.data.vatsim,
-                toValidate: [{ val: ValidationOptions.NON_NULL }],
-            },
-        ]);
+    private _validateUserData() {
+        return Validator.validateAndReturn(this.m_userData?.data, {
+            cid: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+            personal: [ValidationTypeEnum.NON_NULL],
+            vatsim: [ValidationTypeEnum.NON_NULL],
+        });
     }
 
     private async _updateDatabase() {
-        if (this.m_userData == null || this._validateUserData().invalid) throw new VatsimConnectException();
+        if (this.m_userData == null || !this._validateUserData()) throw new VatsimConnectException(ConnectLibraryErrors.ERR_VALIDATION);
 
         const tokenValid = this.m_userData.data.oauth.token_valid?.toLowerCase() === "true";
         const t = await sequelize.transaction();

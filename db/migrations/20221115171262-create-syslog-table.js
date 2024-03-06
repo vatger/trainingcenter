@@ -18,6 +18,9 @@ const DataModelAttributes = {
     remote_addr: {
         type: DataType.STRING,
     },
+    message: {
+        type: DataType.TEXT,
+    },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
 };

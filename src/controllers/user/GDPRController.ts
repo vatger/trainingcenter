@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { User } from "../../models/User";
 
 async function getData(request: Request, response: Response) {
-    const reqUser: User = request.body.user;
+    const reqUser: User = response.locals.user;
 
     const user = await User.scope("sensitive").findOne({
         where: {

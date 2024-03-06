@@ -1,7 +1,18 @@
 import { Request } from "express";
 import { Config } from "../../core/Config";
-import { UploadedFile } from "express-fileupload";
 import { generateUUID } from "../../utility/UUID";
+import File from "express-fileupload";
+
+function _renameFile(file: File.UploadedFile) {
+    const fileName = generateUUID() + "." + file.name.split(".").pop();
+
+    // Move file to correct Location
+    file.mv(Config.FILE_STORAGE_LOCATION + fileName, (err: any) => {
+        if (err) throw err;
+    });
+
+    return fileName;
+}
 
 /**
  * Handles the upload and returns the name of the newly created file.
@@ -15,27 +26,13 @@ export function handleUpload(request: Request): string[] | null {
     // Check if files were supplied
     if (request.files == null || Object.keys(request.files).length == 0) return null;
 
-    let files: UploadedFile[] | UploadedFile;
-    if (Array.isArray(request.files?.files)) {
-        files = request.files.files;
-        files.forEach(file => {
-            const fileName = generateUUID() + "." + file.name.split(".").pop();
-            fileNames.push(fileName);
-
-            // Move file to correct Location
-            file.mv(Config.FILE_STORAGE_LOCATION + fileName, (err: any) => {
-                if (err) throw err;
-            });
-        });
+    let files = request.files.files;
+    if (Array.isArray(files)) {
+        for (const file of files) {
+            fileNames.push(_renameFile(file));
+        }
     } else {
-        files = request.files?.files ?? ({} as UploadedFile);
-
-        const fileName = generateUUID() + "." + files.name.split(".").pop();
-        fileNames.push(fileName);
-
-        files.mv(Config.FILE_STORAGE_LOCATION + fileName, (err: any) => {
-            if (err) throw err;
-        });
+        fileNames.push(_renameFile(files));
     }
 
     return fileNames;
