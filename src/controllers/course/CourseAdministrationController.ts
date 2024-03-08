@@ -11,6 +11,7 @@ import { TrainingType } from "../../models/TrainingType";
 import { sequelize } from "../../core/Sequelize";
 import { TrainingTypesBelongsToCourses } from "../../models/through/TrainingTypesBelongsToCourses";
 import { generateUUID } from "../../utility/UUID";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 // TODO: Move all course related things into this controller
 
@@ -305,11 +306,13 @@ async function addMentorGroupToCourse(request: Request, response: Response) {
  * @param response
  */
 async function removeMentorGroupFromCourse(request: Request, response: Response) {
-    const body = request.body as { course_uuid: string; mentor_group_id: number };
+    const params = request.params as { course_uuid: string };
+    const body = request.body as { mentor_group_id: number };
 
-    const validation = _CourseAdministrationValidator.validateRemoveMentorGroupRequest(body);
+    Validator.validate(params, { course_uuid: [ValidationTypeEnum.NON_NULL] });
+    Validator.validate(body, { mentor_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER] });
 
-    const courseID = await Course.getIDFromUUID(body.course_uuid);
+    const courseID = await Course.getIDFromUUID(params.course_uuid);
     if (courseID == -1) {
         response.sendStatus(HttpStatusCode.BadRequest);
         return;

@@ -13,7 +13,9 @@ import { exceptionInterceptorMiddleware } from "./middlewares/ExceptionIntercept
 
 const application: Express = express();
 
-process.on("uncaughtException", (err, origin) => handleUncaughtException(err, origin));
+if (Config.APP_DEBUG) {
+    process.on("uncaughtException", (err, origin) => handleUncaughtException(err, origin));
+}
 
 initializeApplication()
     .then(() => {

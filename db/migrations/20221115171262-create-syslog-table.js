@@ -8,18 +8,23 @@ const DataModelAttributes = {
     },
     user_id: {
         type: DataType.STRING,
+        allowNull: true,
     },
     path: {
         type: DataType.STRING,
+        allowNull: true,
     },
     method: {
         type: DataType.STRING(10),
+        allowNull: true,
     },
     remote_addr: {
         type: DataType.STRING,
+        allowNull: true,
     },
     message: {
         type: DataType.TEXT,
+        allowNull: true,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,

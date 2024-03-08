@@ -4,6 +4,7 @@ import { EndorsementGroupsBelongsToUsers } from "../through/EndorsementGroupsBel
 import Logger, { LogLevels } from "../../utility/Logger";
 import { TrainingStation } from "../TrainingStation";
 import { EndorsementGroupBelongsToStations } from "../through/EndorsementGroupBelongsToStations";
+import { UserSolo } from "../UserSolo";
 
 export function registerEndorsementGroupAssociations() {
     User.belongsToMany(EndorsementGroup, {
@@ -32,6 +33,18 @@ export function registerEndorsementGroupAssociations() {
         through: EndorsementGroupBelongsToStations,
         foreignKey: "station_id",
         otherKey: "endorsement_group_id",
+    });
+
+    EndorsementGroupsBelongsToUsers.belongsTo(User, {
+        as: "user",
+        foreignKey: "user_id",
+        targetKey: "id",
+    });
+
+    EndorsementGroupsBelongsToUsers.hasOne(UserSolo, {
+        as: "userSolo",
+        foreignKey: "id",
+        sourceKey: "solo_id",
     });
 
     Logger.log(LogLevels.LOG_INFO, "[EndorsementGroupAssociations]");

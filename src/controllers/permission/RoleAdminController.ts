@@ -3,6 +3,7 @@ import { Role } from "../../models/Role";
 import { RoleHasPermissions } from "../../models/through/RoleHasPermissions";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
 import { User } from "../../models/User";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
  * Gets all roles
@@ -55,19 +56,14 @@ async function getByID(request: Request, response: Response) {
  * @param response
  */
 async function update(request: Request, response: Response) {
-    const role_id = request.params.role_id;
-    const role_name = request.body.data.name;
+    const params = request.params as { role_id: string };
+    const body = request.body as { name: string };
 
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "name",
-    //         validationObject: role_name,
-    //         toValidate: [{ val: ValidationOptions.MIN_LENGTH, value: 1 }, { val: ValidationOptions.NON_NULL }],
-    //     },
-    // ]);
+    Validator.validate(params, { role_id: [ValidationTypeEnum.NON_NULL] });
+    Validator.validate(body, { name: [ValidationTypeEnum.NON_NULL] });
 
     let role = await Role.findOne({
-        where: { id: role_id },
+        where: { id: params.role_id },
     });
 
     if (role == null) {
@@ -76,7 +72,7 @@ async function update(request: Request, response: Response) {
     }
 
     role = await role.update({
-        name: role_name,
+        name: body.name,
     });
 
     response.send(role);

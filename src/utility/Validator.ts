@@ -17,6 +17,7 @@ enum ValidationTypeEnum {
     IS_ARRAY,
     VALID_DATE,
     ARRAY_LENGTH_GT,
+    VALID_JSON,
 }
 
 function validateAndReturn(data: any, validationRules: ValidationRule) {
@@ -143,6 +144,18 @@ function _validateEntry(data: any, key: string, messages: object[], valOption: {
         case ValidationTypeEnum.ARRAY_LENGTH_GT:
             if (!Array.isArray(data) || data.length <= valOption.value) {
                 addErrorEntry("The length of the array does not meet minimum requirements");
+            }
+            break;
+
+        case ValidationTypeEnum.VALID_JSON:
+            try {
+                if (typeof data == "string") {
+                    JSON.parse(data);
+                } else {
+                    JSON.parse(JSON.stringify(data));
+                }
+            } catch (e) {
+                addErrorEntry("Paramter is not valid JSON");
             }
             break;
     }

@@ -36,6 +36,11 @@ import SoloAdminController from "./controllers/solo/SoloAdminController";
 import UserEndorsementAdminController from "./controllers/user/UserEndorsementAdminController";
 import CPTAdminController from "./controllers/cpt/CPTAdminController";
 import { handleUpload } from "./libraries/upload/FileUploadLibrary";
+import UserStatisticsController from "./controllers/user/UserStatisticsController";
+import { Job } from "./models/Job";
+import JobLibrary from "./libraries/JobLibrary";
+import dayjs from "dayjs";
+import { Config } from "./core/Config";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -45,10 +50,10 @@ const routerGroup = (callback: (router: Router) => void) => {
 
 export const router = Router();
 
-router.post("/test", (req, res) => {
-    handleUpload(req);
+router.post("/test", async (req, res) => {
+    console.log(req.body);
 
-    res.sendStatus(200);
+    res.sendStatus(400);
 });
 
 router.use(
@@ -76,6 +81,13 @@ router.use(
         r.delete("/session", SessionController.deleteUserSession);
 
         r.get("/gdpr", GDPRController.getData);
+
+        r.use(
+            "/statistics",
+            routerGroup((r: Router) => {
+                r.get("/rating-times", UserStatisticsController.getUserRatingTimes);
+            })
+        );
 
         r.use(
             "/notification",
@@ -168,7 +180,7 @@ router.use(
                 r.get("/data/basic", UserInformationAdminController.getBasicUserDataByID);
                 r.get("/data/sensitive", UserInformationAdminController.getSensitiveUserDataByID);
 
-                r.put("/note", UserNoteAdminController.createUserNote);
+                r.post("/note", UserNoteAdminController.createUserNote);
                 r.get("/notes", UserNoteAdminController.getGeneralUserNotes);
                 r.get("/notes/course", UserNoteAdminController.getNotesByCourseID);
 

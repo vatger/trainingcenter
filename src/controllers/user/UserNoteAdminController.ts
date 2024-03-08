@@ -1,7 +1,9 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { UserNote } from "../../models/UserNote";
 import { User } from "../../models/User";
 import { generateUUID } from "../../utility/UUID";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { HttpStatusCode } from "axios";
 
 /**
  * Gets the specified user's notes that are not linked to a course, i.e. all those, that all mentors can see
@@ -54,33 +56,30 @@ async function getNotesByCourseID(request: Request, response: Response) {
     response.send(notes);
 }
 
-async function createUserNote(request: Request, response: Response) {
-    const reqUser: User = response.locals.user;
+async function createUserNote(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const body = request.body as { user_id: string; content: string; course_id?: string };
 
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "user_id",
-    //         validationObject: response.locals.user_id,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    //     {
-    //         name: "content",
-    //         validationObject: request.body.content,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    // ]);
+        Validator.validate(body, {
+            user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+            content: [ValidationTypeEnum.NON_NULL],
+        });
 
-    const note: UserNote = await UserNote.create({
-        uuid: generateUUID(),
-        user_id: response.locals.user_id,
-        course_id: request.body.course_id == "-1" ? null : request.body.course_id,
-        content: request.body.content.toString(),
-        author_id: reqUser.id,
-    });
+        const note: UserNote = await UserNote.create({
+            uuid: generateUUID(),
+            user_id: Number(body.user_id),
+            course_id: request.body.course_id == "-1" ? null : request.body.course_id,
+            content: request.body.content.toString(),
+            author_id: user.id,
+        });
 
-    const noteWithAuthor: UserNote | null = await note.getAuthor();
+        const noteWithAuthor: UserNote | null = await note.getAuthor();
 
-    response.send(noteWithAuthor);
+        response.status(HttpStatusCode.Created).send(noteWithAuthor);
+    } catch (e) {
+        next(e);
+    }
 }
 
 export default {

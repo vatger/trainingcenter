@@ -1,4 +1,4 @@
-import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
+import { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
 import { UserSolo } from "../UserSolo";
@@ -23,6 +23,17 @@ export class EndorsementGroupsBelongsToUsers extends Model<
     declare created_by: CreationOptional<ForeignKey<User["id"]>>;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
+
+    //
+    // Association placeholders
+    //
+    declare user?: NonAttribute<User>;
+    declare userSolo?: NonAttribute<UserSolo>;
+
+    declare static associations: {
+        user: Association<EndorsementGroupsBelongsToUsers, User>;
+        userSolo: Association<EndorsementGroupsBelongsToUsers, UserSolo>;
+    };
 }
 
 EndorsementGroupsBelongsToUsers.init(

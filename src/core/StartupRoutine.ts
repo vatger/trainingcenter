@@ -17,13 +17,13 @@ export const initializeApplication = async () => {
 
     await clearLogFiles();
 
-    await initScheduledJobs();
-
     await checkDatabaseConnection();
 
     await checkMailConnection();
 
     await registerModelAssociations();
+
+    await initScheduledJobs();
 
     Logger.log(
         LogLevels.LOG_INFO,

@@ -52,29 +52,22 @@ async function getInformationByUUID(request: Request, response: Response) {
  * @param response
  */
 async function getUserCourseInformationByUUID(request: Request, response: Response) {
-    const reqUser: User = response.locals.user;
-    const course_uuid: string = request.query.uuid?.toString() ?? "";
+    const user: User = response.locals.user;
+    const query = request.query as { uuid: string };
 
-    if (!(await reqUser.isMemberOfCourse(course_uuid))) {
+    if (!(await user.isMemberOfCourse(query.uuid))) {
         response.status(HttpStatusCode.Forbidden).send({ message: "You are not enrolled in this course" });
         return;
     }
 
-    const user: User | null = await User.findOne({
-        where: {
-            id: reqUser.id,
-        },
-        include: [
-            {
-                association: User.associations.courses,
-                where: {
-                    uuid: course_uuid,
-                },
-            },
-        ],
-    });
+    const courses = await user.getCourses();
+    const course = courses.find(c => c.uuid == query.uuid);
 
-    response.send(user?.courses ?? []);
+    if (course) {
+        response.send(course);
+    } else {
+        response.sendStatus(HttpStatusCode.BadRequest);
+    }
 }
 
 /**

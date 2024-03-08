@@ -16,7 +16,9 @@ import { TrainingLog } from "../../models/TrainingLog";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { sequelize } from "../../core/Sequelize";
 import { MentorGroup } from "../../models/MentorGroup";
-import EmailHelper from "../../utility/helper/EmailHelper";
+import JobLibrary, { JobTypeEnum } from "../../libraries/JobLibrary";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import Logger, { LogLevels } from "../../utility/Logger";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -24,114 +26,132 @@ import EmailHelper from "../../utility/helper/EmailHelper";
 async function createTrainingSession(request: Request, response: Response) {
     // TODO: Check if the mentor of the course is even allowed to create such a session!
 
-    const user: User = response.locals.user as User;
-    const data = request.body as {
-        course_uuid?: string;
-        date?: string;
-        training_type_id?: number;
-        training_station_id?: number;
-        user_ids?: number[];
-    };
+    try {
+        const user: User = response.locals.user as User;
+        const body = request.body as {
+            course_uuid: string;
+            date: string;
+            training_type_id: string;
+            user_ids: any;
+            training_station_id?: string;
+        };
 
-    // 1. Find out which of these users is actually enrolled in the course. To do this, query the course and it's members, and check against the array of user_ids. Create a new actual array with only those people
-    // that are actually enrolled in this course.
-    let courseParticipants: number[] = [];
-    const course = await Course.findOne({
-        where: {
-            uuid: data.course_uuid,
-        },
-        include: [Course.associations.users],
-    });
+        Validator.validate(body, {
+            training_type_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        });
 
-    const trainingType = await TrainingType.findOne({
-        where: {
-            id: data.training_type_id,
-        },
-    });
+        // Required due to FormData
+        body.user_ids = JSON.parse(body.user_ids) as number[];
 
-    if (course == null || trainingType == null) {
-        response.sendStatus(HttpStatusCode.BadRequest);
-        return;
-    }
-
-    // Filter the requested users that are also enrolled in this course.
-    data.user_ids?.filter(userID => {
-        if (course.users?.find(courseUser => courseUser.id == userID)) {
-            courseParticipants.push(userID);
-        }
-    });
-
-    if (courseParticipants.length == 0) {
-        response.status(HttpStatusCode.BadRequest).send({ error: "No specified user was a member of this course." });
-        return;
-    }
-
-    // Create Session
-    const trainingSession = await TrainingSession.create({
-        uuid: generateUUID(),
-        mentor_id: user.id,
-        training_station_id: data.training_station_id,
-        date: dayjs.utc(data.date).toDate(),
-        training_type_id: data.training_type_id,
-        course_id: course.id,
-    });
-
-    if (trainingSession == null) {
-        response.sendStatus(HttpStatusCode.InternalServerError);
-        return;
-    }
-
-    // For each one of these members, delete their training requests from the course and training_type_id.
-    for (const userID of courseParticipants) {
-        const request = await TrainingRequest.findOne({
+        // 1. Find out which of these users is actually enrolled in the course. To do this, query the course and it's members, and check against the array of user_ids. Create a new actual array with only those people
+        // that are actually enrolled in this course.
+        let courseParticipants: number[] = [];
+        const course = await Course.findOne({
             where: {
-                user_id: userID,
-                course_id: course.id,
-                training_type_id: data.training_type_id,
-                status: "requested",
+                uuid: body.course_uuid,
+            },
+            include: [Course.associations.users],
+        });
+
+        const trainingType = await TrainingType.findOne({
+            where: {
+                id: body.training_type_id,
             },
         });
 
-        if (request == null) {
-            await TrainingRequest.create({
-                uuid: generateUUID(),
-                user_id: userID,
-                training_type_id: data.training_type_id,
-                course_id: course.id,
-                training_station_id: data.training_station_id,
-                status: "planned",
-                expires: dayjs().add(1, "month").toDate(),
-                training_session_id: trainingSession.id,
+        if (course == null || trainingType == null) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        // Filter the requested users that are also enrolled in this course.
+        body.user_ids?.filter((userID: number) => {
+            if (course.users?.find(courseUser => courseUser.id == userID)) {
+                courseParticipants.push(userID);
+            }
+        });
+
+        if (courseParticipants.length == 0) {
+            response.status(HttpStatusCode.BadRequest).send({ error: "No specified user was a member of this course." });
+            return;
+        }
+
+        // Create Session
+        const trainingSession = await TrainingSession.create({
+            uuid: generateUUID(),
+            mentor_id: user.id,
+            training_station_id: isNaN(Number(body.training_station_id)) ? null : Number(body.training_station_id),
+            date: dayjs.utc(body.date).toDate(),
+            training_type_id: Number(body.training_type_id),
+            course_id: course.id,
+        });
+
+        if (trainingSession == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        // For each one of these members, delete their training requests from the course and training_type_id.
+        for (const userID of courseParticipants) {
+            const request = await TrainingRequest.findOne({
+                where: {
+                    user_id: userID,
+                    course_id: course.id,
+                    training_type_id: body.training_type_id,
+                    status: "requested",
+                },
             });
-        } else {
-            await request.update({
-                status: "planned",
+
+            if (request == null) {
+                await TrainingRequest.create({
+                    uuid: generateUUID(),
+                    user_id: userID,
+                    training_type_id: trainingSession.training_type_id as number, // Force number coercion, since we know that body.training_type_id is number and non null (validation)
+                    course_id: course.id,
+                    training_station_id: trainingSession.training_station_id,
+                    status: "planned",
+                    expires: dayjs().add(1, "month").toDate(),
+                    training_session_id: trainingSession.id,
+                });
+            } else {
+                await request.update({
+                    status: "planned",
+                    training_session_id: trainingSession.id,
+                });
+            }
+
+            await TrainingSessionBelongsToUsers.create({
                 training_session_id: trainingSession.id,
+                user_id: userID,
             });
         }
 
-        await TrainingSessionBelongsToUsers.create({
-            training_session_id: trainingSession.id,
-            user_id: userID,
-        });
-    }
+        response.send(trainingSession);
 
-    response.send(trainingSession);
+        //
+        // Response done, now we can send the mails
+        //
+        for (const userID of courseParticipants) {
+            const trainee = await User.scope("sensitive").findByPk(userID);
+            if (trainee == null) continue;
 
-    //
-    // Response done, now we can send the mails
-    //
-    for (const userID of courseParticipants) {
-        const trainee = await User.scope("sensitive").findByPk(userID);
-        if (trainee == null) continue;
-
-        await EmailHelper.sendMail(trainee.email, "New Training", "message.html", {
-            name: trainee.first_name + " " + trainee.last_name,
-            message: `es wurde ein neues Training am ${dayjs.utc(trainingSession.date).format(Config.DATETIME_FORMAT)} im Kurs ${
-                course.name
-            } angelegt. Wir wünschen Dir viel Spaß und Erfolg!`,
-            date_now: dayjs.utc().format(Config.DATETIME_FORMAT),
-        });
+            await JobLibrary.scheduleJob(JobTypeEnum.EMAIL, {
+                type: "message",
+                recipient: trainee.email,
+                subject: "New Training",
+                replacements: {
+                    message: {
+                        name: trainee.first_name + " " + trainee.last_name,
+                        message_de: `Es wurde ein neues Training am ${dayjs.utc(trainingSession.date).format(Config.DATETIME_FORMAT)} im Kurs ${
+                            course.name
+                        } angelegt. Wir wünschen viel Spaß und Erfolg.`,
+                        message_en: "English counterpart...",
+                    },
+                },
+            });
+        }
+    } catch (e: any) {
+        Logger.log(LogLevels.LOG_WARN, "createTrainingSession >> " + e.message);
     }
 }
 

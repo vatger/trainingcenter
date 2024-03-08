@@ -8,13 +8,13 @@ export class Job extends Model<InferAttributes<Job>, InferCreationAttributes<Job
     //
     declare uuid: string;
     declare attempts: number;
-    declare status: "queued" | "running" | "completed";
+    declare status: "queued" | "running" | "failed" | "completed";
 
     //
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare payload: CreationOptional<JSON> | null;
+    declare payload: CreationOptional<string> | null;
     declare available_at: CreationOptional<Date> | null;
     declare job_type: CreationOptional<"email"> | null;
     declare last_executed: CreationOptional<Date> | null;

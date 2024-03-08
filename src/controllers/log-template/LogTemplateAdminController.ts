@@ -1,7 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { TrainingLogTemplate } from "../../models/TrainingLogTemplate";
 import { HttpStatusCode } from "axios";
-import _LogTemplateAdminValidator from "./_LogTemplateAdmin.validator";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
  * Gets all training log templates
@@ -29,7 +29,7 @@ async function getByID(request: Request, response: Response, next: NextFunction)
     try {
         const params = request.params as { id: string };
 
-        _LogTemplateAdminValidator.validateGetByID(params);
+        Validator.validate(params, { id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER] });
 
         const trainingLogTemplate = await TrainingLogTemplate.findOne({
             where: {
@@ -52,29 +52,28 @@ async function getByID(request: Request, response: Response, next: NextFunction)
  * Create a new Training Log Template
  * @param request
  * @param response
+ * @param next
  */
-async function create(request: Request, response: Response) {
-    const data = request.body as { name: string; content: object | object[] };
+async function create(request: Request, response: Response, next: NextFunction) {
+    try {
+        const body = request.body as { name: string; content: any };
 
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "name",
-    //         validationObject: data.name,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    //     {
-    //         name: "content",
-    //         validationObject: data.content,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.VALID_JSON }],
-    //     },
-    // ]);
+        Validator.validate(body, {
+            name: [ValidationTypeEnum.NON_NULL],
+            content: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
+        });
+        // Parse string to object for Database insertion
+        body.content = JSON.parse(body.content);
 
-    const logTemplate = await TrainingLogTemplate.create({
-        name: data.name,
-        content: data.content,
-    });
+        const logTemplate = await TrainingLogTemplate.create({
+            name: body.name,
+            content: body.content,
+        });
 
-    response.sendStatus(HttpStatusCode.Created).send(logTemplate);
+        response.status(HttpStatusCode.Created).send(logTemplate);
+    } catch (e) {
+        next(e);
+    }
 }
 
 /**
@@ -86,9 +85,15 @@ async function create(request: Request, response: Response) {
 async function update(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };
-        const body = request.body as { name: string; content: object | object[] };
+        const body = request.body as { name: string; content: string };
 
-        _LogTemplateAdminValidator.validateUpdate(body);
+        Validator.validate(params, { id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER] });
+        Validator.validate(body, {
+            name: [ValidationTypeEnum.NON_NULL],
+            content: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
+        });
+        // Parse string to object for Database insertion
+        body.content = JSON.parse(body.content);
 
         await TrainingLogTemplate.update(
             {
@@ -123,6 +128,10 @@ async function update(request: Request, response: Response, next: NextFunction) 
 async function destroy(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };
+
+        Validator.validate(params, {
+            id: [ValidationTypeEnum.NON_NULL],
+        });
 
         await TrainingLogTemplate.destroy({
             where: {

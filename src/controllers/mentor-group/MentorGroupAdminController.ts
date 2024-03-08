@@ -5,6 +5,7 @@ import { User } from "../../models/User";
 import { HttpStatusCode } from "axios";
 import _MentorGroupAdminValidator from "./_MentorGroupAdminValidator";
 import { MentorGroupsBelongToEndorsementGroups } from "../../models/through/MentorGroupsBelongToEndorsementGroups";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 // Type used to create the mentor group. The request is of type Array<UserInMentorGroupT>
 type UserInMentorGroupT = {
@@ -17,77 +18,74 @@ type UserInMentorGroupT = {
  * Creates a mentor group and adds all users to this group
  * @param request - request.body.data
  * @param response
+ * @param next
  */
-async function create(request: Request, response: Response) {
-    const mentorGroupName = request.body.data.name;
-    const users = request.body.data.users as UserInMentorGroupT[];
+async function create(request: Request, response: Response, next: NextFunction) {
+    try {
+        const body = request.body as { name: string; users: UserInMentorGroupT[] };
 
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "name",
-    //         validationObject: mentorGroupName,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    //     {
-    //         name: "users",
-    //         validationObject: users,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    //     {
-    //         name: "fir",
-    //         validationObject: request.body.data?.fir,
-    //         toValidate: [{ val: ValidationOptions.IN_ARRAY, value: ["", "edgg", "edww", "edmm"] }],
-    //     },
-    // ]);
-
-    const mentorGroup = await MentorGroup.create({
-        name: mentorGroupName,
-        fir: request.body?.data?.fir == "" ? null : request.body.data.fir,
-    });
-
-    if (mentorGroup == null) {
-        response.status(500).send({ message: "Failed to create Mentor Group!" });
-        return;
-    }
-
-    for (const u of users) {
-        await UserBelongToMentorGroups.create({
-            user_id: u.user.id,
-            group_id: mentorGroup.id,
-            group_admin: u.admin,
-            can_manage_course: u.can_manage,
+        Validator.validate(body, {
+            name: [ValidationTypeEnum.NON_NULL],
+            users: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.IS_ARRAY],
         });
-    }
 
-    response.send(mentorGroup);
+        const mentorGroup = await MentorGroup.create({
+            name: body.name,
+            fir: request.body?.data?.fir == "" ? null : request.body.data.fir,
+        });
+
+        if (mentorGroup == null) {
+            response.status(500).send({ message: "Failed to create Mentor Group!" });
+            return;
+        }
+
+        for (const user of body.users) {
+            await UserBelongToMentorGroups.create({
+                user_id: user.user.id,
+                group_id: mentorGroup.id,
+                group_admin: user.admin,
+                can_manage_course: user.can_manage,
+            });
+        }
+
+        response.send(mentorGroup);
+    } catch (e) {
+        next(e);
+    }
 }
 
-async function update(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const body = request.body as { mentor_group_id: number; name: string; fir?: "-1" | "edgg" | "edww" | "edmm" };
+async function update(request: Request, response: Response, next: NextFunction) {
+    try {
+        const body = request.body as { mentor_group_id: number; name: string; fir: "none" | "edgg" | "edww" | "edmm" };
 
-    const validation = _MentorGroupAdminValidator.validateUpdate(body);
-    // if (validation.invalid) {
-    //     response.status(HttpStatusCode.BadRequest).send({
-    //         validation: validation.message,
-    //         validation_failed: true,
-    //     });
-    //     return;
-    // }
+        Validator.validate(body, {
+            mentor_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+            name: [ValidationTypeEnum.NON_NULL],
+            fir: [
+                ValidationTypeEnum.NON_NULL,
+                {
+                    option: ValidationTypeEnum.IN_ARRAY,
+                    value: ["none", "edgg", "edww", "edmm"],
+                },
+            ],
+        });
 
-    await MentorGroup.update(
-        {
-            name: body.name,
-            fir: body.fir == "-1" ? null : body.fir ?? null,
-        },
-        {
-            where: {
-                id: body.mentor_group_id,
+        await MentorGroup.update(
+            {
+                name: body.name,
+                fir: body.fir == "none" ? null : body.fir ?? null,
             },
-        }
-    );
+            {
+                where: {
+                    id: body.mentor_group_id,
+                },
+            }
+        );
 
-    response.sendStatus(HttpStatusCode.NoContent);
+        response.sendStatus(HttpStatusCode.NoContent);
+    } catch (e) {
+        next(e);
+    }
 }
 
 /**

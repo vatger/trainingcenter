@@ -1,2 +1,0 @@
-0 1 * * * cd /opt/trainingcenter_backend && node ./dist/misc/scripts/CheckEndorsements.js >> /var/log/check_endorsement.log
-0 */1 * * * cd /opt/trainingcenter_backend && node ./dist/misc/scripts/SendReminderMail.js >> /var/log/check_endorsement.log

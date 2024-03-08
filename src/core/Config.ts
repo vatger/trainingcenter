@@ -54,7 +54,7 @@ export const Config = {
     ROOT_PATH: path.resolve(__dirname + "../../../"),
 
     // Read from package JSON
-    APP_VERSION: process.env.APP_VERSION ?? "N/A",
+    APP_VERSION: process.env.npm_package_version,
     FRONTEND_URI: process.env.FRONTEND_URI,
 
     // Read from .env
@@ -103,6 +103,12 @@ export const Config = {
 
     DATE_FORMAT: "DD.MM.YYYY",
     DATETIME_FORMAT: "DD.MM.YYYY HH:mm",
+
+    CRON_CONFIG: {
+        SYSLOG_CLEANUP: "30 2 * * 1-6",
+        SEND_EMAIL: "*/5 * * * *",
+        CHECK_ENDORSEMENT: "* 0 12 * *",
+    },
 };
 
 export const SequelizeConfig: Options = {

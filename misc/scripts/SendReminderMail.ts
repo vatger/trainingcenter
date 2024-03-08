@@ -8,7 +8,7 @@ import DBConn from "./DBConn";
 import dayjs from "dayjs";
 import { QueryTypes } from "sequelize";
 import { Config } from "../../src/core/Config";
-import EmailHelper from "../../src/utility/helper/EmailHelper";
+import EmailHelper from "../../src/libraries/EmailLibrary";
 
 DBConn.connectToDatabase().then(async seq => {
     if (seq == null) return;
@@ -36,13 +36,13 @@ DBConn.connectToDatabase().then(async seq => {
             date_now: dayjs.utc().format(Config.DATETIME_FORMAT),
         };
 
-        await EmailHelper.sendMail(
-            Config.APP_DEBUG ? Config.DEBUG_EMAIL : request.email,
-            "Weiteres Interesse an Trainings",
-            "reminder.html",
-            replacements,
-            true
-        );
+        // await EmailHelper.sendMail(
+        //     Config.APP_DEBUG ? Config.DEBUG_EMAIL : request.email,
+        //     "Weiteres Interesse an Trainings",
+        //     "reminder.html",
+        //     replacements,
+        //     true
+        // );
     }
 
     await seq.close();

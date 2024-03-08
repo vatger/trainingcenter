@@ -3,6 +3,7 @@ import { TrainingType } from "../../models/TrainingType";
 import { TrainingStation } from "../../models/TrainingStation";
 import { TrainingStationBelongsToTrainingType } from "../../models/through/TrainingStationBelongsToTrainingType";
 import { HttpStatusCode } from "axios";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
  * Gets all training types
@@ -65,19 +66,10 @@ async function getByID(request: Request, response: Response, next: NextFunction)
  */
 async function create(request: Request, response: Response) {
     const body = request.body as { name: string; type: "online" | "sim" | "lesson" | "cpt"; log_template_id?: string };
-
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "name",
-    //         validationObject: body.name,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    //     {
-    //         name: "type",
-    //         validationObject: body.type,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    // ]);
+    Validator.validate(body, {
+        name: [ValidationTypeEnum.NON_NULL],
+        type: [ValidationTypeEnum.NON_NULL, { option: ValidationTypeEnum.IN_ARRAY, value: ["online", "sim", "lesson", "cpt"] }],
+    });
 
     const log_template_id = Number(body.log_template_id);
     const trainingType = await TrainingType.create({
@@ -86,7 +78,7 @@ async function create(request: Request, response: Response) {
         log_template_id: isNaN(log_template_id) || log_template_id == -1 ? null : log_template_id,
     });
 
-    response.status(HttpStatusCode.Created).send({ id: trainingType.id });
+    response.status(HttpStatusCode.Created).send(trainingType);
 }
 
 /**
@@ -96,25 +88,14 @@ async function create(request: Request, response: Response) {
  */
 async function update(request: Request, response: Response) {
     const training_type_id = request.params.id;
-    const requestData = request.body.data;
+    const body = request.body as { name: string; type: "online" | "sim" | "cpt" | "lesson"; log_template_id?: string };
 
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "id",
-    //         validationObject: training_type_id,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    //     {
-    //         name: "name",
-    //         validationObject: requestData.name,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    //     {
-    //         name: "type",
-    //         validationObject: requestData.type,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    // ]);
+    console.log(body);
+
+    Validator.validate(body, {
+        name: [ValidationTypeEnum.NON_NULL],
+        type: [ValidationTypeEnum.NON_NULL],
+    });
 
     let trainingType = await TrainingType.findOne({
         where: {
@@ -127,13 +108,13 @@ async function update(request: Request, response: Response) {
         return;
     }
 
-    await trainingType.update({
-        name: requestData.name,
-        type: requestData.type,
-        log_template_id: isNaN(requestData.log_template_id) || Number(requestData.log_template_id) == -1 ? null : Number(requestData.log_template_id),
+    let updatedTrainingType = await trainingType.update({
+        name: body.name,
+        type: body.type,
+        log_template_id: body.log_template_id == null || isNaN(Number(body.log_template_id)) ? null : Number(body.log_template_id),
     });
 
-    response.sendStatus(HttpStatusCode.Ok);
+    response.send(updatedTrainingType);
 }
 
 async function addStation(request: Request, response: Response) {

@@ -1,6 +1,6 @@
 const { DataType } = require("sequelize-typescript");
 
-const jobStatusEnum = ["queued", "running", "completed"];
+const jobStatusEnum = ["queued", "running", "failed", "completed"];
 const jobTypeEnum = ["email"];
 
 const DataModelAttributes = {
