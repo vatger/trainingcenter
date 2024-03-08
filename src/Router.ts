@@ -40,8 +40,8 @@ import { Job } from "./models/Job";
 import JobLibrary from "./libraries/JobLibrary";
 import dayjs from "dayjs";
 import { Config } from "./core/Config";
-import SyslogAdminController from "./controllers/logs/SyslogAdminController";
-import JoblogAdminController from "./controllers/logs/JoblogAdminController";
+import SyslogAdminController from "./controllers/admin-logs/SyslogAdminController";
+import JoblogAdminController from "./controllers/admin-logs/JoblogAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
