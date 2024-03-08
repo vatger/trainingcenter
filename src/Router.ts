@@ -17,7 +17,6 @@ import TrainingTypeAdministrationController from "./controllers/training-type/Tr
 import FastTrackAdministrationController from "./controllers/fast-track/FastTrackAdminController";
 import LogTemplateAdministrationController from "./controllers/log-template/LogTemplateAdminController";
 import MentorGroupAdministrationController from "./controllers/mentor-group/MentorGroupAdminController";
-import SyslogAdminController from "./controllers/syslog/SyslogAdminController";
 import PermissionAdministrationController from "./controllers/permission/PermissionAdminController";
 import RoleAdministrationController from "./controllers/permission/RoleAdminController";
 import UserNotificationController from "./controllers/user/UserNotificationController";
@@ -41,6 +40,8 @@ import { Job } from "./models/Job";
 import JobLibrary from "./libraries/JobLibrary";
 import dayjs from "dayjs";
 import { Config } from "./core/Config";
+import SyslogAdminController from "./controllers/logs/SyslogAdminController";
+import JoblogAdminController from "./controllers/logs/JoblogAdminController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -394,6 +395,14 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/", SyslogAdminController.getAll);
                 r.get("/:id", SyslogAdminController.getInformationByID);
+            })
+        );
+
+        r.use(
+            "/joblog",
+            routerGroup((r: Router) => {
+                r.get("/", JoblogAdminController.getAll);
+                r.get("/:id", JoblogAdminController.getInformationByID);
             })
         );
 

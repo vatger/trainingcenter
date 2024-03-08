@@ -1,6 +1,6 @@
 const { DataType } = require("sequelize-typescript");
 
-const jobStatusEnum = ["queued", "running", "failed", "completed"];
+const jobStatusEnum = ["queued", "failed", "completed"];
 const jobTypeEnum = ["email"];
 
 const DataModelAttributes = {
@@ -24,9 +24,6 @@ const DataModelAttributes = {
         type: DataType.TINYINT({ unsigned: true }),
         allowNull: false,
         defaultValue: 0,
-    },
-    available_at: {
-        type: DataType.DATE,
     },
     last_executed: {
         type: DataType.DATE,

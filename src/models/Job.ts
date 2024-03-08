@@ -8,14 +8,13 @@ export class Job extends Model<InferAttributes<Job>, InferCreationAttributes<Job
     //
     declare uuid: string;
     declare attempts: number;
-    declare status: "queued" | "running" | "failed" | "completed";
+    declare status: "queued" | "failed" | "completed";
 
     //
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
     declare payload: CreationOptional<string> | null;
-    declare available_at: CreationOptional<Date> | null;
     declare job_type: CreationOptional<"email"> | null;
     declare last_executed: CreationOptional<Date> | null;
     declare createdAt: CreationOptional<Date> | null;
@@ -44,14 +43,11 @@ Job.init(
             type: DataType.TINYINT({ unsigned: true }),
             allowNull: false,
         },
-        available_at: {
-            type: DataType.DATE,
-        },
         last_executed: {
             type: DataType.DATE,
         },
         status: {
-            type: DataType.ENUM("queued", "running", "completed"),
+            type: DataType.ENUM("queued", "failed", "completed"),
             allowNull: false,
         },
         createdAt: DataType.DATE,

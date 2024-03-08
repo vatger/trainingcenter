@@ -1,5 +1,6 @@
 import JobLibrary, { EMailPayload, EMailTypes } from "../../libraries/JobLibrary";
 import EmailLibrary from "../../libraries/EmailLibrary";
+import dayjs from "dayjs";
 
 // This file maps between the type of the email and the corresponding html file used to actually render the template
 const typeToFile = new Map<EMailTypes, string>([
@@ -17,7 +18,7 @@ async function handle() {
         const payload: EMailPayload = JSON.parse(<string>email.payload);
         const fileName = typeToFile.get(payload.type)!;
 
-        let update: any = { attempts: email.attempts + 1 };
+        let update: any = { attempts: email.attempts + 1, last_executed: dayjs.utc().toDate() };
         if (
             !(await EmailLibrary.sendMail({
                 recipient: payload.recipient,
