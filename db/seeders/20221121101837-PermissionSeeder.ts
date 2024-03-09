@@ -1,16 +1,16 @@
-"use strict";
+import {QueryInterface} from "sequelize";
 
 const now = new Date();
 
-async function removeRoles(queryInterface) {
+async function removeRoles(queryInterface: QueryInterface) {
     console.log("[RoleSeeder] Removing all roles");
-    await queryInterface.bulkDelete("roles", null, {});
+    await queryInterface.bulkDelete("roles", {}, {});
     console.log("[RoleSeeder] Removed all roles");
 }
 
-async function removePermissions(queryInterface) {
+async function removePermissions(queryInterface: QueryInterface) {
     console.log("[PermissionSeeder] Removing all permissions");
-    await queryInterface.bulkDelete("permissions", null, {});
+    await queryInterface.bulkDelete("permissions", {}, {});
     console.log("[PermissionSeeder] Removed all permissions");
 }
 
@@ -51,14 +51,14 @@ const allPerms = [
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-    async up(queryInterface) {
+    async up(queryInterface: QueryInterface) {
         await removePermissions(queryInterface);
         await removeRoles(queryInterface);
 
         ///////////////
         //// PERMS ////
         ///////////////
-        let perms = [...allPerms];
+        let perms: any[] = [...allPerms];
         perms = perms.map(p => {
             console.log("\t\t Adding Permission: ", p);
 
@@ -68,14 +68,14 @@ module.exports = {
             };
         });
 
-        const firstPermId = await queryInterface.bulkInsert("permissions", perms);
-        const lastPermId = firstPermId + perms.length - 1;
+        const firstPermId: any = await queryInterface.bulkInsert("permissions", perms);
+        const lastPermId = firstPermId.id + perms.length - 1;
         console.log("[PermissionSeeder] Inserted new permissions ", firstPermId, " - ", lastPermId, "- DONE\n");
 
         ///////////////
         //// ROLES ////
         ///////////////
-        let roles = [...allRoles];
+        let roles: any[] = [...allRoles];
         roles = roles.map(p => {
             console.log("\t\t Adding Role: ", p);
 
@@ -85,7 +85,7 @@ module.exports = {
             };
         });
 
-        const firstRoleId = await queryInterface.bulkInsert("roles", roles);
+        const firstRoleId: any = await queryInterface.bulkInsert("roles", roles);
         const lastRoleId = firstRoleId + roles.length - 1;
         console.log("[RoleSeeder] Inserted new roles ", firstRoleId, " - ", lastRoleId, "- DONE\n");
 
@@ -105,7 +105,7 @@ module.exports = {
         }
     },
 
-    async down(queryInterface) {
-        await queryInterface.bulkDelete("permissions", null, {});
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.bulkDelete("permissions", {}, {});
     },
 };

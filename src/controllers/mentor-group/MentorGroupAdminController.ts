@@ -22,18 +22,19 @@ type UserInMentorGroupT = {
  */
 async function create(request: Request, response: Response, next: NextFunction) {
     try {
-        const body = request.body as { name: string; users: any; fir: any };
+        const body = request.body as { name: string; users: any; fir?: "edww" | "edgg" | "edmm" };
+
+        console.log(body)
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
-            //fir: [ValidationTypeEnum.NON_NULL],
+            fir: [ValidationTypeEnum.NON_NULL],
             users: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
         });
-        body.users = JSON.parse(body.users);
 
         const mentorGroup = await MentorGroup.create({
             name: body.name,
-            fir: body.fir == "" ? null : body.fir,
+            fir: body.fir,
         });
 
         if (mentorGroup == null) {
@@ -43,7 +44,7 @@ async function create(request: Request, response: Response, next: NextFunction) 
 
         for (const user of body.users) {
             await UserBelongToMentorGroups.create({
-                user_id: user.user.id,
+                user_id: user.user_id,
                 group_id: mentorGroup.id,
                 group_admin: user.admin,
                 can_manage_course: user.can_manage,

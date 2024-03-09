@@ -14,6 +14,16 @@ type SendMailOptions = {
     replacements: object;
 };
 
+export type EMailTypes = "message" | "reminder";
+export type EMailPayload = {
+    type: EMailTypes; // Corresponds to records defining replacements for each type of mail
+    recipient: string;
+    subject: string;
+    replacements:
+        Record<"message", { message_de: string; message_en: string; name: string }> |
+        Record<"reminder", { name: string; expiry_date: string; link: string }>;
+};
+
 async function sendMail(options: SendMailOptions, nonPooled = true) {
     try {
         const file = fs.readFileSync(path.join(process.cwd(), `/misc/mail-templates/${options.fileName}`), { encoding: "utf-8" });

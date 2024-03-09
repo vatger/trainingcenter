@@ -15,7 +15,7 @@ export class Job extends Model<InferAttributes<Job>, InferCreationAttributes<Job
     //
     declare id: CreationOptional<number>;
     declare payload: CreationOptional<string> | null;
-    declare job_type: CreationOptional<"email"> | null;
+    declare job_type: CreationOptional<string> | null;
     declare last_executed: CreationOptional<Date> | null;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
@@ -33,7 +33,7 @@ Job.init(
             allowNull: false,
         },
         job_type: {
-            type: DataType.ENUM("email"),
+            type: DataType.STRING,
         },
         payload: {
             type: DataType.JSON,

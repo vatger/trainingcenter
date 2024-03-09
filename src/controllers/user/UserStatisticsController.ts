@@ -17,6 +17,19 @@ async function getUserRatingTimes(request: Request, response: Response, next: Ne
     }
 }
 
+async function getUserTrainingSessionCount(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const sessions = await user.getTrainingSessions();
+        const completedSession = sessions.filter(s => s.completed);
+
+        response.send({count: sessions.length, completedCount: completedSession.length});
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     getUserRatingTimes,
+    getUserTrainingSessionCount
 };

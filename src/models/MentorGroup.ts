@@ -17,7 +17,7 @@ export class MentorGroup extends Model<InferAttributes<MentorGroup>, InferCreati
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
-    declare fir: CreationOptional<"edww" | "edgg" | "edmm"> | null;
+    declare fir: CreationOptional<"edww" | "edgg" | "edmm"> | null | undefined;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
 

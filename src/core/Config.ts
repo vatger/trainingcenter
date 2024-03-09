@@ -72,6 +72,7 @@ export const Config = {
 
     URI_CONFIG: {
         VATSIM_API_BASE: process.env.VATSIM_API_BASE,
+        VATEUD_API_BASE: process.env.VATEUD_API_BASE,
         VATGER_API_BASE: process.env.VATGER_API_BASE,
         MOODLE_API_BASE: process.env.MOODLE_API_BASE,
     },

@@ -13,7 +13,8 @@
 		"dev": "tsc && node ./dist/src/Application.js",
 		"build": "tsc",
 		"run": "node ./dist/src/Application.js",
-		"seq": "npx sequelize-cli --options-path=db/config/options.js",
+		"init": "npm run build && npx sequelize-cli --options-path=dist/db/config/options.js db:migrate && npx sequelize-cli --options-path=dist/db/config/options.js db:seed:all",
+		"seq": "npm run build && npx sequelize-cli --options-path=dist/db/config/options.js",
 		"prettier:check": "npx prettier --check **/*.{ts,js}",
 		"prettier:write": "npx prettier --write .",
 		"app-key:generate": "node misc/scripts/GenerateAppKey.js"

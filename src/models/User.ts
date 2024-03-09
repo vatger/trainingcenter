@@ -1,7 +1,6 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association } from "sequelize";
 import { sequelize } from "../core/Sequelize";
 import { UserData } from "./UserData";
-import { DataType } from "sequelize-typescript";
 import { UserSettings } from "./UserSettings";
 import { MentorGroup } from "./MentorGroup";
 import { TrainingSession } from "./TrainingSession";
@@ -16,6 +15,7 @@ import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
 import UserExtensions from "./extensions/UserExtensions";
 import { EndorsementGroupsBelongsToUsers } from "./through/EndorsementGroupsBelongsToUsers";
 import { UserSolo } from "./UserSolo";
+import {USER_TABLE_ATTRIBUTES, USER_TABLE_NAME} from "../../db/migrations/20221115171242-create-user-table";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     //
@@ -164,36 +164,9 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     }
 }
 
-User.init(
+User.init(USER_TABLE_ATTRIBUTES,
     {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-        },
-        first_name: {
-            type: DataType.STRING(40),
-            allowNull: false,
-        },
-        last_name: {
-            type: DataType.STRING(40),
-            allowNull: false,
-        },
-        email: {
-            type: DataType.STRING,
-            allowNull: false,
-        },
-        access_token: {
-            type: DataType.TEXT,
-        },
-        refresh_token: {
-            type: DataType.TEXT,
-        },
-
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "users",
+        tableName: USER_TABLE_NAME,
         sequelize: sequelize,
 
         defaultScope: {

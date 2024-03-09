@@ -1,7 +1,10 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, ForeignKey } from "sequelize";
 import { User } from "./User";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
+import {
+    USER_DATA_TABLE_ATTRIBUTES,
+    USER_DATA_TABLE_NAME
+} from "../../db/migrations/20221115171243-create-user-data-table";
 
 export class UserData extends Model<InferAttributes<UserData>, InferCreationAttributes<UserData>> {
     //
@@ -26,40 +29,9 @@ export class UserData extends Model<InferAttributes<UserData>, InferCreationAttr
     declare updatedAt: CreationOptional<Date> | null;
 }
 
-UserData.init(
+UserData.init(USER_DATA_TABLE_ATTRIBUTES,
     {
-        user_id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        rating_atc: {
-            type: DataType.INTEGER,
-            allowNull: false,
-        },
-        rating_pilot: {
-            type: DataType.INTEGER,
-            allowNull: false,
-        },
-        country_code: DataType.STRING(10),
-        country_name: DataType.STRING,
-        region_code: DataType.STRING(10),
-        region_name: DataType.STRING,
-        division_code: DataType.STRING(10),
-        division_name: DataType.STRING,
-        subdivision_code: DataType.STRING(10),
-        subdivision_name: DataType.STRING,
-
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "user_data",
+        tableName: USER_DATA_TABLE_NAME,
         sequelize: sequelize,
     }
 );

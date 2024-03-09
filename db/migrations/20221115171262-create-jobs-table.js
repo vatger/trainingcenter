@@ -1,7 +1,6 @@
 const { DataType } = require("sequelize-typescript");
 
 const jobStatusEnum = ["queued", "failed", "completed"];
-const jobTypeEnum = ["email"];
 
 const DataModelAttributes = {
     id: {
@@ -14,7 +13,7 @@ const DataModelAttributes = {
         allowNull: false,
     },
     job_type: {
-        type: DataType.ENUM(...jobTypeEnum),
+        type: DataType.STRING,
     },
     payload: {
         type: DataType.JSON,

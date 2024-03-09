@@ -6,6 +6,7 @@ type ValidationRule = Record<string, Array<ValidationTypeEnum | { option: Valida
 /**
  * Supported Validation Options
  * If you wish to add further validations, edit the switch of write a custom function ((arg0: any) => boolean) which validates in-place.
+ * @Note VALID_JSON ASSIGNS THE PARSED DATA TO THE KEY!
  */
 enum ValidationTypeEnum {
     NON_NULL,
@@ -17,7 +18,7 @@ enum ValidationTypeEnum {
     IS_ARRAY,
     VALID_DATE,
     ARRAY_LENGTH_GT,
-    VALID_JSON,
+    VALID_JSON, // This checks if the data is valid json and assigns the parsed value to the key!
 }
 
 function validateAndReturn(data: any, validationRules: ValidationRule) {
@@ -59,12 +60,12 @@ function validate(data: any, validationRules: ValidationRule) {
         for (const rule of validationRules[key]) {
             if (typeof rule == "number") {
                 // Validate ENUM Field (no Value)
-                _validateEntry(data[key], key, messages, { option: rule });
+                _validateEntry(data, key, messages, { option: rule });
             }
 
             if (typeof rule == "object") {
                 // Validate ENUM Field (with Value)
-                _validateEntry(data[key], key, messages, { option: rule.option, value: rule.value });
+                _validateEntry(data, key, messages, { option: rule.option, value: rule.value });
             }
 
             if (typeof rule == "function") {
@@ -82,10 +83,12 @@ function validate(data: any, validationRules: ValidationRule) {
     }
 }
 
-function _validateEntry(data: any, key: string, messages: object[], valOption: { option: ValidationTypeEnum; value?: any }) {
+function _validateEntry(rawData: any, key: string, messages: object[], valOption: { option: ValidationTypeEnum; value?: any }) {
     function addErrorEntry(message: string) {
         messages.push({ code: ValidationTypeEnum[valOption.option], key: key, message: message });
     }
+
+    const data = rawData[key];
 
     switch (valOption.option) {
         case ValidationTypeEnum.NON_NULL:
@@ -150,7 +153,7 @@ function _validateEntry(data: any, key: string, messages: object[], valOption: {
         case ValidationTypeEnum.VALID_JSON:
             try {
                 if (typeof data == "string") {
-                    JSON.parse(data);
+                    rawData[key] = JSON.parse(data);
                 } else {
                     JSON.parse(JSON.stringify(data));
                 }

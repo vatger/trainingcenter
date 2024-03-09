@@ -34,12 +34,7 @@ import UserCourseProgressAdministrationController from "./controllers/user-cours
 import SoloAdminController from "./controllers/solo/SoloAdminController";
 import UserEndorsementAdminController from "./controllers/user/UserEndorsementAdminController";
 import CPTAdminController from "./controllers/cpt/CPTAdminController";
-import { handleUpload } from "./libraries/upload/FileUploadLibrary";
 import UserStatisticsController from "./controllers/user/UserStatisticsController";
-import { Job } from "./models/Job";
-import JobLibrary from "./libraries/JobLibrary";
-import dayjs from "dayjs";
-import { Config } from "./core/Config";
 import SyslogAdminController from "./controllers/admin-logs/SyslogAdminController";
 import JoblogAdminController from "./controllers/admin-logs/JoblogAdminController";
 
@@ -87,6 +82,7 @@ router.use(
             "/statistics",
             routerGroup((r: Router) => {
                 r.get("/rating-times", UserStatisticsController.getUserRatingTimes);
+                r.get("/training-session-count", UserStatisticsController.getUserTrainingSessionCount);
             })
         );
 

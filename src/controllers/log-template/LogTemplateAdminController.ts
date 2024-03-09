@@ -62,8 +62,6 @@ async function create(request: Request, response: Response, next: NextFunction) 
             name: [ValidationTypeEnum.NON_NULL],
             content: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
         });
-        // Parse string to object for Database insertion
-        body.content = JSON.parse(body.content);
 
         const logTemplate = await TrainingLogTemplate.create({
             name: body.name,
@@ -92,8 +90,6 @@ async function update(request: Request, response: Response, next: NextFunction) 
             name: [ValidationTypeEnum.NON_NULL],
             content: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
         });
-        // Parse string to object for Database insertion
-        body.content = JSON.parse(body.content);
 
         await TrainingLogTemplate.update(
             {
