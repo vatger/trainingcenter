@@ -2,6 +2,7 @@ import { Association, CreationOptional, InferAttributes, InferCreationAttributes
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { TrainingRequest } from "./TrainingRequest";
+import { TRAINING_STATIONS_ATTRIBUTES, TRAINING_STATIONS_TABLE_NAME } from "../../db/migrations/20221115171252-create-training-stations-table";
 
 export class TrainingStation extends Model<InferAttributes<TrainingStation>, InferCreationAttributes<TrainingStation>> {
     //
@@ -17,36 +18,21 @@ export class TrainingStation extends Model<InferAttributes<TrainingStation>, Inf
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
+    declare gcap_training_airport: CreationOptional<boolean>;
+    declare gcap_class: CreationOptional<number>;
+    declare gcap_class_group: CreationOptional<string> | null;
+    declare s1_twr: CreationOptional<boolean>;
+    declare active: CreationOptional<boolean>;
     declare createdAt: CreationOptional<Date> | null;
-
+    declare updatedAt: CreationOptional<Date> | null;
+    
     //
     // Association placeholders
-    declare updatedAt: CreationOptional<Date> | null;
     //
     declare training_requests?: NonAttribute<TrainingRequest[]>;
 }
 
-TrainingStation.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        callsign: {
-            type: DataType.STRING(15),
-            allowNull: false,
-            unique: true,
-        },
-        frequency: {
-            type: DataType.FLOAT(6, 3),
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "training_stations",
-        sequelize: sequelize,
-    }
-);
+TrainingStation.init(TRAINING_STATIONS_ATTRIBUTES, {
+    tableName: TRAINING_STATIONS_TABLE_NAME,
+    sequelize: sequelize,
+});
