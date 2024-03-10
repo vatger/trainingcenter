@@ -1,5 +1,5 @@
-import {DataType} from "sequelize-typescript";
-import {QueryInterface, Sequelize} from "sequelize";
+import { DataType } from "sequelize-typescript";
+import { QueryInterface, Sequelize } from "sequelize";
 
 //TODO: Check relationships (explicitly on delete and on update). These should not all be cascade!
 export const USER_TABLE_NAME = "users";
@@ -34,10 +34,10 @@ export const USER_TABLE_ATTRIBUTES = {
 
 export default {
     async up(queryInterface: QueryInterface, sequelize: Sequelize) {
-        await queryInterface.createTable("users", USER_TABLE_ATTRIBUTES);
+        await queryInterface.createTable(USER_TABLE_NAME, USER_TABLE_ATTRIBUTES);
     },
 
     async down(queryInterface: QueryInterface, sequelize: Sequelize) {
-        await queryInterface.dropTable("users");
-    }
-}
+        await queryInterface.dropTable(USER_TABLE_NAME);
+    },
+};

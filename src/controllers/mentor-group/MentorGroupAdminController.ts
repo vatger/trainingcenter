@@ -22,7 +22,7 @@ type UserInMentorGroupT = {
  */
 async function create(request: Request, response: Response, next: NextFunction) {
     try {
-        const body = request.body as { name: string; users: any; fir?: "edww" | "edgg" | "edmm" };
+        const body = request.body as { name: string; users: any; fir?: "edww" | "edgg" | "edmm" | "" };
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
