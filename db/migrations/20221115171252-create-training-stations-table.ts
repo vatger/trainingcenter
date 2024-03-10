@@ -48,7 +48,7 @@ export const TRAINING_STATIONS_ATTRIBUTES = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
+export default {
     async up(queryInterface: QueryInterface, sequelize: Sequelize) {
         await queryInterface.createTable(TRAINING_STATIONS_TABLE_NAME, TRAINING_STATIONS_ATTRIBUTES);
     },

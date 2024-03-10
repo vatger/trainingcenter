@@ -2,6 +2,7 @@ import { Model, InferAttributes, CreationOptional, InferCreationAttributes, Fore
 import { User } from "./User";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
+import { USER_SOLOS_ATTRIBUTES, USER_SOLOS_TABLE_NAME } from "../../db/migrations/20221115171243-create-user-solos";
 
 export class UserSolo extends Model<InferAttributes<UserSolo>, InferCreationAttributes<UserSolo>> {
     //
@@ -15,6 +16,7 @@ export class UserSolo extends Model<InferAttributes<UserSolo>, InferCreationAttr
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
+    declare vateud_solo_id: CreationOptional<number> | null;
     declare created_by: CreationOptional<ForeignKey<User["id"]>>;
     declare current_solo_start: CreationOptional<Date> | null;
     declare current_solo_end: CreationOptional<Date> | null;
@@ -33,55 +35,7 @@ export class UserSolo extends Model<InferAttributes<UserSolo>, InferCreationAttr
     };
 }
 
-UserSolo.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        user_id: {
-            unique: true,
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        created_by: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "set null",
-        },
-        solo_used: {
-            type: DataType.INTEGER,
-            allowNull: false,
-        },
-        extension_count: {
-            type: DataType.INTEGER,
-            allowNull: false,
-        },
-        current_solo_start: {
-            type: DataType.DATE,
-            allowNull: true,
-        },
-        current_solo_end: {
-            type: DataType.DATE,
-            allowNull: true,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "user_solos",
-        sequelize: sequelize,
-    }
-);
+UserSolo.init(USER_SOLOS_ATTRIBUTES, {
+    tableName: USER_SOLOS_TABLE_NAME,
+    sequelize: sequelize,
+});

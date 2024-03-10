@@ -1,33 +1,5 @@
-import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
-import dayjs from "dayjs";
-import JobLibrary, { JobTypeEnum } from "../../libraries/JobLibrary";
-import { EndorsementGroup } from "../../models/EndorsementGroup";
-import { EndorsementGroupBelongsToStations } from "../../models/through/EndorsementGroupBelongsToStations";
-
 async function handle() {
     console.log("Handle...");
-
-    const endorsementGroupsBelongsToUsers = await EndorsementGroupsBelongsToUsers.findAll({
-        include: [EndorsementGroupsBelongsToUsers.associations.userSolo, EndorsementGroupsBelongsToUsers.associations.user],
-    });
-
-    console.log(endorsementGroupsBelongsToUsers.length);
-
-    for (const solo of endorsementGroupsBelongsToUsers) {
-        if (solo.user == null || solo.userSolo == null) continue;
-
-        if (dayjs.utc(solo.userSolo?.current_solo_end).isBefore(dayjs.utc())) {
-            console.log(`Solo ID ${solo.solo_id} [user_id = ${solo.user_id}] has expired. Removing Endorsement Group...`);
-
-            await solo.destroy();
-        } else {
-            console.log(
-                `Solo ID ${solo.solo_id} [user_id = ${solo.user_id}] is expiring on ${dayjs.utc(solo.userSolo.current_solo_end)} (${Math.abs(
-                    dayjs.utc(solo.userSolo.current_solo_end).diff(dayjs.utc(), "day")
-                )} Day(s) remaining).`
-            );
-        }
-    }
 }
 
 export default {

@@ -1,10 +1,19 @@
-const { DataType } = require("sequelize-typescript");
+import { DataType } from "sequelize-typescript";
+import { QueryInterface, Sequelize } from "sequelize";
+import { TRAINING_STATIONS_ATTRIBUTES, TRAINING_STATIONS_TABLE_NAME } from "./20221115171252-create-training-stations-table";
 
-const UserSolosModelAttributes = {
+export const USER_SOLOS_TABLE_NAME = "user_solos";
+
+export const USER_SOLOS_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
         autoIncrement: true,
+    },
+    vateud_solo_id: {
+        type: DataType.INTEGER,
+        allowNull: true,
+        defaultValue: null,
     },
     user_id: {
         unique: true,
@@ -49,12 +58,12 @@ const UserSolosModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("user_solos", UserSolosModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface, sequelize: Sequelize) {
+        await queryInterface.createTable(USER_SOLOS_TABLE_NAME, USER_SOLOS_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("user_solos");
+    async down(queryInterface: QueryInterface, sequelize: Sequelize) {
+        await queryInterface.dropTable(TRAINING_STATIONS_TABLE_NAME);
     },
 };
