@@ -22,10 +22,9 @@ export class TrainingStation extends Model<InferAttributes<TrainingStation>, Inf
     declare gcap_class: CreationOptional<number>;
     declare gcap_class_group: CreationOptional<string> | null;
     declare s1_twr: CreationOptional<boolean>;
-    declare active: CreationOptional<boolean>;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
-    
+
     //
     // Association placeholders
     //

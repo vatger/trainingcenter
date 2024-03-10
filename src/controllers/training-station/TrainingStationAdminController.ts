@@ -10,6 +10,9 @@ type HomepageStation = {
     name: string;
     ident: string;
     frequency: number;
+    gcap_status?: string;
+    gcap_training_airport?: boolean;
+    s1_twr?: boolean;
 };
 
 async function getAll(request: Request, response: Response, next: NextFunction) {

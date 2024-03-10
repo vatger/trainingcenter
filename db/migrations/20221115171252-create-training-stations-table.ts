@@ -39,11 +39,6 @@ export const TRAINING_STATIONS_ATTRIBUTES = {
         allowNull: false,
         defaultValue: false,
     },
-    active: {
-        type: DataType.BOOLEAN,
-        allowNull: false,
-        defaultValue: true,
-    },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
 };
