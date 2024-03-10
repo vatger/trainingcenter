@@ -15,16 +15,18 @@ export type VateudCorePayload = {
 
 export type VateudCoreSoloCreateT = {
     local_solo_id: number;
-    user_id: number;
-    position: string;
-    instructor_cid: number;
-    starts_at: string;
-    expires_at: string;
+    post_data: {
+        user_id: number;
+        position: string;
+        instructor_cid: number;
+        starts_at: string;
+        expires_at: string;
+    }
 }
 
-export type VateudCoreSoloCreateResponse = {
+export type VateudCoreSoloCreateResponseT = {
     success: boolean;
-    data: Array<{
+    data: {
         id: number;
         user_cid: number;
         instructor_cid: number;
@@ -33,5 +35,15 @@ export type VateudCoreSoloCreateResponse = {
         facility: number;
         created_at: string;
         updated_at: string;
-    }>
+    }
+}
+
+export type VateudCoreSoloRemoveT = {
+    local_solo_id: number;
+    vateud_solo_id: number;
+}
+
+export type VateudCoreSoloRemoveResponseT = {
+    success: boolean;
+    message: string;
 }

@@ -77,6 +77,10 @@ export const Config = {
         MOODLE_API_BASE: process.env.MOODLE_API_BASE,
     },
 
+    VATEUD_CORE_CONFIG: {
+        API_KEY: process.env.VATEUD_CORE_API_KEY
+    },
+
     CONNECT_CONFIG: {
         BASE_URL: process.env.CONNECT_BASE,
         CLIENT_ID: process.env.CONNECT_CLIENT_ID,
