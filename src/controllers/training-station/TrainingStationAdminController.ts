@@ -4,16 +4,7 @@ import { sequelize } from "../../core/Sequelize";
 import { TrainingStation } from "../../models/TrainingStation";
 import _TrainingStationAdminValidator from "./_TrainingStationAdmin.validator";
 import { Config } from "../../core/Config";
-
-type HomepageStation = {
-    id: number;
-    name: string;
-    ident: string;
-    frequency: number;
-    gcap_status?: string;
-    gcap_training_airport?: boolean;
-    s1_twr?: boolean;
-};
+import { updateTrainingStations } from "../../libraries/vatger/GithubLibrary";
 
 async function getAll(request: Request, response: Response, next: NextFunction) {
     try {
@@ -45,36 +36,9 @@ async function getByID(request: Request, response: Response, next: NextFunction)
     }
 }
 
-type DataHubStations = {
-    logon: string;
-    frequency: string;
-    abbreviation: string;
-    description: string;
-};
-
 async function syncStations(request: Request, response: Response, next: NextFunction) {
     try {
-        const res = await axios.get("https://raw.githubusercontent.com/VATGER-Nav/datahub/main/data.json");
-        const stations = res.data as DataHubStations[];
-
-        for (const station of stations) {
-            if (station.logon.length === 0 || station.frequency.length === 0) continue;
-
-            const dbStation = await TrainingStation.findOne({ where: { callsign: station.logon } });
-            if (dbStation == null) {
-                await TrainingStation.create({
-                    callsign: station.logon,
-                    frequency: Number(station.frequency),
-                });
-                continue;
-            }
-
-            await dbStation.update({
-                callsign: station.logon,
-                frequency: Number(station.frequency),
-            });
-        }
-
+        await updateTrainingStations();
         const newStations = await TrainingStation.findAll();
         response.send(newStations);
     } catch (e) {

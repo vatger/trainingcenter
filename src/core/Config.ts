@@ -78,7 +78,7 @@ export const Config = {
     },
 
     VATEUD_CORE_CONFIG: {
-        API_KEY: process.env.VATEUD_CORE_API_KEY
+        API_KEY: process.env.VATEUD_CORE_API_KEY,
     },
 
     CONNECT_CONFIG: {
@@ -113,6 +113,7 @@ export const Config = {
         SYSLOG_CLEANUP: "30 2 * * 1-6",
         SEND_EMAIL: "*/5 * * * *",
         CHECK_ENDORSEMENT: "* 0 12 * *",
+        SYNC_TRAINING_STATION: "0 */4 * * *",
     },
 };
 

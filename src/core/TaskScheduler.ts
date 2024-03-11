@@ -7,6 +7,7 @@ import dayjs from "dayjs";
 import SendEmailTask from "./tasks/SendEmailTask";
 import CheckEndorsementTask from "./tasks/CheckEndorsementTask";
 import { Config } from "./Config";
+import UpdateTrainingStationsTask from "./tasks/UpdateTrainingStationsTask";
 
 export async function initScheduledJobs() {
     Logger.log(LogLevels.LOG_INFO, `Scheduling Tasks (CRON)`);
@@ -34,6 +35,10 @@ export async function initScheduledJobs() {
 
     CronJob.schedule(Config.CRON_CONFIG.CHECK_ENDORSEMENT, async () => {
         await CheckEndorsementTask.handle();
+    }).start();
+
+    CronJob.schedule(Config.CRON_CONFIG.SYNC_TRAINING_STATION, async () => {
+        await UpdateTrainingStationsTask.handle();
     }).start();
 
     Logger.log(LogLevels.LOG_SUCCESS, "\0 \u2713 All Tasks scheduled.\n");
