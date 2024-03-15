@@ -6,6 +6,7 @@ import { Course } from "./Course";
 import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
 import { EndorsementGroup } from "./EndorsementGroup";
 import MentorGroupExtensions from "./extensions/MentorGroupExtensions";
+import { MENTOR_GROUPS_TABLE_ATTRIBUTES, MENTOR_GROUPS_TABLE_NAME } from "../../db/migrations/20221115171244-create-mentor-groups-table";
 
 export class MentorGroup extends Model<InferAttributes<MentorGroup>, InferCreationAttributes<MentorGroup>> {
     //
@@ -43,27 +44,7 @@ export class MentorGroup extends Model<InferAttributes<MentorGroup>, InferCreati
     getEndorsementGroups = MentorGroupExtensions.getEndorsementGroups.bind(this);
 }
 
-MentorGroup.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        name: {
-            type: DataType.STRING(70),
-            comment: "Name of mentor-group. Max length 70 chars",
-            allowNull: false,
-        },
-        fir: {
-            type: DataType.ENUM("edww", "edgg", "edmm"),
-            allowNull: true,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "mentor_groups",
-        sequelize: sequelize,
-    }
-);
+MentorGroup.init(MENTOR_GROUPS_TABLE_ATTRIBUTES, {
+    tableName: MENTOR_GROUPS_TABLE_NAME,
+    sequelize: sequelize,
+});

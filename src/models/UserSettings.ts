@@ -1,7 +1,7 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, ForeignKey } from "sequelize";
 import { User } from "./User";
 import { sequelize } from "../core/Sequelize";
-import { DataType } from "sequelize-typescript";
+import { USER_SETTINGS_TABLE_ATTRIBUTES, USER_SETTINGS_TABLE_NAME } from "../../db/migrations/20221115171243-create-user-settings-table";
 
 export class UserSettings extends Model<InferAttributes<UserSettings>, InferCreationAttributes<UserSettings>> {
     //
@@ -19,35 +19,7 @@ export class UserSettings extends Model<InferAttributes<UserSettings>, InferCrea
     declare updatedAt: CreationOptional<Date> | null;
 }
 
-UserSettings.init(
-    {
-        user_id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        language: {
-            type: DataType.ENUM("de", "en"),
-            allowNull: false,
-        },
-        additional_emails: {
-            type: DataType.JSON(),
-            allowNull: true,
-        },
-        email_notifications_enabled: {
-            type: DataType.BOOLEAN,
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "user_settings",
-        sequelize: sequelize,
-    }
-);
+UserSettings.init(USER_SETTINGS_TABLE_ATTRIBUTES, {
+    tableName: USER_SETTINGS_TABLE_NAME,
+    sequelize: sequelize,
+});

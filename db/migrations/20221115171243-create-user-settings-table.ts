@@ -1,8 +1,11 @@
-const { DataType } = require("sequelize-typescript");
+import { DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
+
+export const USER_SETTINGS_TABLE_NAME = "user_settings";
 
 const LanguageEnum = ["de", "en"];
 
-const DataModelAttributes = {
+export const USER_SETTINGS_TABLE_ATTRIBUTES = {
     user_id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -32,14 +35,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("user_settings", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(USER_SETTINGS_TABLE_NAME, USER_SETTINGS_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("user_settings");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(USER_SETTINGS_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

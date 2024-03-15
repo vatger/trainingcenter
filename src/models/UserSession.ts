@@ -2,6 +2,7 @@ import { Model, InferAttributes, CreationOptional, InferCreationAttributes, Fore
 import { User } from "./User";
 import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
+import { USER_SESSION_ATTRIBUTES, USER_SESSION_TABLE_NAME } from "../../db/migrations/20221115171243-create-user-session-table";
 
 export class UserSession extends Model<InferAttributes<UserSession>, InferCreationAttributes<UserSession>> {
     //
@@ -28,48 +29,7 @@ export class UserSession extends Model<InferAttributes<UserSession>, InferCreati
     };
 }
 
-UserSession.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        uuid: {
-            type: DataType.UUID,
-            allowNull: false,
-        },
-        browser_uuid: {
-            type: DataType.UUID,
-            allowNull: false,
-        },
-        client: {
-            type: DataType.STRING(100),
-            allowNull: true,
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        expires_at: {
-            type: DataType.DATE,
-            allowNull: false,
-        },
-        expires_latest: {
-            type: DataType.DATE,
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "user_session",
-        sequelize: sequelize,
-    }
-);
+UserSession.init(USER_SESSION_ATTRIBUTES, {
+    tableName: USER_SESSION_TABLE_NAME,
+    sequelize: sequelize,
+});
