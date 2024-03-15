@@ -1,21 +1,21 @@
-import axios, {Method} from "axios";
-import JobLibrary, {JobTypeEnum} from "../JobLibrary";
+import axios, { Method } from "axios";
+import JobLibrary, { JobTypeEnum } from "../JobLibrary";
 import {
     VateudCoreSoloCreateResponseT,
     VateudCoreSoloCreateT,
     VateudCoreSoloRemoveResponseT,
     VateudCoreSoloRemoveT,
-    VateudCoreTypeEnum
+    VateudCoreTypeEnum,
 } from "./VateudCoreLibraryTypes";
-import {Config} from "../../core/Config";
-import {UserSolo} from "../../models/UserSolo";
-import Logger, {LogLevels} from "../../utility/Logger";
+import { Config } from "../../core/Config";
+import { UserSolo } from "../../models/UserSolo";
+import Logger, { LogLevels } from "../../utility/Logger";
 
 type SendT = {
     method: Method;
     endpoint: string;
     data?: any;
-}
+};
 
 /**
  * Sends the actual request to VATEUD Core
@@ -30,11 +30,11 @@ async function _send<T>(props: SendT): Promise<T | undefined> {
     try {
         const res = await axios({
             headers: {
-                'x-api-key': Config.VATEUD_CORE_CONFIG.API_KEY,
+                "x-api-key": Config.VATEUD_CORE_CONFIG.API_KEY,
             },
             url: `${Config.URI_CONFIG.VATEUD_API_BASE}/${props.endpoint}`,
             method: props.method,
-            data: props.data
+            data: props.data,
         });
 
         return res.data as T;
@@ -54,7 +54,7 @@ async function createSolo(soloInfo: VateudCoreSoloCreateT) {
     const res = await _send<VateudCoreSoloCreateResponseT>({
         endpoint: "/solo",
         method: "post",
-        data: soloInfo.post_data
+        data: soloInfo.post_data,
     });
     if (!res) {
         // If the request fails, we schedule a job to attempt it additional times.
@@ -67,20 +67,23 @@ async function createSolo(soloInfo: VateudCoreSoloCreateT) {
                     user_id: soloInfo.post_data.user_id,
                     position: soloInfo.post_data.position,
                     instructor_cid: soloInfo.post_data.instructor_cid,
-                    expire_at: soloInfo.post_data.expires_at
-                }
-            }
+                    expire_at: soloInfo.post_data.expires_at,
+                },
+            },
         });
         return undefined;
     }
 
-    await UserSolo.update({
-        vateud_solo_id: res.data.id
-    }, {
-        where: {
-            id: soloInfo.local_solo_id
+    await UserSolo.update(
+        {
+            vateud_solo_id: res.data.id,
+        },
+        {
+            where: {
+                id: soloInfo.local_solo_id,
+            },
         }
-    });
+    );
 
     return res;
 }
@@ -93,7 +96,7 @@ async function createSolo(soloInfo: VateudCoreSoloCreateT) {
 async function removeSolo(soloInfo: VateudCoreSoloRemoveT) {
     const res = await _send<VateudCoreSoloRemoveResponseT>({
         endpoint: `/solo/${soloInfo.vateud_solo_id}`,
-        method: "delete"
+        method: "delete",
     });
     if (!res) {
         await JobLibrary.scheduleJob(JobTypeEnum.VATEUD_CORE, {
@@ -102,14 +105,14 @@ async function removeSolo(soloInfo: VateudCoreSoloRemoveT) {
             data: {
                 solo_remove: {
                     local_solo_id: soloInfo.local_solo_id,
-                    vateud_solo_id: soloInfo.vateud_solo_id
-                }
-            }
+                    vateud_solo_id: soloInfo.vateud_solo_id,
+                },
+            },
         });
     }
 }
 
 export default {
     createSolo,
-    removeSolo
-}
+    removeSolo,
+};

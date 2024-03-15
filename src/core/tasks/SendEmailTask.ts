@@ -1,5 +1,5 @@
 import JobLibrary from "../../libraries/JobLibrary";
-import EmailLibrary, {EMailPayload, EMailTypes} from "../../libraries/EmailLibrary";
+import EmailLibrary, { EMailPayload, EMailTypes } from "../../libraries/EmailLibrary";
 import dayjs from "dayjs";
 
 // This file maps between the type of the email and the corresponding html file used to actually render the template

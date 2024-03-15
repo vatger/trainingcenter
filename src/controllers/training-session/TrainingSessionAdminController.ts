@@ -1,24 +1,24 @@
-import {NextFunction, Request, Response} from "express";
-import {User} from "../../models/User";
+import { NextFunction, Request, Response } from "express";
+import { User } from "../../models/User";
 import _TrainingSessionAdminValidator from "./_TrainingSessionAdminValidator";
-import {Course} from "../../models/Course";
-import {TrainingSession} from "../../models/TrainingSession";
-import {generateUUID} from "../../utility/UUID";
+import { Course } from "../../models/Course";
+import { TrainingSession } from "../../models/TrainingSession";
+import { generateUUID } from "../../utility/UUID";
 import dayjs from "dayjs";
-import {TrainingRequest} from "../../models/TrainingRequest";
-import {TrainingSessionBelongsToUsers} from "../../models/through/TrainingSessionBelongsToUsers";
-import {HttpStatusCode} from "axios";
+import { TrainingRequest } from "../../models/TrainingRequest";
+import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSessionBelongsToUsers";
+import { HttpStatusCode } from "axios";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
-import {Config} from "../../core/Config";
-import {TrainingType} from "../../models/TrainingType";
-import {Op} from "sequelize";
-import {TrainingLog} from "../../models/TrainingLog";
-import {UsersBelongsToCourses} from "../../models/through/UsersBelongsToCourses";
-import {sequelize} from "../../core/Sequelize";
-import {MentorGroup} from "../../models/MentorGroup";
-import JobLibrary, {JobTypeEnum} from "../../libraries/JobLibrary";
-import Validator, {ValidationTypeEnum} from "../../utility/Validator";
-import Logger, {LogLevels} from "../../utility/Logger";
+import { Config } from "../../core/Config";
+import { TrainingType } from "../../models/TrainingType";
+import { Op } from "sequelize";
+import { TrainingLog } from "../../models/TrainingLog";
+import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
+import { sequelize } from "../../core/Sequelize";
+import { MentorGroup } from "../../models/MentorGroup";
+import JobLibrary, { JobTypeEnum } from "../../libraries/JobLibrary";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import Logger, { LogLevels } from "../../utility/Logger";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -38,7 +38,7 @@ async function createTrainingSession(request: Request, response: Response) {
 
         Validator.validate(body, {
             training_type_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
-            user_ids: [ValidationTypeEnum.VALID_JSON] // Parses to number[]
+            user_ids: [ValidationTypeEnum.VALID_JSON], // Parses to number[]
         });
 
         // 1. Find out which of these users is actually enrolled in the course. To do this, query the course and it's members, and check against the array of user_ids. Create a new actual array with only those people

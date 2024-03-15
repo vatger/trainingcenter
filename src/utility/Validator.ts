@@ -25,7 +25,7 @@ enum ValidationTypeEnum {
     NUMBER,
     NOT_EQUAL,
     IN_ARRAY,
-    IS_ARRAY,
+    IS_ARRAY, // This will convert strings to json and check if it is a valid array. The parsed value is stored in the original key!
     VALID_DATE,
     ARRAY_LENGTH_GT,
     VALID_JSON, // This checks if the data is valid json and assigns the parsed value to the key!
@@ -164,8 +164,15 @@ function _validateEntry(
             break;
 
         case ValidationTypeEnum.IS_ARRAY:
-            if (!Array.isArray(data)) {
-                addErrorEntry("Parameter is not an array");
+            try {
+                if (typeof data == "string") {
+                    rawData[key] = JSON.parse(data);
+                }
+                if (!Array.isArray(rawData[key])) {
+                    addErrorEntry("Parameter is not an array");
+                }
+            } catch (e) {
+                addErrorEntry("Paramter is not valid JSON");
             }
             break;
 

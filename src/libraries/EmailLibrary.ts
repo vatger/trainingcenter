@@ -20,8 +20,8 @@ export type EMailPayload = {
     recipient: string;
     subject: string;
     replacements:
-        Record<"message", { message_de: string; message_en: string; name: string }> |
-        Record<"reminder", { name: string; expiry_date: string; link: string }>;
+        | Record<"message", { message_de: string; message_en: string; name: string }>
+        | Record<"reminder", { name: string; expiry_date: string; link: string }>;
 };
 
 async function sendMail(options: SendMailOptions, nonPooled = true) {

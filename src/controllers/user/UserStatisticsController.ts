@@ -23,7 +23,7 @@ async function getUserTrainingSessionCount(request: Request, response: Response,
         const sessions = await user.getTrainingSessions();
         const completedSession = sessions.filter(s => s.completed);
 
-        response.send({count: sessions.length, completedCount: completedSession.length});
+        response.send({ count: sessions.length, completedCount: completedSession.length });
     } catch (e) {
         next(e);
     }
@@ -31,5 +31,5 @@ async function getUserTrainingSessionCount(request: Request, response: Response,
 
 export default {
     getUserRatingTimes,
-    getUserTrainingSessionCount
+    getUserTrainingSessionCount,
 };

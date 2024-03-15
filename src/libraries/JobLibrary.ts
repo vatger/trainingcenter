@@ -1,11 +1,11 @@
 import { Job } from "../models/Job";
 import { generateUUID } from "../utility/UUID";
-import {EMailPayload} from "./EmailLibrary";
-import {VateudCorePayload} from "./vateud/VateudCoreLibraryTypes";
+import { EMailPayload } from "./EmailLibrary";
+import { VateudCorePayload } from "./vateud/VateudCoreLibraryTypes";
 
 export enum JobTypeEnum {
     EMAIL = "email",
-    VATEUD_CORE = "vateud_core"
+    VATEUD_CORE = "vateud_core",
 }
 
 async function scheduleJob(type: JobTypeEnum, payload: EMailPayload | VateudCorePayload) {

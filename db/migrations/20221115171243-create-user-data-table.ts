@@ -1,7 +1,7 @@
-import {DataType} from "sequelize-typescript";
-import {QueryInterface} from "sequelize";
+import { DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
 
-export const USER_DATA_TABLE_NAME = "user_data"
+export const USER_DATA_TABLE_NAME = "user_data";
 
 export const USER_DATA_TABLE_ATTRIBUTES = {
     user_id: {

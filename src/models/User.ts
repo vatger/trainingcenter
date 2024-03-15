@@ -15,7 +15,8 @@ import { UserBelongToMentorGroups } from "./through/UserBelongToMentorGroups";
 import UserExtensions from "./extensions/UserExtensions";
 import { EndorsementGroupsBelongsToUsers } from "./through/EndorsementGroupsBelongsToUsers";
 import { UserSolo } from "./UserSolo";
-import {USER_TABLE_ATTRIBUTES, USER_TABLE_NAME} from "../../db/migrations/20221115171242-create-user-table";
+import { USER_TABLE_ATTRIBUTES, USER_TABLE_NAME } from "../../db/migrations/20221115171242-create-user-table";
+import { UserNote } from "./UserNote";
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     //
@@ -51,6 +52,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     declare courses?: NonAttribute<Course[]>;
     declare fast_track_requests?: NonAttribute<FastTrackRequest[]>;
     declare roles?: NonAttribute<Role[]>;
+    declare user_notes?: NonAttribute<UserNote[]>;
 
     //
     // Through Association Placeholders
@@ -73,6 +75,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
         courses: Association<User, Course>;
         fast_track_requests: Association<User, FastTrackRequest>;
         roles: Association<User, Role>;
+        user_notes: Association<User, UserNote>;
     };
 
     hasRole = UserExtensions.hasRole.bind(this);
@@ -164,27 +167,25 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     }
 }
 
-User.init(USER_TABLE_ATTRIBUTES,
-    {
-        tableName: USER_TABLE_NAME,
-        sequelize: sequelize,
+User.init(USER_TABLE_ATTRIBUTES, {
+    tableName: USER_TABLE_NAME,
+    sequelize: sequelize,
 
-        defaultScope: {
+    defaultScope: {
+        attributes: {
+            exclude: ["access_token", "refresh_token", "email"],
+        },
+    },
+    scopes: {
+        sensitive: {
             attributes: {
-                exclude: ["access_token", "refresh_token", "email"],
+                exclude: ["access_token", "refresh_token"],
             },
         },
-        scopes: {
-            sensitive: {
-                attributes: {
-                    exclude: ["access_token", "refresh_token"],
-                },
-            },
-            internal: {
-                attributes: {
-                    exclude: [],
-                },
+        internal: {
+            attributes: {
+                exclude: [],
             },
         },
-    }
-);
+    },
+});

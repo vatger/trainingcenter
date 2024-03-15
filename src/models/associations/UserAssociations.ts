@@ -99,7 +99,7 @@ export function registerUserAssociations() {
     // 1 : n
     //
     User.hasMany(UserNote, {
-        as: "notes",
+        as: "user_notes",
         foreignKey: "user_id",
         sourceKey: "id",
     });
