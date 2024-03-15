@@ -1,8 +1,8 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { User } from "./User";
 import { TrainingStation } from "./TrainingStation";
+import { ENDORSEMENT_GROUPS_TABLE_ATTRIBUTES, ENDORSEMENT_GROUPS_TABLE_NAME } from "../../db/migrations/20221115171254-create-endorsement-groups-table";
 
 export class EndorsementGroup extends Model<InferAttributes<EndorsementGroup>, InferCreationAttributes<EndorsementGroup>> {
     //
@@ -29,22 +29,7 @@ export class EndorsementGroup extends Model<InferAttributes<EndorsementGroup>, I
     };
 }
 
-EndorsementGroup.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        name: {
-            type: DataType.STRING(70),
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "endorsement_groups",
-        sequelize: sequelize,
-    }
-);
+EndorsementGroup.init(ENDORSEMENT_GROUPS_TABLE_ATTRIBUTES, {
+    tableName: ENDORSEMENT_GROUPS_TABLE_NAME,
+    sequelize: sequelize,
+});

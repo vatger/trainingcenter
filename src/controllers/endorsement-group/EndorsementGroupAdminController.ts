@@ -6,6 +6,7 @@ import { HttpStatusCode } from "axios";
 import { TrainingStation } from "../../models/TrainingStation";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 import { User } from "../../models/User";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
  * Returns all Endorsement groups that are mentorable by the current user
@@ -158,8 +159,6 @@ async function updateByID(request: Request, response: Response, next: NextFuncti
     try {
         const params = request.params as { id: string };
         const body = request.body as { name: string };
-        EndorsementGroupValidator.validateGetByIDRequest(params);
-        EndorsementGroupValidator.validateUpdateRequest(body);
 
         let endorsementGroup = await EndorsementGroup.findByPk(params.id);
 
@@ -319,6 +318,10 @@ async function createEndorsementGroup(request: Request, response: Response, next
     try {
         const body = request.body as { name: string; training_station_ids: number[] };
         EndorsementGroupValidator.validateCreateRequest(body);
+        Validator.validate(body, {
+            name: [ValidationTypeEnum.NON_NULL],
+            training_station_ids: [ValidationTypeEnum.IS_ARRAY, ValidationTypeEnum.VALID_JSON],
+        });
 
         const endorsementGroup = await EndorsementGroup.create({
             name: body.name,

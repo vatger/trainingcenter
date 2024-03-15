@@ -3,7 +3,7 @@ import { MentorGroup } from "../../models/MentorGroup";
 import { UserBelongToMentorGroups } from "../../models/through/UserBelongToMentorGroups";
 import { User } from "../../models/User";
 import { HttpStatusCode } from "axios";
-import _MentorGroupAdminValidator from "./_MentorGroupAdminValidator";
+//import _MentorGroupAdminValidator from "./_MentorGroupAdminValidator";
 import { MentorGroupsBelongToEndorsementGroups } from "../../models/through/MentorGroupsBelongToEndorsementGroups";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
@@ -22,17 +22,23 @@ type UserInMentorGroupT = {
  */
 async function create(request: Request, response: Response, next: NextFunction) {
     try {
-        const body = request.body as { name: string; users: any; fir?: "edww" | "edgg" | "edmm" | "" };
+        const body = request.body as { name: string; users: any; fir: "edww" | "edgg" | "edmm" | "none" };
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
-            //fir: [ValidationTypeEnum.NON_NULL],
+            fir: [
+                ValidationTypeEnum.NON_NULL,
+                {
+                    option: ValidationTypeEnum.IN_ARRAY,
+                    value: ["none", "edgg", "edww", "edmm"],
+                },
+            ],
             users: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
         });
 
         const mentorGroup = await MentorGroup.create({
             name: body.name,
-            fir: body.fir == "" ? null : body.fir,
+            fir: body.fir == "none" ? null : body.fir,
         });
 
         if (mentorGroup == null) {
@@ -117,13 +123,9 @@ async function getByID(request: Request, response: Response) {
     const user: User = response.locals.user;
     const params = request.params;
 
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "id",
-    //         validationObject: params.mentor_group_id,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-    //     },
-    // ]);
+    Validator.validate(params, {
+        mentor_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+    });
 
     if (!(await user.isMentorGroupAdmin(Number(params.mentor_group_id)))) {
         response.sendStatus(HttpStatusCode.Forbidden);
@@ -253,7 +255,12 @@ async function addMember(request: Request, response: Response) {
         can_manage_course: boolean;
     };
 
-    const validation = _MentorGroupAdminValidator.validateAddUser(body);
+    Validator.validate(body, {
+        user_id: [ValidationTypeEnum.NON_NULL],
+        mentor_group_id: [ValidationTypeEnum.NON_NULL],
+        group_admin: [ValidationTypeEnum.NON_NULL],
+        can_manage_course: [ValidationTypeEnum.NON_NULL],
+    });
 
     if (!(await user.isMentorGroupAdmin(Number(body.mentor_group_id)))) {
         response.sendStatus(HttpStatusCode.Forbidden);
@@ -286,7 +293,10 @@ async function removeMember(request: Request, response: Response) {
     const user: User = response.locals.user;
     const body = request.body as { mentor_group_id: number; user_id: number };
 
-    const validation = _MentorGroupAdminValidator.validateRemoveUser(body);
+    Validator.validate(body, {
+        mentor_group_id: [ValidationTypeEnum.NON_NULL],
+        user_id: [ValidationTypeEnum.NON_NULL],
+    });
 
     try {
         await UserBelongToMentorGroups.destroy({
@@ -306,7 +316,10 @@ async function removeMember(request: Request, response: Response) {
 async function getEndorsementGroupsByID(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { mentor_group_id: string };
-        // TODO: Validate
+
+        Validator.validate(params, {
+            mentor_group_id: [ValidationTypeEnum.NON_NULL],
+        });
 
         const mentorGroup = await MentorGroup.findOne({
             where: {

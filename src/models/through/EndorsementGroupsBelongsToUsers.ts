@@ -1,9 +1,12 @@
 import { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
 import { UserSolo } from "../UserSolo";
 import { User } from "../User";
 import { EndorsementGroup } from "../EndorsementGroup";
+import {
+    ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES,
+    ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME,
+} from "../../../db/migrations/20221115171255-create-endorsement-groups-belongto-users-table";
 
 export class EndorsementGroupsBelongsToUsers extends Model<
     InferAttributes<EndorsementGroupsBelongsToUsers>,
@@ -36,60 +39,7 @@ export class EndorsementGroupsBelongsToUsers extends Model<
     };
 }
 
-EndorsementGroupsBelongsToUsers.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        endorsement_group_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "endorsement_groups",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        created_by: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "set null",
-        },
-        solo_id: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "user_solos",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "set null",
-            // The solo is only ever deleted IFF a rating change has taken place.
-            // Therefore, we can just set it null to indicate that the solo is over.
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "endorsement_groups_belong_to_users",
-        sequelize: sequelize,
-    }
-);
+EndorsementGroupsBelongsToUsers.init(ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES, {
+    tableName: ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME,
+    sequelize: sequelize,
+});

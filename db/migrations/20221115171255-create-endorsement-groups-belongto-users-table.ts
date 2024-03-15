@@ -1,6 +1,9 @@
+import { QueryInterface } from "sequelize";
+
 const { DataType } = require("sequelize-typescript");
 
-const DataModelAttributes = {
+export const ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME = "endorsement_groups_belong_to_users";
+export const ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -52,14 +55,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("endorsement_groups_belong_to_users", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME, ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("endorsement_groups_belong_to_users");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

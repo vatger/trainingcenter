@@ -1,7 +1,17 @@
 import dayjs from "dayjs";
 import { ValidationException } from "../exceptions/ValidationException";
 
-type ValidationRule = Record<string, Array<ValidationTypeEnum | { option: ValidationTypeEnum; value: any } | ((arg0: any) => boolean)>>;
+type ValidationRule = Record<
+    string,
+    Array<
+        | ValidationTypeEnum
+        | {
+              option: ValidationTypeEnum;
+              value: any;
+          }
+        | ((arg0: any) => boolean)
+    >
+>;
 
 /**
  * Supported Validation Options
@@ -19,6 +29,7 @@ enum ValidationTypeEnum {
     VALID_DATE,
     ARRAY_LENGTH_GT,
     VALID_JSON, // This checks if the data is valid json and assigns the parsed value to the key!
+    STRING,
 }
 
 function validateAndReturn(data: any, validationRules: ValidationRule) {
@@ -63,6 +74,11 @@ function validate(data: any, validationRules: ValidationRule) {
                 _validateEntry(data, key, messages, { option: rule });
             }
 
+            if (typeof rule == "string") {
+                // Validate ENUM Field (no Value)
+                _validateEntry(data, key, messages, { option: rule });
+            }
+
             if (typeof rule == "object") {
                 // Validate ENUM Field (with Value)
                 _validateEntry(data, key, messages, { option: rule.option, value: rule.value });
@@ -83,7 +99,15 @@ function validate(data: any, validationRules: ValidationRule) {
     }
 }
 
-function _validateEntry(rawData: any, key: string, messages: object[], valOption: { option: ValidationTypeEnum; value?: any }) {
+function _validateEntry(
+    rawData: any,
+    key: string,
+    messages: object[],
+    valOption: {
+        option: ValidationTypeEnum;
+        value?: any;
+    }
+) {
     function addErrorEntry(message: string) {
         messages.push({ code: ValidationTypeEnum[valOption.option], key: key, message: message });
     }
@@ -113,6 +137,13 @@ function _validateEntry(rawData: any, key: string, messages: object[], valOption
             let n = Number(data);
             if (Number.isNaN(n)) {
                 addErrorEntry(`Parameter is not a number`);
+            }
+            break;
+
+        case ValidationTypeEnum.STRING:
+            let s = String(data);
+            if (s.length < 1) {
+                addErrorEntry(`Parameter is not a / a empty string`);
             }
             break;
 
