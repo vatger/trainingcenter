@@ -98,14 +98,14 @@ export const ROLE_BELONGS_TO_USER_TABLE_ATTRIBUTES = {
 export default {
     async up(queryInterface: QueryInterface) {
         await queryInterface.createTable(PERMISSION_TABLE_NAME, PERMISSION_TABLE_ATTRIBUTES);
-        await queryInterface.createTable(ROLE_BELONGS_TO_USER_TABLE_NAME, ROLE_TABLE_ATTRIBUTES);
+        await queryInterface.createTable(ROLE_TABLE_NAME, ROLE_TABLE_ATTRIBUTES);
         await queryInterface.createTable(ROLE_HAS_PERMISSION_TABLE_NAME, ROLE_HAS_PERMISSION_TABLE_ATTRIBUTES);
         await queryInterface.createTable(ROLE_BELONGS_TO_USER_TABLE_NAME, ROLE_BELONGS_TO_USER_TABLE_ATTRIBUTES);
     },
 
     async down(queryInterface: QueryInterface) {
         await queryInterface.dropTable(PERMISSION_TABLE_NAME);
-        await queryInterface.dropTable(ROLE_BELONGS_TO_USER_TABLE_NAME);
+        await queryInterface.dropTable(ROLE_TABLE_NAME);
         await queryInterface.dropTable(ROLE_HAS_PERMISSION_TABLE_NAME);
         await queryInterface.dropTable(ROLE_BELONGS_TO_USER_TABLE_NAME);
     },

@@ -2,7 +2,11 @@ import { Association, CreationOptional, InferAttributes, InferCreationAttributes
 import { sequelize } from "../core/Sequelize";
 import { Permission } from "./Permission";
 import { User } from "./User";
-import { ROLE_BELONGS_TO_USER_TABLE_NAME, ROLE_TABLE_ATTRIBUTES } from "../../db/migrations/20221115171263-create-permission-tables";
+import {
+    ROLE_BELONGS_TO_USER_TABLE_NAME,
+    ROLE_TABLE_ATTRIBUTES,
+    ROLE_TABLE_NAME
+} from "../../db/migrations/20221115171263-create-permission-tables";
 
 export class Role extends Model<InferAttributes<Role>, InferCreationAttributes<Role>> {
     //
@@ -30,6 +34,6 @@ export class Role extends Model<InferAttributes<Role>, InferCreationAttributes<R
 }
 
 Role.init(ROLE_TABLE_ATTRIBUTES, {
-    tableName: ROLE_BELONGS_TO_USER_TABLE_NAME,
+    tableName: ROLE_TABLE_NAME,
     sequelize: sequelize,
 });
