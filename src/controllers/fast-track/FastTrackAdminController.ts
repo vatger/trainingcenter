@@ -18,7 +18,7 @@ import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 async function getAll(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
-        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.all.view", true);
+        PermissionHelper.checkUserHasPermission(user, "atd.fast_track.view", true);
 
         const fastTracks = await FastTrackRequest.findAll({
             include: [FastTrackRequest.associations.user],

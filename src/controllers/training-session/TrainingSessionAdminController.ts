@@ -204,7 +204,7 @@ async function deleteTrainingSession(request: Request, response: Response) {
         return;
     }
 
-    for (const participant of (session?.users ?? [])) {
+    for (const participant of session?.users ?? []) {
         await NotificationLibrary.sendUserNotification({
             user_id: participant.id,
             author_id: user.id,

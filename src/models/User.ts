@@ -113,9 +113,26 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
                 {
                     association: User.associations.training_sessions,
                     as: "training_sessions",
+                },
+            ],
+        });
+
+        return user?.training_sessions ?? [];
+    }
+
+    async getTrainingSessionsWithCourseAndStation(): Promise<TrainingSession[]> {
+        const user = await User.findOne({
+            where: {
+                id: this.id,
+            },
+            include: [
+                {
+                    association: User.associations.training_sessions,
+                    as: "training_sessions",
                     through: {
-                        as: "through",
+                        attributes: [],
                     },
+                    include: [TrainingSession.associations.course, TrainingSession.associations.training_station],
                 },
             ],
         });

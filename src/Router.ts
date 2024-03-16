@@ -36,6 +36,7 @@ import UserEndorsementAdminController from "./controllers/user/UserEndorsementAd
 import UserStatisticsController from "./controllers/user/UserStatisticsController";
 import SyslogAdminController from "./controllers/admin-logs/SyslogAdminController";
 import JoblogAdminController from "./controllers/admin-logs/JoblogAdminController";
+import UserInformationController from "./controllers/user/UserInformationController";
 
 const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -44,12 +45,6 @@ const routerGroup = (callback: (router: Router) => void) => {
 };
 
 export const router = Router();
-
-router.post("/test", async (req, res) => {
-    console.log(req.body);
-
-    res.sendStatus(400);
-});
 
 router.use(
     "/auth",
@@ -69,11 +64,12 @@ router.use(
         r.use(authMiddleware);
 
         r.get("/user/update", LoginController.updateUserData);
-
         r.patch("/settings", UserSettingsController.updateSettings);
 
         r.get("/sessions", SessionController.getUserSessions);
         r.delete("/session", SessionController.deleteUserSession);
+
+        r.get("/overview", UserInformationController.getOverviewStatistics);
 
         r.get("/gdpr", GDPRController.getData);
 
@@ -152,6 +148,7 @@ router.use(
         r.use(
             "/training-session",
             routerGroup((r: Router) => {
+                r.get("/upcoming", TrainingSessionController.getUpcoming);
                 r.get("/:uuid", TrainingSessionController.getByUUID);
                 r.delete("/withdraw/:uuid", TrainingSessionController.withdrawFromSessionByUUID);
             })

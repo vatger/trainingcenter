@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
 import { TrainingSession } from "../../models/TrainingSession";
 import { TrainingSessionBelongsToUsers } from "../../models/through/TrainingSessionBelongsToUsers";
@@ -6,6 +6,26 @@ import { TrainingRequest } from "../../models/TrainingRequest";
 import dayjs from "dayjs";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 import { HttpStatusCode } from "axios";
+
+/**
+ * Gets a list of upcoming training sessions
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getUpcoming(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+
+        const sessions: TrainingSession[] = (await user.getTrainingSessionsWithCourseAndStation()).filter(session => {
+            return !session.completed && dayjs.utc(session.date).isAfter(dayjs.utc());
+        });
+
+        response.send(sessions);
+    } catch (e) {
+        next(e);
+    }
+}
 
 /**
  * [User]
@@ -125,6 +145,7 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
 }
 
 export default {
+    getUpcoming,
     getByUUID,
     withdrawFromSessionByUUID,
 };

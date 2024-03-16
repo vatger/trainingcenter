@@ -170,7 +170,7 @@ async function destroyByUUID(request: Request, response: Response, next: NextFun
         });
 
         if (trainingRequest == null) {
-            response.status(404).send({message: "Training request with this UUID not found"});
+            response.status(404).send({ message: "Training request with this UUID not found" });
             return;
         }
 

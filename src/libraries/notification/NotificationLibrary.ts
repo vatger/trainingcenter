@@ -14,6 +14,8 @@ type UserNotificationType = {
 };
 
 async function sendUserNotification(notificationType: UserNotificationType) {
+    // Todo: Add optional email as well!
+
     await Notification.create({
         uuid: generateUUID(),
         user_id: notificationType.user_id,
