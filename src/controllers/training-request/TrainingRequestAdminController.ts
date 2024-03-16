@@ -155,34 +155,40 @@ async function getByUUID(request: Request, response: Response) {
  * Allows a mentor (or above) to delete the training request of a user based on its UUID.
  * @param request
  * @param response
+ * @param next
  */
-async function destroyByUUID(request: Request, response: Response) {
-    const trainingRequestUUID: string = request.params.uuid;
+async function destroyByUUID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const trainingRequestUUID: string = request.params.uuid;
 
-    const trainingRequest: TrainingRequest | null = await TrainingRequest.findOne({
-        where: {
-            uuid: trainingRequestUUID,
-        },
-        include: [TrainingRequest.associations.training_type],
-    });
+        const trainingRequest: TrainingRequest | null = await TrainingRequest.findOne({
+            where: {
+                uuid: trainingRequestUUID,
+            },
+            include: [TrainingRequest.associations.training_type],
+        });
 
-    if (trainingRequest == null) {
-        response.status(404).send({ message: "Training request with this UUID not found" });
-        return;
+        if (trainingRequest == null) {
+            response.status(404).send({message: "Training request with this UUID not found"});
+            return;
+        }
+
+        await trainingRequest.destroy();
+
+        await NotificationLibrary.sendUserNotification({
+            user_id: trainingRequest.user_id,
+            message_de: `Deine Trainingsanfrage für "${trainingRequest.training_type?.name}" wurde von ${user.first_name} ${user.last_name} gelöscht`,
+            message_en: `${user.first_name} ${user.last_name} has deleted your training request for "${trainingRequest.training_type?.name}"`,
+            author_id: response.locals.user.id,
+            severity: "default",
+            icon: "trash",
+        });
+
+        response.sendStatus(HttpStatusCode.NoContent);
+    } catch (e) {
+        next(e);
     }
-
-    await trainingRequest.destroy();
-
-    await NotificationLibrary.sendUserNotification({
-        user_id: trainingRequest.user_id,
-        message_de: `Deine Trainingsanfrage für "${trainingRequest.training_type?.name}" wurde von $author gelöscht`,
-        message_en: `$author has deleted your training request for "${trainingRequest.training_type?.name}"`,
-        author_id: response.locals.user.id,
-        severity: "default",
-        icon: "trash",
-    });
-
-    response.send({ message: "OK" });
 }
 
 export default {

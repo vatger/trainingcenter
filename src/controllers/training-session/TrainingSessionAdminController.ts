@@ -204,8 +204,8 @@ async function deleteTrainingSession(request: Request, response: Response) {
         return;
     }
 
-    session.users?.forEach(participant => {
-        NotificationLibrary.sendUserNotification({
+    for (const participant of (session?.users ?? [])) {
+        await NotificationLibrary.sendUserNotification({
             user_id: participant.id,
             author_id: user.id,
             message_de: `Deine Session im Kurs ${session.course?.name} am ${dayjs
@@ -217,7 +217,7 @@ async function deleteTrainingSession(request: Request, response: Response) {
             severity: "danger",
             icon: "alert-triangle",
         });
-    });
+    }
 
     // Update training requests to reflect the now non-existent session
     await TrainingRequest.update(
