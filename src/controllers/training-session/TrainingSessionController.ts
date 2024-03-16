@@ -28,7 +28,7 @@ async function getByUUID(request: Request, response: Response) {
                 through: { attributes: [] },
             },
             TrainingSession.associations.mentor,
-            TrainingSession.associations.cpt_examiner,
+            TrainingSession.associations.cpt,
             TrainingSession.associations.training_type,
             TrainingSession.associations.training_station,
             TrainingSession.associations.course,

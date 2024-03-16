@@ -1,6 +1,6 @@
 import { CreationOptional, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { sequelize } from "../core/Sequelize";
-import { DataType } from "sequelize-typescript";
+import { JOBS_TABLE_ATTRIBUTES, JOBS_TABLE_NAME, JOBS_TABLE_STATUS_TYPES } from "../../db/migrations/20221115171262-create-jobs-table";
 
 export class Job extends Model<InferAttributes<Job>, InferCreationAttributes<Job>> {
     //
@@ -8,7 +8,7 @@ export class Job extends Model<InferAttributes<Job>, InferCreationAttributes<Job
     //
     declare uuid: string;
     declare attempts: number;
-    declare status: "queued" | "failed" | "completed";
+    declare status: (typeof JOBS_TABLE_STATUS_TYPES)[number];
 
     //
     // Optional Attributes
@@ -21,40 +21,7 @@ export class Job extends Model<InferAttributes<Job>, InferCreationAttributes<Job
     declare updatedAt: CreationOptional<Date> | null;
 }
 
-Job.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        uuid: {
-            type: DataType.UUID,
-            allowNull: false,
-        },
-        job_type: {
-            type: DataType.STRING,
-        },
-        payload: {
-            type: DataType.JSON,
-            comment: "Payload for the job, includes json data for the job to execute",
-        },
-        attempts: {
-            type: DataType.TINYINT({ unsigned: true }),
-            allowNull: false,
-        },
-        last_executed: {
-            type: DataType.DATE,
-        },
-        status: {
-            type: DataType.ENUM("queued", "failed", "completed"),
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "jobs",
-        sequelize: sequelize,
-    }
-);
+Job.init(JOBS_TABLE_ATTRIBUTES, {
+    tableName: JOBS_TABLE_NAME,
+    sequelize: sequelize,
+});

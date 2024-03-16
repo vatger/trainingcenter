@@ -1,6 +1,6 @@
 import { CreationOptional, InferAttributes, InferCreationAttributes, Model } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
+import { SYSLOG_TABLE_ATTRIBUTES, SYSLOG_TABLE_NAME } from "../../db/migrations/20221115171262-create-syslog-table";
 
 export class SysLog extends Model<InferAttributes<SysLog>, InferCreationAttributes<SysLog>> {
     //
@@ -17,38 +17,7 @@ export class SysLog extends Model<InferAttributes<SysLog>, InferCreationAttribut
     declare updatedAt: CreationOptional<Date> | null;
 }
 
-SysLog.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        user_id: {
-            type: DataType.STRING,
-            allowNull: true,
-        },
-        path: {
-            type: DataType.STRING,
-            allowNull: true,
-        },
-        method: {
-            type: DataType.STRING(10),
-            allowNull: true,
-        },
-        remote_addr: {
-            type: DataType.STRING,
-            allowNull: true,
-        },
-        message: {
-            type: DataType.TEXT,
-            allowNull: true,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "syslog",
-        sequelize: sequelize,
-    }
-);
+SysLog.init(SYSLOG_TABLE_ATTRIBUTES, {
+    tableName: SYSLOG_TABLE_NAME,
+    sequelize: sequelize,
+});

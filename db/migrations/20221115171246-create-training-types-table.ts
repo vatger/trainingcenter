@@ -1,8 +1,11 @@
-const { DataType } = require("sequelize-typescript");
+import { QueryInterface } from "sequelize";
+import { DataType } from "sequelize-typescript";
 
-const trainingTypeEnum = ["online", "sim", "cpt", "lesson"];
+export const TRAINING_TYPES_TABLE_TYPES = ["online", "sim", "cpt", "lesson"] as const;
 
-const DataModelAttributes = {
+export const TRAINING_TYPES_TABLE_NAME = "training_types";
+
+export const TRAINING_TYPES_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -14,7 +17,7 @@ const DataModelAttributes = {
         allowNull: false,
     },
     type: {
-        type: DataType.ENUM(...trainingTypeEnum),
+        type: DataType.ENUM(...TRAINING_TYPES_TABLE_TYPES),
         comment: "Type of Training Type (ie. Sim Session - Sim)",
         defaultValue: "Online",
         allowNull: false,
@@ -33,14 +36,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("training_types", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(TRAINING_TYPES_TABLE_NAME, TRAINING_TYPES_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("training_types");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(TRAINING_TYPES_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

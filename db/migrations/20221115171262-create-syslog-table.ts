@@ -1,6 +1,9 @@
-const { DataType } = require("sequelize-typescript");
+import { QueryInterface } from "sequelize";
+import { DataType } from "sequelize-typescript";
 
-const DataModelAttributes = {
+export const SYSLOG_TABLE_NAME = "syslog";
+
+export const SYSLOG_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -30,14 +33,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("syslog", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(SYSLOG_TABLE_NAME, SYSLOG_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("syslog");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(SYSLOG_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

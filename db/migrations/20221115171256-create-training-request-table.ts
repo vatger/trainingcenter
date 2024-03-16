@@ -1,8 +1,11 @@
-const { DataType } = require("sequelize-typescript");
+import { DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
 
-const RequestStatusEnum = ["requested", "planned", "cancelled", "completed"];
+export const TRAINING_REQUEST_TABLE_STATUS_TYPES = ["requested", "planned", "cancelled", "completed"] as const;
 
-const DataModelAttributes = {
+export const TRAINING_REQUEST_TABLE_NAME = "training_requests";
+
+export const TRAINING_REQUEST_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -57,7 +60,7 @@ const DataModelAttributes = {
         allowNull: true,
     },
     status: {
-        type: DataType.ENUM(...RequestStatusEnum),
+        type: DataType.ENUM(...TRAINING_REQUEST_TABLE_STATUS_TYPES),
         allowNull: false,
         defaultValue: "requested",
     },
@@ -79,14 +82,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("training_requests", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(TRAINING_REQUEST_TABLE_NAME, TRAINING_REQUEST_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("training_requests");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(TRAINING_REQUEST_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

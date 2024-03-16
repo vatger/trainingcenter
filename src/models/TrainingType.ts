@@ -1,17 +1,21 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association, ForeignKey } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { ActionRequirement } from "./ActionRequirement";
 import { TrainingStation } from "./TrainingStation";
 import { Course } from "./Course";
 import { TrainingLogTemplate } from "./TrainingLogTemplate";
+import {
+    TRAINING_TYPES_TABLE_ATTRIBUTES,
+    TRAINING_TYPES_TABLE_NAME,
+    TRAINING_TYPES_TABLE_TYPES,
+} from "../../db/migrations/20221115171246-create-training-types-table";
 
 export class TrainingType extends Model<InferAttributes<TrainingType>, InferCreationAttributes<TrainingType>> {
     //
     // Attributes
     //
     declare name: string;
-    declare type: "online" | "sim" | "cpt" | "lesson";
+    declare type: (typeof TRAINING_TYPES_TABLE_TYPES)[number];
 
     //
     // Optional Attributes
@@ -37,38 +41,7 @@ export class TrainingType extends Model<InferAttributes<TrainingType>, InferCrea
     };
 }
 
-TrainingType.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        name: {
-            type: DataType.STRING(70),
-            comment: "Name of training type (eg. 'Frankfurt Tower Online'). Max length 70 chars",
-            allowNull: false,
-        },
-        type: {
-            type: DataType.ENUM("online", "sim", "cpt", "lesson"),
-            comment: "Type of Training Type (ie. Sim Session - Sim)",
-            allowNull: false,
-        },
-        log_template_id: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "training_log_templates",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "training_types",
-        sequelize: sequelize,
-    }
-);
+TrainingType.init(TRAINING_TYPES_TABLE_ATTRIBUTES, {
+    tableName: TRAINING_TYPES_TABLE_NAME,
+    sequelize: sequelize,
+});

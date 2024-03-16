@@ -1,5 +1,4 @@
 import { QueryInterface } from "sequelize";
-
 import { DataType } from "sequelize-typescript";
 
 export const TRAINING_LOG_TEMPLATES_TABLE_NAME = "training_log_templates";

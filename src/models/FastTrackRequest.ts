@@ -1,7 +1,7 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association, ForeignKey } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { User } from "./User";
+import { FAST_TRACK_REQUEST_TABLE_ATTRIBUTES, FAST_TRACK_REQUEST_TABLE_NAME } from "../../db/migrations/20221115171262-create-fast-track-request-table";
 
 export class FastTrackRequest extends Model<InferAttributes<FastTrackRequest>, InferCreationAttributes<FastTrackRequest>> {
     //
@@ -34,58 +34,7 @@ export class FastTrackRequest extends Model<InferAttributes<FastTrackRequest>, I
     };
 }
 
-FastTrackRequest.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        requested_by_user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        status: {
-            type: DataType.INTEGER,
-            allowNull: false,
-        },
-        rating: {
-            type: DataType.INTEGER,
-            allowNull: false,
-        },
-        file_name: {
-            type: DataType.STRING,
-            allowNull: false,
-        },
-        comment: {
-            type: DataType.TEXT,
-            allowNull: true,
-        },
-        response: {
-            type: DataType.TEXT,
-            allowNull: true,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "fast_track_requests",
-        sequelize: sequelize,
-    }
-);
+FastTrackRequest.init(FAST_TRACK_REQUEST_TABLE_ATTRIBUTES, {
+    tableName: FAST_TRACK_REQUEST_TABLE_NAME,
+    sequelize: sequelize,
+});

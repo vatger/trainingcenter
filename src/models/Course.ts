@@ -1,11 +1,11 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association, ForeignKey } from "sequelize";
 import { TrainingType } from "./TrainingType";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { ActionRequirement } from "./ActionRequirement";
 import { MentorGroup } from "./MentorGroup";
 import { User } from "./User";
 import { CourseInformation } from "./CourseInformation";
+import { COURSE_TABLE_ATTRIBUTES, COURSE_TABLE_NAME } from "../../db/migrations/20221115171247-create-courses-table";
 
 export class Course extends Model<InferAttributes<Course>, InferCreationAttributes<Course>> {
     //
@@ -70,66 +70,7 @@ export class Course extends Model<InferAttributes<Course>, InferCreationAttribut
     }
 }
 
-Course.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        uuid: {
-            type: DataType.UUID,
-            unique: true,
-            allowNull: false,
-        },
-        name: {
-            type: DataType.STRING(70),
-            comment: "Course Name. Max length 70 chars",
-            allowNull: false,
-        },
-        name_en: {
-            type: DataType.STRING(70),
-            comment: "Course Name. Max Length 70 chars. English text",
-            allowNull: false,
-        },
-        description: {
-            type: DataType.TEXT,
-            allowNull: false,
-        },
-        description_en: {
-            type: DataType.TEXT,
-            allowNull: false,
-        },
-        is_active: {
-            type: DataType.BOOLEAN,
-            comment: "If true then course is visible",
-            allowNull: false,
-        },
-        self_enrollment_enabled: {
-            type: DataType.BOOLEAN,
-            comment: "If true a user can self-enrol in this course",
-            allowNull: false,
-        },
-        initial_training_type: {
-            type: DataType.INTEGER,
-            comment: "Training Type ID",
-            allowNull: false,
-            references: {
-                model: "training_types",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-        deletedAt: {
-            type: DataType.DATE,
-            allowNull: true,
-        },
-    },
-    {
-        tableName: "courses",
-        sequelize: sequelize,
-    }
-);
+Course.init(COURSE_TABLE_ATTRIBUTES, {
+    tableName: COURSE_TABLE_NAME,
+    sequelize: sequelize,
+});

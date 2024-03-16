@@ -1,6 +1,8 @@
-const { DataType } = require("sequelize-typescript");
+import { QueryInterface } from "sequelize";
+import { DataType } from "sequelize-typescript";
 
-const PermissionModelAttributes = {
+export const PERMISSION_TABLE_NAME = "permissions";
+export const PERMISSION_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -15,7 +17,8 @@ const PermissionModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-const RoleModelAttributes = {
+export const ROLE_TABLE_NAME = "roles";
+export const ROLE_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -30,7 +33,8 @@ const RoleModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-const RoleHasPermissionsAttributes = {
+export const ROLE_HAS_PERMISSION_TABLE_NAME = "role_has_permissions";
+export const ROLE_HAS_PERMISSION_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -60,7 +64,8 @@ const RoleHasPermissionsAttributes = {
     updatedAt: DataType.DATE,
 };
 
-const RoleBelongsToUserAttributes = {
+export const ROLE_BELONGS_TO_USER_TABLE_NAME = "role_belongs_to_users";
+export const ROLE_BELONGS_TO_USER_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -90,18 +95,18 @@ const RoleBelongsToUserAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("permissions", PermissionModelAttributes);
-        await queryInterface.createTable("roles", RoleModelAttributes);
-        await queryInterface.createTable("role_has_permissions", RoleHasPermissionsAttributes);
-        await queryInterface.createTable("role_belongs_to_users", RoleBelongsToUserAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(PERMISSION_TABLE_NAME, PERMISSION_TABLE_ATTRIBUTES);
+        await queryInterface.createTable(ROLE_BELONGS_TO_USER_TABLE_NAME, ROLE_TABLE_ATTRIBUTES);
+        await queryInterface.createTable(ROLE_HAS_PERMISSION_TABLE_NAME, ROLE_HAS_PERMISSION_TABLE_ATTRIBUTES);
+        await queryInterface.createTable(ROLE_BELONGS_TO_USER_TABLE_NAME, ROLE_BELONGS_TO_USER_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("permissions");
-        await queryInterface.dropTable("roles");
-        await queryInterface.dropTable("role_has_permissions");
-        await queryInterface.dropTable("role_belongs_to_users");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(PERMISSION_TABLE_NAME);
+        await queryInterface.dropTable(ROLE_BELONGS_TO_USER_TABLE_NAME);
+        await queryInterface.dropTable(ROLE_HAS_PERMISSION_TABLE_NAME);
+        await queryInterface.dropTable(ROLE_BELONGS_TO_USER_TABLE_NAME);
     },
 };

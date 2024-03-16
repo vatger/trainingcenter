@@ -1,8 +1,12 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, ForeignKey } from "sequelize";
 import { ActionRequirement } from "../ActionRequirement";
 import { TrainingType } from "../TrainingType";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
+import {
+    ACTION_BELONGS_TO_TRAINING_TYPE_TABLE_ATTRIBUTES,
+    ACTION_BELONGS_TO_TRAINING_TYPE_TABLE_EXECUTE_WHEN_TYPES,
+    ACTION_BELONGS_TO_TRAINING_TYPE_TABLE_NAME,
+} from "../../../db/migrations/20221115171250-create-action-belongs-to-training-type-table";
 
 // Note: This can also be a requirement!
 export class ActionBelongsToTrainingTypes extends Model<InferAttributes<ActionBelongsToTrainingTypes>, InferCreationAttributes<ActionBelongsToTrainingTypes>> {
@@ -16,50 +20,12 @@ export class ActionBelongsToTrainingTypes extends Model<InferAttributes<ActionBe
     //
     // Optional Attributes
     //
-    declare execute_when: CreationOptional<"on_complete" | "on_session_planned"> | null;
+    declare execute_when: CreationOptional<(typeof ACTION_BELONGS_TO_TRAINING_TYPE_TABLE_EXECUTE_WHEN_TYPES)[number]> | null;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
 }
 
-ActionBelongsToTrainingTypes.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        action_id: {
-            type: DataType.INTEGER,
-            comment: "Action-/Requirement ID.",
-            allowNull: false,
-            references: {
-                model: "actions_requirements",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        training_type_id: {
-            type: DataType.INTEGER,
-            comment: "Training Type ID.",
-            allowNull: false,
-            references: {
-                model: "training_types",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        execute_when: {
-            type: DataType.ENUM("on_complete", "on_session_planned"),
-            comment: "Defines when to execute the linked action. If this is a requirement, then execute_when is null!",
-            allowNull: true,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "actions_belong_to_training_types",
-        sequelize: sequelize,
-    }
-);
+ActionBelongsToTrainingTypes.init(ACTION_BELONGS_TO_TRAINING_TYPE_TABLE_ATTRIBUTES, {
+    tableName: ACTION_BELONGS_TO_TRAINING_TYPE_TABLE_NAME,
+    sequelize: sequelize,
+});

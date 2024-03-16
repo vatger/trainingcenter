@@ -1,6 +1,9 @@
-const { DataType } = require("sequelize-typescript");
+import { QueryInterface } from "sequelize";
+import { DataType } from "sequelize-typescript";
 
-const DataModelAttributes = {
+export const TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_NAME = "training_types_belongs_to_courses";
+
+export const TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -30,14 +33,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("training_types_belongs_to_courses", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_NAME, TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("training_types_belongs_to_courses");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

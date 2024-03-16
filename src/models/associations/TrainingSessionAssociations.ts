@@ -6,6 +6,7 @@ import Logger, { LogLevels } from "../../utility/Logger";
 import { TrainingSessionBelongsToUsers } from "../through/TrainingSessionBelongsToUsers";
 import { TrainingLog } from "../TrainingLog";
 import { TrainingStation } from "../TrainingStation";
+import { CptSession } from "../CptSession";
 
 export function registerTrainingSessionAssociations() {
     TrainingSession.hasOne(TrainingStation, {
@@ -50,21 +51,9 @@ export function registerTrainingSessionAssociations() {
         foreignKey: "id",
     });
 
-    TrainingSession.hasOne(User, {
-        as: "cpt_examiner",
-        sourceKey: "cpt_examiner_id",
-        foreignKey: "id",
-    });
-
     User.hasMany(TrainingSession, {
         as: "mentor_sessions",
         foreignKey: "mentor_id",
-        sourceKey: "id",
-    });
-
-    User.hasMany(TrainingSession, {
-        as: "cpt_examiner_sessions",
-        foreignKey: "cpt_examiner_id",
         sourceKey: "id",
     });
 
@@ -111,6 +100,24 @@ export function registerTrainingSessionAssociations() {
         through: TrainingSessionBelongsToUsers,
         foreignKey: "training_session_id",
         otherKey: "log_id",
+    });
+
+    TrainingSession.hasOne(CptSession, {
+        as: "cpt",
+        foreignKey: "id",
+        sourceKey: "cpt_session_id",
+    });
+
+    CptSession.belongsTo(TrainingSession, {
+        as: "training_session",
+        foreignKey: "id",
+        targetKey: "cpt_session_id",
+    });
+
+    CptSession.hasOne(User, {
+        as: "examiner",
+        foreignKey: "id",
+        sourceKey: "examiner_id",
     });
 
     Logger.log(LogLevels.LOG_INFO, "[TrainingSessionAssociations]");

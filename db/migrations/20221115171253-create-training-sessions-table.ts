@@ -1,6 +1,10 @@
-const { DataType } = require("sequelize-typescript");
+import { DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
+import { CPT_SESSION_TABLE_NAME } from "./20221115171252-create-cpt-session-table";
 
-const DataModelAttributes = {
+export const TRAINING_SESSION_TABLE_NAME = "training_sessions";
+
+export const TRAINING_SESSION_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -24,21 +28,6 @@ const DataModelAttributes = {
         },
         onUpdate: "cascade",
         onDelete: "cascade",
-    },
-    cpt_examiner_id: {
-        type: DataType.INTEGER,
-        allowNull: true,
-        references: {
-            model: "users",
-            key: "id",
-        },
-        onUpdate: "cascade",
-        onDelete: "set null",
-    },
-    cpt_atsim_passed: {
-        type: DataType.BOOLEAN,
-        allowNull: true,
-        defaultValue: false,
     },
     training_station_id: {
         type: DataType.INTEGER,
@@ -74,18 +63,26 @@ const DataModelAttributes = {
         onUpdate: "cascade",
         onDelete: "cascade",
     },
+    cpt_session_id: {
+        type: DataType.INTEGER,
+        allowNull: true,
+        references: {
+            model: CPT_SESSION_TABLE_NAME,
+            key: "id",
+        },
+        onUpdate: "cascade",
+        onDelete: "cascade",
+    },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("training_sessions", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(TRAINING_SESSION_TABLE_NAME, TRAINING_SESSION_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("training_sessions");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(TRAINING_SESSION_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

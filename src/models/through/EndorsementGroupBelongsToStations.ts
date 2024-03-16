@@ -1,8 +1,11 @@
 import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
 import { TrainingStation } from "../TrainingStation";
 import { EndorsementGroup } from "../EndorsementGroup";
+import {
+    ENDORSEMENT_GROUP_BELONGS_TO_STATION_TABLE_ATTRIBUTES,
+    ENDORSEMENT_GROUP_BELONGS_TO_STATION_TABLE_NAME,
+} from "../../../db/migrations/20221115171266-create-endorsement-group-belongs-to-station-table";
 
 export class EndorsementGroupBelongsToStations extends Model<
     InferAttributes<EndorsementGroupBelongsToStations>,
@@ -22,38 +25,7 @@ export class EndorsementGroupBelongsToStations extends Model<
     declare updatedAt: CreationOptional<Date> | null;
 }
 
-EndorsementGroupBelongsToStations.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        endorsement_group_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "endorsement_groups",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        station_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "training_stations",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "endorsement_group_belongs_to_stations",
-        sequelize: sequelize,
-    }
-);
+EndorsementGroupBelongsToStations.init(ENDORSEMENT_GROUP_BELONGS_TO_STATION_TABLE_ATTRIBUTES, {
+    tableName: ENDORSEMENT_GROUP_BELONGS_TO_STATION_TABLE_NAME,
+    sequelize: sequelize,
+});

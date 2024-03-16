@@ -1,9 +1,9 @@
 import { QueryInterface } from "sequelize";
+import { DataType } from "sequelize-typescript";
 
-const { DataType } = require("sequelize-typescript");
+export const ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_NAME = "endorsement_groups_belong_to_users";
 
-export const ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME = "endorsement_groups_belong_to_users";
-export const ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES = {
+export const ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -57,10 +57,10 @@ export const ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES = {
 
 export default {
     async up(queryInterface: QueryInterface) {
-        await queryInterface.createTable(ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME, ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES);
+        await queryInterface.createTable(ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_NAME, ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_ATTRIBUTES);
     },
 
     async down(queryInterface: QueryInterface) {
-        await queryInterface.dropTable(ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME);
+        await queryInterface.dropTable(ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_NAME);
     },
 };

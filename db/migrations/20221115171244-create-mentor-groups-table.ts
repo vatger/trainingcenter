@@ -1,9 +1,10 @@
 import { QueryInterface } from "sequelize";
-
 import { DataType } from "sequelize-typescript";
 
 const firTypeEnum = ["edww", "edgg", "edmm"];
+
 export const MENTOR_GROUPS_TABLE_NAME = "mentor_groups";
+
 export const MENTOR_GROUPS_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,

@@ -1,6 +1,9 @@
-const { DataType } = require("sequelize-typescript");
+import { DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
 
-const DataModelAttributes = {
+export const USER_BELONGS_TO_MENTOR_GROUP_TABLE_NAME = "users_belong_to_mentor_groups";
+
+export const USER_BELONGS_TO_MENTOR_GROUP_TABLE_ATTRIBUTES = {
     user_id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -40,14 +43,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("users_belong_to_mentor_groups", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(USER_BELONGS_TO_MENTOR_GROUP_TABLE_NAME, USER_BELONGS_TO_MENTOR_GROUP_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("users_belong_to_mentor_groups");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(USER_BELONGS_TO_MENTOR_GROUP_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

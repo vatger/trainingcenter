@@ -1,7 +1,7 @@
 import { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { Course } from "./Course";
+import { COURSE_INFORMATION_TABLE, COURSE_INFORMATION_TABLE_ATTRIBUTES } from "../../db/migrations/20221115171264-create-course-information-table";
 
 export class CourseInformation extends Model<InferAttributes<CourseInformation>, InferCreationAttributes<CourseInformation>> {
     //
@@ -26,32 +26,7 @@ export class CourseInformation extends Model<InferAttributes<CourseInformation>,
     declare course?: NonAttribute<Course>; // Initial training type
 }
 
-CourseInformation.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        course_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "courses",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        data: {
-            type: DataType.JSON,
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "course_information",
-        sequelize: sequelize,
-    }
-);
+CourseInformation.init(COURSE_INFORMATION_TABLE_ATTRIBUTES, {
+    tableName: COURSE_INFORMATION_TABLE,
+    sequelize: sequelize,
+});

@@ -1,8 +1,11 @@
-const { DataType } = require("sequelize-typescript");
+import { QueryInterface } from "sequelize";
+import { DataType } from "sequelize-typescript";
 
-const jobStatusEnum = ["queued", "failed", "completed"];
+export const JOBS_TABLE_NAME = "jobs";
 
-const DataModelAttributes = {
+export const JOBS_TABLE_STATUS_TYPES = ["queued", "failed", "completed"] as const;
+
+export const JOBS_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -28,7 +31,7 @@ const DataModelAttributes = {
         type: DataType.DATE,
     },
     status: {
-        type: DataType.ENUM(...jobStatusEnum),
+        type: DataType.ENUM(...JOBS_TABLE_STATUS_TYPES),
         defaultValue: "queued",
         allowNull: false,
     },
@@ -36,14 +39,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("jobs", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(JOBS_TABLE_NAME, JOBS_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("jobs");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(JOBS_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

@@ -2,8 +2,11 @@ import { Model, InferAttributes, CreationOptional, InferCreationAttributes, Fore
 import { User } from "../User";
 import { Course } from "../Course";
 import { TrainingType } from "../TrainingType";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
+import {
+    USER_BELONGS_TO_COURSE_TABLE_ATTRIBUTES,
+    USER_BELONGS_TO_COURSE_TABLE_NAME,
+} from "../../../db/migrations/20221115171259-create-user-belongs-to-course-table";
 
 export class UsersBelongsToCourses extends Model<InferAttributes<UsersBelongsToCourses>, InferCreationAttributes<UsersBelongsToCourses>> {
     //
@@ -33,52 +36,7 @@ export class UsersBelongsToCourses extends Model<InferAttributes<UsersBelongsToC
     };
 }
 
-UsersBelongsToCourses.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "user",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        course_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "courses",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        next_training_type: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "training_types",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "set null",
-        },
-        completed: {
-            type: DataType.BOOLEAN,
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "users_belong_to_courses",
-        sequelize: sequelize,
-    }
-);
+UsersBelongsToCourses.init(USER_BELONGS_TO_COURSE_TABLE_ATTRIBUTES, {
+    tableName: USER_BELONGS_TO_COURSE_TABLE_NAME,
+    sequelize: sequelize,
+});

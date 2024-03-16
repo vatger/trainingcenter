@@ -1,8 +1,11 @@
 import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
 import { TrainingType } from "../TrainingType";
 import { Course } from "../Course";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
+import {
+    TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_ATTRIBUTES,
+    TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_NAME,
+} from "../../../db/migrations/20221115171259-create-training-type-belongs-to-course-table";
 
 export class TrainingTypesBelongsToCourses extends Model<
     InferAttributes<TrainingTypesBelongsToCourses>,
@@ -22,38 +25,7 @@ export class TrainingTypesBelongsToCourses extends Model<
     declare updatedAt: CreationOptional<Date> | null;
 }
 
-TrainingTypesBelongsToCourses.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        training_type_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "training_types",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        course_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "courses",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "training_types_belongs_to_courses",
-        sequelize: sequelize,
-    }
-);
+TrainingTypesBelongsToCourses.init(TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_ATTRIBUTES, {
+    tableName: TRAINING_TYPE_BELONGS_TO_COURSE_TABLE_NAME,
+    sequelize: sequelize,
+});

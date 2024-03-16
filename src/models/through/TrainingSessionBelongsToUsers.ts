@@ -2,8 +2,11 @@ import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonA
 import { TrainingSession } from "../TrainingSession";
 import { User } from "../User";
 import { TrainingLog } from "../TrainingLog";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
+import {
+    TRAINING_SESSION_BELONGS_TO_USER_TABLE_ATTRIBUTES,
+    TRAINING_SESSION_BELONGS_TO_USER_TABLE_NAME,
+} from "../../../db/migrations/20221115171258-create-training-session-belongs-to-user-table";
 
 export class TrainingSessionBelongsToUsers extends Model<
     InferAttributes<TrainingSessionBelongsToUsers>,
@@ -38,52 +41,7 @@ export class TrainingSessionBelongsToUsers extends Model<
     };
 }
 
-TrainingSessionBelongsToUsers.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        training_session_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "training_sessions",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        log_id: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "training_logs",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "set null",
-        },
-        passed: {
-            type: DataType.BOOLEAN,
-            allowNull: true,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "training_session_belongs_to_users",
-        sequelize: sequelize,
-    }
-);
+TrainingSessionBelongsToUsers.init(TRAINING_SESSION_BELONGS_TO_USER_TABLE_ATTRIBUTES, {
+    tableName: TRAINING_SESSION_BELONGS_TO_USER_TABLE_NAME,
+    sequelize: sequelize,
+});

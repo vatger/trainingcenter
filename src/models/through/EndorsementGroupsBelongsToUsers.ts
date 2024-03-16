@@ -4,9 +4,9 @@ import { UserSolo } from "../UserSolo";
 import { User } from "../User";
 import { EndorsementGroup } from "../EndorsementGroup";
 import {
-    ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES,
-    ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME,
-} from "../../../db/migrations/20221115171255-create-endorsement-groups-belongto-users-table";
+    ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_ATTRIBUTES,
+    ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_NAME,
+} from "../../../db/migrations/20221115171255-create-endorsement-group-belongs-to-user-table";
 
 export class EndorsementGroupsBelongsToUsers extends Model<
     InferAttributes<EndorsementGroupsBelongsToUsers>,
@@ -39,7 +39,7 @@ export class EndorsementGroupsBelongsToUsers extends Model<
     };
 }
 
-EndorsementGroupsBelongsToUsers.init(ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_ATTRIBUTES, {
-    tableName: ENDORSEMENT_GROUPS_BELONGTO_USERS_TABLE_NAME,
+EndorsementGroupsBelongsToUsers.init(ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_ATTRIBUTES, {
+    tableName: ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_NAME,
     sequelize: sequelize,
 });

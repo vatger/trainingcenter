@@ -1,4 +1,7 @@
-const { DataType } = require("sequelize-typescript");
+import { DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
+
+export const FAST_TRACK_REQUEST_TABLE_NAME = "fast_track_requests";
 
 /*
     STATUS:
@@ -10,7 +13,7 @@ const { DataType } = require("sequelize-typescript");
     5 -> Completed with success
  */
 
-const DataModelAttributes = {
+export const FAST_TRACK_REQUEST_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -62,14 +65,12 @@ const DataModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("fast_track_requests", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(FAST_TRACK_REQUEST_TABLE_NAME, FAST_TRACK_REQUEST_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("fast_track_requests");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(FAST_TRACK_REQUEST_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

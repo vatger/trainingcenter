@@ -1,7 +1,7 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association, ForeignKey } from "sequelize";
 import { User } from "./User";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
+import { TRAINING_LOG_TABLE_ATTRIBUTES, TRAINING_LOG_TABLE_NAME } from "../../db/migrations/20221115171257-create-training-log-table";
 
 export class TrainingLog extends Model<InferAttributes<TrainingLog>, InferCreationAttributes<TrainingLog>> {
     //
@@ -28,36 +28,7 @@ export class TrainingLog extends Model<InferAttributes<TrainingLog>, InferCreati
     };
 }
 
-TrainingLog.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        uuid: {
-            type: DataType.UUID,
-            allowNull: false,
-        },
-        content: {
-            type: DataType.JSON,
-            allowNull: false,
-        },
-        author_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "training_logs",
-        sequelize: sequelize,
-    }
-);
+TrainingLog.init(TRAINING_LOG_TABLE_ATTRIBUTES, {
+    tableName: TRAINING_LOG_TABLE_NAME,
+    sequelize: sequelize,
+});

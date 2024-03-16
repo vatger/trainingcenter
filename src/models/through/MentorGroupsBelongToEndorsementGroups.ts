@@ -1,9 +1,10 @@
 import { CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
-import { UserSolo } from "../UserSolo";
-import { User } from "../User";
 import { EndorsementGroup } from "../EndorsementGroup";
+import {
+    MENTOR_GROUP_BELONGS_TO_ENDORSEMENT_GROUP_TABLE_ATTRIBUTES,
+    MENTOR_GROUP_BELONGS_TO_ENDORSEMENT_GROUP_TABLE_NAME,
+} from "../../../db/migrations/20221115171258-create-mentor-group-belongs-to-endorsement-group-table";
 
 export class MentorGroupsBelongToEndorsementGroups extends Model<
     InferAttributes<MentorGroupsBelongToEndorsementGroups>,
@@ -22,35 +23,7 @@ export class MentorGroupsBelongToEndorsementGroups extends Model<
     declare updatedAt: CreationOptional<Date> | null;
 }
 
-MentorGroupsBelongToEndorsementGroups.init(
-    {
-        endorsement_group_id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            references: {
-                model: "endorsement_groups",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        mentor_group_id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            allowNull: false,
-            references: {
-                model: "mentor_groups",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "mentor_groups_belong_to_endorsement_groups",
-        sequelize: sequelize,
-    }
-);
+MentorGroupsBelongToEndorsementGroups.init(MENTOR_GROUP_BELONGS_TO_ENDORSEMENT_GROUP_TABLE_ATTRIBUTES, {
+    tableName: MENTOR_GROUP_BELONGS_TO_ENDORSEMENT_GROUP_TABLE_NAME,
+    sequelize: sequelize,
+});

@@ -1,20 +1,17 @@
-const { DataType } = require("sequelize-typescript");
+import { DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
 
-const DataModelAttributes = {
+export const USER_NOTES_TABLE_NAME = "user_notes";
+
+export const USER_NOTES_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
         autoIncrement: true,
     },
-    training_session_id: {
-        type: DataType.INTEGER,
+    uuid: {
+        type: DataType.UUID,
         allowNull: false,
-        references: {
-            model: "training_sessions",
-            key: "id",
-        },
-        onUpdate: "cascade",
-        onDelete: "cascade",
     },
     user_id: {
         type: DataType.INTEGER,
@@ -26,33 +23,40 @@ const DataModelAttributes = {
         onUpdate: "cascade",
         onDelete: "cascade",
     },
-    log_id: {
+    author_id: {
+        type: DataType.INTEGER,
+        allowNull: false,
+        references: {
+            model: "users",
+            key: "id",
+        },
+        onUpdate: "cascade",
+        onDelete: "cascade",
+    },
+    course_id: {
         type: DataType.INTEGER,
         allowNull: true,
         references: {
-            model: "training_logs",
+            model: "courses",
             key: "id",
         },
         onUpdate: "cascade",
         onDelete: "set null",
     },
-    passed: {
-        type: DataType.BOOLEAN,
-        allowNull: true,
-        defaultValue: null,
+    content: {
+        type: DataType.TEXT,
+        allowNull: false,
     },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("training_session_belongs_to_users", DataModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(USER_NOTES_TABLE_NAME, USER_NOTES_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("training_session_belongs_to_users");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(USER_NOTES_TABLE_NAME);
     },
-
-    DataModelAttributes,
 };

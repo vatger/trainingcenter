@@ -250,7 +250,7 @@ async function getByUUID(request: Request, response: Response) {
         },
         include: [
             TrainingSession.associations.course,
-            TrainingSession.associations.cpt_examiner,
+            TrainingSession.associations.cpt,
             {
                 association: TrainingSession.associations.users,
                 through: {
@@ -291,10 +291,7 @@ async function getPlanned(request: Request, response: Response) {
 
     let trainingSession = await TrainingSession.findAll({
         where: {
-            [Op.or]: {
-                mentor_id: user.id,
-                cpt_examiner_id: user.id,
-            },
+            mentor_id: user.id,
             completed: false,
         },
         order: [["date", "asc"]],
@@ -318,10 +315,7 @@ async function getParticipants(request: Request, response: Response) {
     const session = await TrainingSession.findOne({
         where: {
             uuid: params.uuid,
-            [Op.or]: {
-                mentor_id: user.id,
-                cpt_examiner_id: user.id,
-            },
+            mentor_id: user.id,
         },
         include: [
             {
@@ -348,10 +342,7 @@ async function getLogTemplate(request: Request, response: Response) {
     const session = await TrainingSession.findOne({
         where: {
             uuid: params.uuid,
-            [Op.or]: {
-                mentor_id: user.id,
-                cpt_examiner_id: user.id,
-            },
+            mentor_id: user.id,
         },
         include: {
             association: TrainingSession.associations.training_type,

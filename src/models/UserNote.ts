@@ -1,8 +1,8 @@
 import { Association, CreationOptional, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { User } from "./User";
 import { Course } from "./Course";
+import { USER_NOTES_TABLE_ATTRIBUTES, USER_NOTES_TABLE_NAME } from "../../db/migrations/20221115171259-create-user-notes-table";
 
 export class UserNote extends Model<InferAttributes<UserNote>, InferCreationAttributes<UserNote>> {
     //
@@ -44,56 +44,7 @@ export class UserNote extends Model<InferAttributes<UserNote>, InferCreationAttr
     }
 }
 
-UserNote.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        uuid: {
-            type: DataType.UUID,
-            allowNull: false,
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        author_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        course_id: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "courses",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "set null",
-        },
-        content: {
-            type: DataType.TEXT,
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "user_notes",
-        sequelize: sequelize,
-    }
-);
+UserNote.init(USER_NOTES_TABLE_ATTRIBUTES, {
+    tableName: USER_NOTES_TABLE_NAME,
+    sequelize: sequelize,
+});

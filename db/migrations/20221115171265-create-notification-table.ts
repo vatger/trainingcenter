@@ -1,6 +1,11 @@
-const { DataType } = require("sequelize-typescript");
+import { DataType } from "sequelize-typescript";
+import { QueryInterface } from "sequelize";
 
-const CourseInformationModelAttributes = {
+export const NOTIFICATION_TABLE_SEVERITY_TYPE = ["default", "info", "success", "danger"] as const;
+
+export const NOTIFICATION_TABLE_NAME = "notifications";
+
+export const NOTIFICATION_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -47,7 +52,7 @@ const CourseInformationModelAttributes = {
         allowNull: true,
     },
     severity: {
-        type: DataType.ENUM("default", "info", "success", "danger"),
+        type: DataType.ENUM(...NOTIFICATION_TABLE_SEVERITY_TYPE),
         allowNull: true,
     },
     read: {
@@ -59,12 +64,12 @@ const CourseInformationModelAttributes = {
     updatedAt: DataType.DATE,
 };
 
-module.exports = {
-    async up(queryInterface) {
-        await queryInterface.createTable("notifications", CourseInformationModelAttributes);
+export default {
+    async up(queryInterface: QueryInterface) {
+        await queryInterface.createTable(NOTIFICATION_TABLE_NAME, NOTIFICATION_TABLE_ATTRIBUTES);
     },
 
-    async down(queryInterface) {
-        await queryInterface.dropTable("notifications");
+    async down(queryInterface: QueryInterface) {
+        await queryInterface.dropTable(NOTIFICATION_TABLE_NAME);
     },
 };

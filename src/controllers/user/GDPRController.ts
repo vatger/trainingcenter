@@ -32,7 +32,7 @@ async function getData(request: Request, response: Response, next: NextFunction)
                 {
                     association: User.associations.mentor_sessions,
                     attributes: {
-                        exclude: ["id", "uuid", "cpt_examiner_id", "cpt_atsim_passed", "training_station_id", "training_type_id", "createdAt", "updatedAt"],
+                        exclude: ["id", "uuid", "cpt_atsim_passed", "training_station_id", "training_type_id", "createdAt", "updatedAt"],
                     },
                 },
                 {

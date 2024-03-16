@@ -1,11 +1,11 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association, ForeignKey } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
-import { ActionRequirement } from "./ActionRequirement";
-import { TrainingStation } from "./TrainingStation";
-import { Course } from "./Course";
-import { TrainingLogTemplate } from "./TrainingLogTemplate";
 import { User } from "./User";
+import {
+    NOTIFICATION_TABLE_ATTRIBUTES,
+    NOTIFICATION_TABLE_NAME,
+    NOTIFICATION_TABLE_SEVERITY_TYPE,
+} from "../../db/migrations/20221115171265-create-notification-table";
 
 export class Notification extends Model<InferAttributes<Notification>, InferCreationAttributes<Notification>> {
     //
@@ -24,7 +24,7 @@ export class Notification extends Model<InferAttributes<Notification>, InferCrea
     declare author_id: CreationOptional<ForeignKey<User["id"]>> | null;
     declare link: CreationOptional<string> | null;
     declare icon: CreationOptional<string> | null;
-    declare severity: CreationOptional<"default" | "info" | "success" | "danger"> | null;
+    declare severity: CreationOptional<(typeof NOTIFICATION_TABLE_SEVERITY_TYPE)[number]> | null;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
 
@@ -37,66 +37,7 @@ export class Notification extends Model<InferAttributes<Notification>, InferCrea
     };
 }
 
-Notification.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        uuid: {
-            type: DataType.UUID,
-            allowNull: false,
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "user",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        author_id: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "user",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "setNull",
-        },
-        content_de: {
-            type: DataType.TEXT("medium"),
-            allowNull: false,
-        },
-        content_en: {
-            type: DataType.TEXT("medium"),
-            allowNull: false,
-        },
-        link: {
-            type: DataType.STRING(255),
-            allowNull: true,
-        },
-        icon: {
-            type: DataType.STRING(50),
-            allowNull: true,
-        },
-        severity: {
-            type: DataType.ENUM("default", "info", "success", "danger"),
-            allowNull: true,
-        },
-        read: {
-            type: DataType.BOOLEAN,
-            allowNull: false,
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "notifications",
-        sequelize: sequelize,
-    }
-);
+Notification.init(NOTIFICATION_TABLE_ATTRIBUTES, {
+    tableName: NOTIFICATION_TABLE_NAME,
+    sequelize: sequelize,
+});

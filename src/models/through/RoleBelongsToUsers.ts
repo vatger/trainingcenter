@@ -1,9 +1,9 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, ForeignKey, NonAttribute, Association } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
 import { Permission } from "../Permission";
 import { Role } from "../Role";
 import { User } from "../User";
+import { ROLE_BELONGS_TO_USER_TABLE_ATTRIBUTES, ROLE_BELONGS_TO_USER_TABLE_NAME } from "../../../db/migrations/20221115171263-create-permission-tables";
 
 export class RoleBelongsToUsers extends Model<InferAttributes<RoleBelongsToUsers>, InferCreationAttributes<RoleBelongsToUsers>> {
     //
@@ -29,38 +29,7 @@ export class RoleBelongsToUsers extends Model<InferAttributes<RoleBelongsToUsers
     };
 }
 
-RoleBelongsToUsers.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        role_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "roles",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "role_belongs_to_users",
-        sequelize: sequelize,
-    }
-);
+RoleBelongsToUsers.init(ROLE_BELONGS_TO_USER_TABLE_ATTRIBUTES, {
+    tableName: ROLE_BELONGS_TO_USER_TABLE_NAME,
+    sequelize: sequelize,
+});

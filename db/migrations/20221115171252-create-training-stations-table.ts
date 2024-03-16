@@ -3,7 +3,7 @@ import { QueryInterface, Sequelize } from "sequelize";
 
 export const TRAINING_STATIONS_TABLE_NAME = "training_stations";
 
-export const TRAINING_STATIONS_ATTRIBUTES = {
+export const TRAINING_STATIONS_TABLE_ATTRIBUTES = {
     id: {
         type: DataType.INTEGER,
         primaryKey: true,
@@ -45,7 +45,7 @@ export const TRAINING_STATIONS_ATTRIBUTES = {
 
 export default {
     async up(queryInterface: QueryInterface, sequelize: Sequelize) {
-        await queryInterface.createTable(TRAINING_STATIONS_TABLE_NAME, TRAINING_STATIONS_ATTRIBUTES);
+        await queryInterface.createTable(TRAINING_STATIONS_TABLE_NAME, TRAINING_STATIONS_TABLE_ATTRIBUTES);
     },
 
     async down(queryInterface: QueryInterface, sequelize: Sequelize) {

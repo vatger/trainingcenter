@@ -1,6 +1,6 @@
 import { DataType } from "sequelize-typescript";
 import { QueryInterface, Sequelize } from "sequelize";
-import { TRAINING_STATIONS_ATTRIBUTES, TRAINING_STATIONS_TABLE_NAME } from "./20221115171252-create-training-stations-table";
+import { TRAINING_STATIONS_TABLE_NAME } from "./20221115171252-create-training-stations-table";
 
 export const USER_SOLOS_TABLE_NAME = "user_solos";
 

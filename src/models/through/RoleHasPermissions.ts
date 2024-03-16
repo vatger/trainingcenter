@@ -1,8 +1,8 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, ForeignKey, NonAttribute, Association } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../../core/Sequelize";
 import { Permission } from "../Permission";
 import { Role } from "../Role";
+import { ROLE_HAS_PERMISSION_TABLE_ATTRIBUTES, ROLE_HAS_PERMISSION_TABLE_NAME } from "../../../db/migrations/20221115171263-create-permission-tables";
 
 export class RoleHasPermissions extends Model<InferAttributes<RoleHasPermissions>, InferCreationAttributes<RoleHasPermissions>> {
     //
@@ -28,38 +28,7 @@ export class RoleHasPermissions extends Model<InferAttributes<RoleHasPermissions
     };
 }
 
-RoleHasPermissions.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        permission_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "permissions",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        role_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "roles",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "role_has_permissions",
-        sequelize: sequelize,
-    }
-);
+RoleHasPermissions.init(ROLE_HAS_PERMISSION_TABLE_ATTRIBUTES, {
+    tableName: ROLE_HAS_PERMISSION_TABLE_NAME,
+    sequelize: sequelize,
+});

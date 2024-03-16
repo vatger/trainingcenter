@@ -2,10 +2,14 @@ import { Association, CreationOptional, ForeignKey, InferAttributes, InferCreati
 import { User } from "./User";
 import { TrainingType } from "./TrainingType";
 import { TrainingSession } from "./TrainingSession";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { Course } from "./Course";
 import { TrainingStation } from "./TrainingStation";
+import {
+    TRAINING_REQUEST_TABLE_ATTRIBUTES,
+    TRAINING_REQUEST_TABLE_NAME,
+    TRAINING_REQUEST_TABLE_STATUS_TYPES,
+} from "../../db/migrations/20221115171256-create-training-request-table";
 
 export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, InferCreationAttributes<TrainingRequest>> {
     //
@@ -15,7 +19,7 @@ export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, Inf
     declare user_id: ForeignKey<User["id"]>;
     declare training_type_id: ForeignKey<TrainingType["id"]>;
     declare course_id: ForeignKey<Course["id"]>;
-    declare status: "requested" | "planned" | "cancelled" | "completed";
+    declare status: (typeof TRAINING_REQUEST_TABLE_STATUS_TYPES)[number];
     declare expires: Date;
 
     //
@@ -62,84 +66,7 @@ export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, Inf
     }
 }
 
-TrainingRequest.init(
-    {
-        id: {
-            type: DataType.INTEGER,
-            primaryKey: true,
-            autoIncrement: true,
-        },
-        uuid: {
-            type: DataType.UUID,
-            allowNull: false,
-        },
-        user_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "users",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        training_type_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "training_types",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        course_id: {
-            type: DataType.INTEGER,
-            allowNull: false,
-            references: {
-                model: "courses",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        training_station_id: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "training_stations",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "cascade",
-        },
-        comment: {
-            type: DataType.TEXT,
-            allowNull: true,
-        },
-        status: {
-            type: DataType.ENUM("requested", "planned", "cancelled"),
-            allowNull: false,
-        },
-        expires: {
-            type: DataType.DATE,
-            allowNull: false,
-        },
-        training_session_id: {
-            type: DataType.INTEGER,
-            allowNull: true,
-            references: {
-                model: "training_sessions",
-                key: "id",
-            },
-            onUpdate: "cascade",
-            onDelete: "set null",
-        },
-        createdAt: DataType.DATE,
-        updatedAt: DataType.DATE,
-    },
-    {
-        tableName: "training_requests",
-        sequelize: sequelize,
-    }
-);
+TrainingRequest.init(TRAINING_REQUEST_TABLE_ATTRIBUTES, {
+    tableName: TRAINING_REQUEST_TABLE_NAME,
+    sequelize: sequelize,
+});

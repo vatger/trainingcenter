@@ -1,4 +1,4 @@
-import { NextFunction, Request, Response, Router } from "express";
+import { Router } from "express";
 import { authMiddleware } from "./middlewares/AuthMiddleware";
 import LoginController from "./controllers/login/LoginController";
 import GDPRController from "./controllers/user/GDPRController";
@@ -33,7 +33,6 @@ import EndorsementGroupAdminController from "./controllers/endorsement-group/End
 import UserCourseProgressAdministrationController from "./controllers/user-course-progress/UserCourseProgressAdministrationController";
 import SoloAdminController from "./controllers/solo/SoloAdminController";
 import UserEndorsementAdminController from "./controllers/user/UserEndorsementAdminController";
-import CPTAdminController from "./controllers/cpt/CPTAdminController";
 import UserStatisticsController from "./controllers/user/UserStatisticsController";
 import SyslogAdminController from "./controllers/admin-logs/SyslogAdminController";
 import JoblogAdminController from "./controllers/admin-logs/JoblogAdminController";
@@ -215,22 +214,6 @@ router.use(
                 r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
 
                 r.put("/log/:uuid", TrainingSessionAdminController.createTrainingLogs);
-            })
-        );
-
-        r.use(
-            "/cpt",
-            routerGroup((r: Router) => {
-                r.get("/", CPTAdminController.getAll);
-                r.post("/", CPTAdminController.createCPT);
-                r.delete("/", CPTAdminController.deleteCPT);
-                r.post("/mentor", CPTAdminController.addMentor);
-                r.delete("/mentor", CPTAdminController.removeMentor);
-                r.get("/open", CPTAdminController.getOpen);
-                r.get("/available", CPTAdminController.getAvailable);
-                r.post("/examiner", CPTAdminController.addExaminer);
-                r.delete("/examiner", CPTAdminController.removeMyExaminerCPT);
-                r.get("/examiner/my", CPTAdminController.getMyExaminerCPTs);
             })
         );
 
