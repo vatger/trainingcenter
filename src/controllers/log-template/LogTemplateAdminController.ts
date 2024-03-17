@@ -60,7 +60,7 @@ async function create(request: Request, response: Response, next: NextFunction) 
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
-            content: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
+            content: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON, ValidationTypeEnum.IS_ARRAY],
         });
 
         const logTemplate = await TrainingLogTemplate.create({

@@ -24,7 +24,7 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
     declare mentor_id: CreationOptional<number> | null; // NULL for CPTs without Beisitzer ONLY!
     declare completed: CreationOptional<boolean>;
     declare date: CreationOptional<Date> | null;
-    declare training_type_id: number | undefined | null;
+    declare training_type_id: CreationOptional<ForeignKey<TrainingType["id"]>> | null;
     declare training_station_id: CreationOptional<ForeignKey<TrainingStation["id"]>> | undefined | null;
     declare cpt_session_id: CreationOptional<ForeignKey<CptSession["id"]>> | null;
     declare createdAt: CreationOptional<Date> | null;

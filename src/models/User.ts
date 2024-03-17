@@ -190,7 +190,7 @@ User.init(USER_TABLE_ATTRIBUTES, {
 
     defaultScope: {
         attributes: {
-            exclude: ["access_token", "refresh_token", "email"],
+            exclude: ["access_token", "refresh_token", "email", "createdAt", "updatedAt"],
         },
     },
     scopes: {

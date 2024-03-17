@@ -118,10 +118,22 @@ async function getPlanned(request: Request, response: Response) {
             user_id: user.id,
             passed: null,
         },
+        attributes: ["id", "user_id", "createdAt"],
         include: [
             {
                 association: TrainingSessionBelongsToUsers.associations.training_session,
-                include: [TrainingSession.associations.mentor, TrainingSession.associations.training_station],
+                include: [
+                    TrainingSession.associations.mentor,
+                    {
+                        association: TrainingSession.associations.training_station,
+                        attributes: ["id", "callsign", "frequency"],
+                    },
+                    {
+                        association: TrainingSession.associations.training_type,
+                        attributes: ["id", "name"],
+                    },
+                ],
+                attributes: ["uuid", "mentor_id", "date", "createdAt"],
             },
         ],
     });

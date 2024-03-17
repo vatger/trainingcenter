@@ -10,6 +10,19 @@ import path from "path";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
+ * Returns the fast track including target user and requesting user
+ * @param id
+ */
+async function _getFastTrackByID(id: any) {
+    return await FastTrackRequest.findOne({
+        where: {
+            id: id,
+        },
+        include: [FastTrackRequest.associations.user, FastTrackRequest.associations.requested_by_user],
+    });
+}
+
+/**
  * Returns a list of all fast track requests
  * @param request
  * @param response
@@ -39,7 +52,7 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
 async function getAllPending(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
-        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.pending.view", true);
+        PermissionHelper.checkUserHasPermission(user, "atd.fast_track.view", false);
 
         const pendingFastTracks = await FastTrackRequest.findAll({
             where: {
@@ -102,14 +115,9 @@ async function getAttachmentByID(request: Request, response: Response, next: Nex
     try {
         const user: User = response.locals.user;
         const params = request.params as { id: string };
-        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.pending.view", true);
+        PermissionHelper.checkUserHasPermission(user, "atd.fast_track.view", false);
 
-        const pendingFastTracks = await FastTrackRequest.findOne({
-            where: {
-                id: params.id,
-            },
-            include: [FastTrackRequest.associations.user, FastTrackRequest.associations.requested_by_user],
-        });
+        const pendingFastTracks = await _getFastTrackByID(params.id);
 
         if (pendingFastTracks == null) {
             response.sendStatus(HttpStatusCode.NotFound);
@@ -133,14 +141,9 @@ async function getByID(request: Request, response: Response, next: NextFunction)
     try {
         const user: User = response.locals.user;
         const params = request.params as { id: string };
-        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.pending.view", true);
+        PermissionHelper.checkUserHasPermission(user, "atd.fast_track.view", false);
 
-        const pendingFastTracks = await FastTrackRequest.findOne({
-            where: {
-                id: params.id,
-            },
-            include: [FastTrackRequest.associations.user, FastTrackRequest.associations.requested_by_user],
-        });
+        const pendingFastTracks = await _getFastTrackByID(params.id);
 
         if (pendingFastTracks == null) {
             response.sendStatus(HttpStatusCode.NotFound);
@@ -164,7 +167,7 @@ async function updateByID(request: Request, response: Response, next: NextFuncti
         const user: User = response.locals.user;
         const params = request.params as { id: string };
         const body = request.body as { comment?: string; status: number };
-        PermissionHelper.checkUserHasPermission(user, "atd.fast-track.update", true);
+        PermissionHelper.checkUserHasPermission(user, "atd.fast_track.view", true);
 
         if (body.status == null || params.id == null) {
             response.sendStatus(HttpStatusCode.BadRequest);
