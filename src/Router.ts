@@ -202,6 +202,7 @@ router.use(
             "/training-session",
             routerGroup((r: Router) => {
                 r.get("/planned", TrainingSessionAdminController.getPlanned);
+                r.get("/all-upcoming", TrainingSessionAdminController.getAllUpcoming);
                 r.post("/training", TrainingSessionAdminController.createTrainingSession);
                 r.get("/my", TrainingSessionAdminController.getMyTrainingSessions);
                 r.delete("/training", TrainingSessionAdminController.deleteTrainingSession);

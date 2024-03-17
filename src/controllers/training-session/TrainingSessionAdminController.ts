@@ -18,6 +18,7 @@ import { MentorGroup } from "../../models/MentorGroup";
 import JobLibrary, { JobTypeEnum } from "../../libraries/JobLibrary";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import Logger, { LogLevels } from "../../utility/Logger";
+import { Op } from "sequelize";
 
 /**
  * Creates a new training session with one user and one mentor
@@ -611,6 +612,36 @@ async function getMyTrainingSessions(request: Request, response: Response, next:
     }
 }
 
+async function getAllUpcoming(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+
+        let sessions = await TrainingSession.findAll({
+            where: {
+                date: {
+                    [Op.gt]: dayjs.utc().toDate(),
+                },
+            },
+            include: [TrainingSession.associations.training_type, TrainingSession.associations.course],
+        });
+
+        if (sessions == null || sessions.length == 0) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        const res = sessions.map(session => ({
+            date: session.date,
+            training_type: session.training_type,
+            course_name: session.course?.name,
+        }));
+
+        response.send(res);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     getByUUID,
     createTrainingSession,
@@ -623,4 +654,5 @@ export default {
     getPlanned,
     getAvailableMentorsByUUID,
     getMyTrainingSessions,
+    getAllUpcoming,
 };
