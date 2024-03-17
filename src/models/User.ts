@@ -132,7 +132,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
                     through: {
                         attributes: [],
                     },
-                    include: [TrainingSession.associations.course, TrainingSession.associations.training_station],
+                    include: [TrainingSession.associations.course, TrainingSession.associations.training_station, TrainingSession.associations.training_type],
                 },
             ],
         });

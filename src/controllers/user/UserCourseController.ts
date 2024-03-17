@@ -1,5 +1,5 @@
 import { User } from "../../models/User";
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Course } from "../../models/Course";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { TrainingRequest } from "../../models/TrainingRequest";
@@ -48,6 +48,29 @@ async function getActiveCourses(request: Request, response: Response) {
     }
 
     response.send(courses);
+}
+
+async function getCompletedCourses(request: Request, response: Response, next: NextFunction) {
+    try {
+        const reqUser: User = response.locals.user;
+
+        const userInCourses = await UsersBelongsToCourses.findAll({
+            where: {
+                user_id: reqUser.id,
+                completed: true,
+            },
+            include: [UsersBelongsToCourses.associations.course],
+        });
+
+        let courses: Course[] = [];
+        for (const c of userInCourses) {
+            if (c.course != null) courses.push(c.course);
+        }
+
+        response.send(courses);
+    } catch (e) {
+        next(e);
+    }
 }
 
 /**
@@ -154,6 +177,7 @@ async function withdrawFromCourseByUUID(request: Request, response: Response) {
 export default {
     getAvailableCourses,
     getActiveCourses,
+    getCompletedCourses,
     getMyCourses,
     enrolInCourse,
     withdrawFromCourseByUUID,

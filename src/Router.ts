@@ -103,6 +103,7 @@ router.use(
                 r.get("/available", UserCourseController.getAvailableCourses);
                 r.get("/active", UserCourseController.getActiveCourses);
                 r.put("/enrol", UserCourseController.enrolInCourse);
+                r.get("/completed", UserCourseController.getCompletedCourses);
                 r.delete("/withdraw", UserCourseController.withdrawFromCourseByUUID);
 
                 r.get("/info", CourseInformationController.getInformationByUUID);
@@ -149,6 +150,7 @@ router.use(
             "/training-session",
             routerGroup((r: Router) => {
                 r.get("/upcoming", TrainingSessionController.getUpcoming);
+                r.get("/completed", TrainingSessionController.getCompleted);
                 r.get("/:uuid", TrainingSessionController.getByUUID);
                 r.delete("/withdraw/:uuid", TrainingSessionController.withdrawFromSessionByUUID);
             })

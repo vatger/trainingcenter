@@ -27,6 +27,34 @@ async function getUpcoming(request: Request, response: Response, next: NextFunct
     }
 }
 
+async function getCompleted(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+
+        const sessions = (await user.getTrainingSessionsWithCourseAndStation())
+            .filter(session => {
+                return session.completed;
+            })
+            .map(session => ({
+                uuid: session.uuid,
+                mentor_id: session.mentor_id,
+                date: session.date,
+                course: {
+                    name: session.course?.name,
+                },
+                training_type: {
+                    name: session.training_type?.name,
+                    type: session.training_type?.type,
+                },
+                training_station: session.training_station ?? null,
+            }));
+
+        response.send(sessions);
+    } catch (e) {
+        next(e);
+    }
+}
+
 /**
  * [User]
  * Gets all the associated data of a training session
@@ -146,6 +174,7 @@ async function withdrawFromSessionByUUID(request: Request, response: Response) {
 
 export default {
     getUpcoming,
+    getCompleted,
     getByUUID,
     withdrawFromSessionByUUID,
 };
