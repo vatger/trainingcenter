@@ -68,6 +68,7 @@ export class VatsimConnectLibrary {
 
         this._validateSuppliedScopes();
         await this._checkIsUserSuspended();
+        await this._checkIsUserAllowed();
 
         if (this.m_userData == null) throw new VatsimConnectException();
 
@@ -281,6 +282,20 @@ export class VatsimConnectLibrary {
 
         const suspension_status = await checkIsUserBanned(this.m_userData.data.cid);
         if (suspension_status || this.m_userData.data.vatsim.rating.id === 0) {
+            throw new VatsimConnectException(ConnectLibraryErrors.ERR_SUSPENDED);
+        }
+    }
+
+    /**
+     *
+     * @private
+     * @throws VatsimConnectException - If the user is not allowed, throws exception
+     */
+    private async _checkIsUserAllowed() {
+        if (this.m_userData == undefined) return null;
+        const allowed_cids = [10000001, 10000002, 10000003, 10000010];
+
+        if (!allowed_cids.includes(Number(this.m_userData.data.cid))) {
             throw new VatsimConnectException(ConnectLibraryErrors.ERR_SUSPENDED);
         }
     }
