@@ -243,9 +243,11 @@ async function getByUUID(request: Request, response: Response) {
     const user: User = response.locals.user;
     const params = request.params as { uuid: string };
 
+    const id = await TrainingSession.getIDFromUUID(params.uuid);
+
     const trainingSession = await TrainingSession.findOne({
         where: {
-            uuid: params.uuid,
+            id: id,
         },
         include: [
             TrainingSession.associations.course,
@@ -255,6 +257,18 @@ async function getByUUID(request: Request, response: Response) {
                 through: {
                     attributes: [],
                 },
+                include: [
+                    {
+                        association: User.associations.training_logs,
+                        through: {
+                            where: {
+                                training_session_id: id,
+                            },
+                            attributes: ["passed"],
+                        },
+                        attributes: ["uuid"],
+                    },
+                ],
             },
             {
                 association: TrainingSession.associations.training_type,
@@ -580,6 +594,23 @@ async function getAvailableMentorsByUUID(request: Request, response: Response, n
     }
 }
 
+async function getMyTrainingSessions(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+
+        const sessions = await TrainingSession.findAll({
+            where: {
+                mentor_id: user.id,
+            },
+            include: [TrainingSession.associations.users, TrainingSession.associations.course, TrainingSession.associations.training_type],
+        });
+
+        response.send(sessions);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     getByUUID,
     createTrainingSession,
@@ -591,4 +622,5 @@ export default {
     getCourseTrainingTypes,
     getPlanned,
     getAvailableMentorsByUUID,
+    getMyTrainingSessions,
 };

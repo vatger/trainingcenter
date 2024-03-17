@@ -53,6 +53,16 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
         course: Association<TrainingSession, Course>;
         cpt: Association<TrainingSession, CptSession>;
     };
+
+    static async getIDFromUUID(uuid: string) {
+        const trainingSession = await TrainingSession.findOne({
+            where: {
+                uuid: uuid,
+            },
+        });
+
+        return trainingSession?.id ?? -1;
+    }
 }
 
 TrainingSession.init(TRAINING_SESSION_TABLE_ATTRIBUTES, {

@@ -201,6 +201,7 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/planned", TrainingSessionAdminController.getPlanned);
                 r.post("/training", TrainingSessionAdminController.createTrainingSession);
+                r.get("/my", TrainingSessionAdminController.getMyTrainingSessions);
                 r.delete("/training", TrainingSessionAdminController.deleteTrainingSession);
                 r.get("/:uuid", TrainingSessionAdminController.getByUUID);
                 r.patch("/:uuid", TrainingSessionAdminController.updateByUUID);
