@@ -30,7 +30,7 @@ async function sendMail(options: SendMailOptions, nonPooled = true) {
         const template = handlebars.compile(file);
 
         let message = {
-            to: Config.APP_DEBUG ? Config.EMAIL_CONFIG.DEBUG_EMAIL : options.recipient,
+            to: Config.EMAIL_CONFIG.DEBUG_EMAIL ? Config.EMAIL_CONFIG.DEBUG_EMAIL : options.recipient,
             from: Config.EMAIL_CONFIG.SMTP_USERNAME,
             subject: options.subject,
             html: template({ ...options.replacements, date_now: dayjs.utc().format(Config.DATETIME_FORMAT) }),

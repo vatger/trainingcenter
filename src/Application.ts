@@ -17,6 +17,8 @@ if (Config.APP_DEBUG) {
     process.on("uncaughtException", (err, origin) => handleUncaughtException(err, origin));
 }
 
+console.log(Config.EMAIL_CONFIG.DEBUG_EMAIL);
+
 initializeApplication()
     .then(() => {
         // Basic server configuration

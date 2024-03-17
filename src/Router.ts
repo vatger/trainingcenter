@@ -399,6 +399,9 @@ router.use(
             "/role",
             routerGroup((r: Router) => {
                 r.get("/", RoleAdministrationController.getAll);
+                r.post("/", RoleAdministrationController.create);
+                r.post("/user", RoleAdministrationController.addUser);
+                r.delete("/user", RoleAdministrationController.removeUser);
                 r.get("/:role_id", RoleAdministrationController.getByID);
                 r.patch("/:role_id", RoleAdministrationController.update);
 

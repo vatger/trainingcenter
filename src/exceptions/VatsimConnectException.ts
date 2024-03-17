@@ -27,7 +27,7 @@ export class VatsimConnectException extends Error {
                 return;
 
             case ConnectLibraryErrors.ERR_SUSPENDED:
-                response.status(403).send({ code: "ERR_SUSP", message: "Account suspended", hint: "Nevermind, bin gebannt" });
+                response.status(500).send({ code: "ERR_SUSP", message: "Account suspended" });
                 return;
 
             case ConnectLibraryErrors.ERR_INV_SCOPES:

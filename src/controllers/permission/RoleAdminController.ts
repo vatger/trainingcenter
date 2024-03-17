@@ -1,9 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Role } from "../../models/Role";
 import { RoleHasPermissions } from "../../models/through/RoleHasPermissions";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
 import { User } from "../../models/User";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { HttpStatusCode } from "axios";
+import { RoleBelongsToUsers } from "../../models/through/RoleBelongsToUsers";
 
 /**
  * Gets all roles
@@ -13,6 +15,74 @@ import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 async function getAll(request: Request, response: Response) {
     const roles = await Role.findAll();
     response.send(roles);
+}
+
+async function create(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const body = request.body as { name: string };
+        PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit");
+
+        Validator.validate(body, {
+            name: [ValidationTypeEnum.NON_NULL],
+        });
+
+        const role = await Role.create({
+            name: body.name,
+        });
+
+        response.status(HttpStatusCode.Created).send(role);
+    } catch (e) {
+        next(e);
+    }
+}
+
+async function addUser(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const body = request.body as { role_id: string; user_id: string };
+        PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit");
+
+        Validator.validate(body, {
+            role_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+            user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        });
+
+        await RoleBelongsToUsers.create({
+            role_id: Number(body.role_id),
+            user_id: Number(body.user_id),
+        });
+
+        const addedUser = await User.findByPk(body.user_id);
+
+        response.status(HttpStatusCode.Created).send(addedUser);
+    } catch (e) {
+        next(e);
+    }
+}
+
+async function removeUser(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const body = request.body as { role_id: string; user_id: string };
+        PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit");
+
+        Validator.validate(body, {
+            role_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+            user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        });
+
+        await RoleBelongsToUsers.destroy({
+            where: {
+                role_id: Number(body.role_id),
+                user_id: Number(body.user_id),
+            },
+        });
+
+        response.sendStatus(HttpStatusCode.Ok);
+    } catch (e) {
+        next(e);
+    }
 }
 
 /**
@@ -154,6 +224,9 @@ async function addPermission(request: Request, response: Response) {
 
 export default {
     getAll,
+    create,
+    addUser,
+    removeUser,
     getByID,
     update,
     removePermission,

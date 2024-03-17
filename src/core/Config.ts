@@ -59,7 +59,6 @@ export const Config = {
 
     // Read from .env
     APP_DEBUG: process.env.APP_DEBUG?.toLowerCase() == "true",
-    DEBUG_EMAIL: process.env.DEBUG_EMAIL,
     APP_LOG_SQL: process.env.APP_LOG_SQL?.toLowerCase() == "true",
     APP_CORS_ALLOW: process.env.APP_CORS_ALLOW,
 
