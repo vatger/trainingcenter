@@ -210,7 +210,7 @@ router.use(
                 r.get("/log-template/:uuid", TrainingSessionAdminController.getLogTemplate);
                 r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
 
-                r.put("/log/:uuid", TrainingSessionAdminController.createTrainingLogs);
+                r.post("/log/:uuid", TrainingSessionAdminController.createTrainingLogs);
             })
         );
 

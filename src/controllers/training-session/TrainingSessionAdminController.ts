@@ -11,7 +11,6 @@ import { HttpStatusCode } from "axios";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 import { Config } from "../../core/Config";
 import { TrainingType } from "../../models/TrainingType";
-import { Op } from "sequelize";
 import { TrainingLog } from "../../models/TrainingLog";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { sequelize } from "../../core/Sequelize";
@@ -395,6 +394,8 @@ async function getCourseTrainingTypes(request: Request, response: Response) {
 }
 
 async function createTrainingLogs(request: Request, response: Response, next: NextFunction) {
+    // TODO: Rewrite slightly :) - especially add validation :D
+
     // All of these steps MUST complete, else we are left in an undefined state
     const t = await sequelize.transaction();
 
