@@ -10,6 +10,7 @@ import {
 import { Config } from "../../core/Config";
 import { UserSolo } from "../../models/UserSolo";
 import Logger, { LogLevels } from "../../utility/Logger";
+import { EndorsementGroup } from "../../models/EndorsementGroup";
 
 type SendT = {
     method: Method;
@@ -48,9 +49,19 @@ async function _send<T>(props: SendT): Promise<T | undefined> {
  * On success, it updates the corresponding UserSolo with the returned VATEUD Solo ID
  * On failure, it schedules a job which repeats the same request n times until it succeeds
  * - If it fails more than n times, then it really isn't our problem anymore tbh...
- * @param soloInfo
  */
-async function createSolo(soloInfo: VateudCoreSoloCreateT) {
+export async function createSolo(userSolo: UserSolo, endorsementGroup: EndorsementGroup) {
+    const soloInfo: VateudCoreSoloCreateT = {
+        local_solo_id: userSolo.id,
+        post_data: {
+            user_id: userSolo.user_id,
+            position: endorsementGroup.name,
+            instructor_cid: userSolo.created_by,
+            starts_at: userSolo.current_solo_start?.toString() ?? "",
+            expires_at: userSolo.current_solo_end?.toString() ?? "",
+        },
+    };
+
     const res = await _send<VateudCoreSoloCreateResponseT>({
         endpoint: "/solo",
         method: "post",
@@ -111,8 +122,3 @@ async function removeSolo(soloInfo: VateudCoreSoloRemoveT) {
         });
     }
 }
-
-export default {
-    createSolo,
-    removeSolo,
-};

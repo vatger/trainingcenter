@@ -7,6 +7,8 @@ import { User } from "../../models/User";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 import { TrainingSession } from "../../models/TrainingSession";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
+import { createSolo as vateudCreateSolo } from "../../libraries/vateud/VateudCoreLibrary";
+import { EndorsementGroup } from "../../models/EndorsementGroup";
 
 type CreateSoloRequestBody = {
     solo_duration: string;
@@ -50,6 +52,14 @@ async function createSolo(request: Request, response: Response, next: NextFuncti
             endorsement_group_id: Number(body.endorsement_group_id),
             solo_id: solo.id,
         });
+
+        const endorsementGroup = await EndorsementGroup.findOne({
+            where: {
+                id: Number(body.endorsement_group_id),
+            },
+        });
+        
+        if (endorsementGroup) await vateudCreateSolo(solo, endorsementGroup);
 
         const returnUser = await User.findOne({
             where: {
