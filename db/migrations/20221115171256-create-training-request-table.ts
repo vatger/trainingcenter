@@ -1,5 +1,7 @@
 import { DataType } from "sequelize-typescript";
-import { QueryInterface } from "sequelize";
+import { NonAttribute, QueryInterface, VIRTUAL } from "sequelize";
+import { TrainingRequest } from "../../src/models/TrainingRequest";
+import { TrainingStation } from "../../src/models/TrainingStation";
 
 export const TRAINING_REQUEST_TABLE_STATUS_TYPES = ["requested", "planned", "cancelled", "completed"] as const;
 
@@ -63,6 +65,9 @@ export const TRAINING_REQUEST_TABLE_ATTRIBUTES = {
         type: DataType.ENUM(...TRAINING_REQUEST_TABLE_STATUS_TYPES),
         allowNull: false,
         defaultValue: "requested",
+    },
+    number_in_queue: {
+        type: DataType.VIRTUAL(DataType.INTEGER),
     },
     expires: {
         type: DataType.DATE,

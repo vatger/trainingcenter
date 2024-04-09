@@ -1,4 +1,4 @@
-import { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute } from "sequelize";
+import { Association, CreationOptional, ForeignKey, InferAttributes, InferCreationAttributes, Model, NonAttribute, Op } from "sequelize";
 import { User } from "./User";
 import { TrainingType } from "./TrainingType";
 import { TrainingSession } from "./TrainingSession";
@@ -40,6 +40,7 @@ export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, Inf
     declare course?: NonAttribute<Course>;
     declare training_session?: NonAttribute<TrainingSession>;
     declare training_station?: NonAttribute<TrainingStation>;
+    declare number_in_queue?: NonAttribute<number>;
 
     declare static associations: {
         user: Association<TrainingRequest, User>;
@@ -61,6 +62,16 @@ export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, Inf
         return await TrainingStation.findOne({
             where: {
                 id: this.training_station_id ?? -1,
+            },
+        });
+    }
+
+    async appendNumberInQueue(): Promise<void> {
+        this.number_in_queue = await TrainingRequest.count({
+            where: {
+                training_type_id: this.training_type_id,
+                status: "requested",
+                id: { [Op.lte]: this.id },
             },
         });
     }

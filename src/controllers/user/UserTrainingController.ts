@@ -71,6 +71,10 @@ async function getActiveRequestsByUUID(request: Request, response: Response) {
         include: [TrainingRequest.associations.training_type, TrainingRequest.associations.training_station],
     });
 
+    for (const trainingRequest of trainingRequests) {
+        await trainingRequest.appendNumberInQueue();
+    }
+
     response.send(
         trainingRequests.filter(t => {
             return t.status == "requested" || t.status == "planned";

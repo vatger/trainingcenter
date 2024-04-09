@@ -13,7 +13,12 @@ import { HttpStatusCode } from "axios";
  * @param response
  */
 async function create(request: Request, response: Response) {
-    const body = request.body as { course_id: number; training_type_id: number; comment?: string; training_station_id?: number };
+    const body = request.body as {
+        course_id: number;
+        training_type_id: number;
+        comment?: string;
+        training_station_id?: number;
+    };
     const user: User = response.locals.user;
 
     // const validation = ValidationHelper.validate([
@@ -101,6 +106,10 @@ async function getOpen(request: Request, response: Response) {
         },
         include: [TrainingRequest.associations.training_type, TrainingRequest.associations.course],
     });
+
+    for (const trainingRequest of trainingRequests) {
+        await trainingRequest.appendNumberInQueue();
+    }
 
     response.send(trainingRequests);
 }

@@ -102,21 +102,23 @@ export async function createSolo(userSolo: UserSolo, endorsementGroup: Endorseme
 /**
  * Removes a solo.
  * On failure, it schedules a job which repeats the same request n times until it succeeds
- * @param soloInfo
  */
-async function removeSolo(soloInfo: VateudCoreSoloRemoveT) {
+export async function removeSolo(userSolo: UserSolo) {
     const res = await _send<VateudCoreSoloRemoveResponseT>({
-        endpoint: `/solo/${soloInfo.vateud_solo_id}`,
+        endpoint: `/solo/${userSolo.vateud_solo_id}`,
         method: "delete",
     });
+
+    if (!userSolo.vateud_solo_id) return;
+
     if (!res) {
         await JobLibrary.scheduleJob(JobTypeEnum.VATEUD_CORE, {
             type: VateudCoreTypeEnum.SOLO_REMOVE,
             method: "delete",
             data: {
                 solo_remove: {
-                    local_solo_id: soloInfo.local_solo_id,
-                    vateud_solo_id: soloInfo.vateud_solo_id,
+                    local_solo_id: userSolo.id,
+                    vateud_solo_id: userSolo.vateud_solo_id,
                 },
             },
         });

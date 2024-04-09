@@ -7,7 +7,7 @@ import { User } from "../../models/User";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 import { TrainingSession } from "../../models/TrainingSession";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
-import { createSolo as vateudCreateSolo } from "../../libraries/vateud/VateudCoreLibrary";
+import { createSolo as vateudCreateSolo, removeSolo as vateudRemoveSolo } from "../../libraries/vateud/VateudCoreLibrary";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
 
 type CreateSoloRequestBody = {
@@ -58,7 +58,7 @@ async function createSolo(request: Request, response: Response, next: NextFuncti
                 id: Number(body.endorsement_group_id),
             },
         });
-        
+
         if (endorsementGroup) await vateudCreateSolo(solo, endorsementGroup);
 
         const returnUser = await User.findOne({
@@ -246,12 +246,21 @@ async function deleteSolo(request: Request, response: Response, next: NextFuncti
             return;
         }
 
+        const solo = await UserSolo.findOne({
+            where: {
+                id: body.solo_id,
+            },
+        });
+
         // 1. Delete all endorsements that are linked to the solo.
         await EndorsementGroupsBelongsToUsers.destroy({
             where: {
                 solo_id: body.solo_id,
             },
         });
+
+        // 2. Delete the VATEUD Core Solo
+        if (solo) await vateudRemoveSolo(solo);
 
         await UserSolo.destroy({
             where: {
