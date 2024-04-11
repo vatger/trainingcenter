@@ -8,13 +8,15 @@ dayjs.extend(utc);
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
 
+const DEV_ENV = import.meta.env.MODE;
+
 export const Config = {
     VERSION: "0.0.1-Beta",
     VATGER_BROWSER_TOKEN_NAME: "vatger_tc_browser_token",
     VATGER_LOGIN_LANGUAGE_NAME: "vatger_login_language",
 
-    APP_HOST: "https://tc-dev.vatsim-germany.org",
-    API_BASE_URL: "https://tc-api-dev.vatsim-germany.org",
+    APP_HOST: DEV_ENV ? "http://localhost:8000" : "https://tc-dev.vatsim-germany.org",
+    API_BASE_URL: DEV_ENV ? "http://localhost:8001/api/v1" : "https://tc-dev.vatsim-germany.org/api/v1",
     DATE_FORMAT: "DD.MM.YYYY",
     DATETIME_FORMAT: "DD.MM.YYYY HH:mm",
 
