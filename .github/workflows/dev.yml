@@ -22,8 +22,7 @@ jobs:
       - name: Prettify Code
         uses: actionsx/prettier@v2
         with:
-          dry: true
-          prettier_options: --write .
+          args: --write .
 
   build-backend:
     runs-on: ubuntu-latest
