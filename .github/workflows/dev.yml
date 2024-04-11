@@ -23,7 +23,7 @@ jobs:
         uses: actionsx/prettier@v2
         with:
           dry: true
-          prettier_options: --write **/*.ts
+          prettier_options: --write .
 
   build-backend:
     runs-on: ubuntu-latest
