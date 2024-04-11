@@ -32,6 +32,13 @@ jobs:
           docker build --pull -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest -f backend.Dockerfile .
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest
 
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
       - name: Build frontend image
         run: |
           docker build --pull -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest -f frontend.Dockerfile .
