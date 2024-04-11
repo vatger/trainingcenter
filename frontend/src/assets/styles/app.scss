@@ -1,0 +1,11 @@
+@import './components/index';
+@import './template/index';
+@import './vendor/index';
+@import './tailwind/index';
+@import 'fonts/fonts';
+@import "fonts/font_colors";
+@import "custom_overrides";
+
+* {
+  font-family: "Inter", sans-serif;
+}

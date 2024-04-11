@@ -1,0 +1,8 @@
+option {
+  @apply dark:bg-gray-600 dark:text-white;
+}
+
+/* Required for dark mode table head (persistent only I think) */
+.cTsUPQ {
+  @apply dark:bg-gray-700 dark:text-white #{!important};
+}

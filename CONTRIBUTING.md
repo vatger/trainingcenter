@@ -1,6 +1,6 @@
-# Contributing to Trainingcenter-Backend
+# Contributing to Trainingcenter
 
-Thank you for considering contributing to Trainingcenter-Backend! We appreciate your time and effort to help make our project better.
+Thank you for considering contributing to the Trainingcenter! We appreciate your time and effort to help make our project better.
 
 The following is a set of guidelines for contributing to this repository. These are just guidelines, not rules, so use your best judgment and feel free to propose changes to this document in a pull request. Please note that contributions will be reviewed before being merged.
 
@@ -17,7 +17,7 @@ There are many ways to contribute to this project! Some suggestions include:
 
 ## Getting Started
 
-To get started, [create an issue](https://github.com/vatger/trainingcenter-backend/issues) to discuss the changes you would like to make. This will allow for feedback and suggestions before you spend time coding.
+To get started, [create an issue](https://github.com/vatger/trainingcenter-frontend/issues) to discuss the changes you would like to make. This will allow for feedback and suggestions before you spend time coding.
 
 ## Pull Request Process
 

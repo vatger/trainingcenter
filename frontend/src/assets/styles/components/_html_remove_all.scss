@@ -1,0 +1,8 @@
+.remove_all * {
+  color: red !important;
+  list-style: decimal !important;
+}
+
+.remove_all > ol {
+  list-style: decimal !important;
+}

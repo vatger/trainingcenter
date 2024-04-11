@@ -1,0 +1,19 @@
+.rt_progress {
+  height: 3px !important;
+
+  &.Toastify__progress-bar--success {
+    @apply bg-emerald-500;
+  }
+
+  &.Toastify__progress-bar--error {
+    @apply bg-red-500;
+  }
+
+  &.Toastify__progress-bar--info {
+    @apply bg-emerald-500;
+  }
+}
+
+.Toastify__toast {
+    @apply dark:text-white dark:bg-gray-600 #{!important};
+}

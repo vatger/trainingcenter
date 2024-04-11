@@ -1,17 +1,14 @@
-node_modules
 dist
 .github
-
-misc/mail-templates
-mist/crontab.txt
 
 package.json
 package-lock.json
 
-tsconfig.json
-
 Dockerfile
 docker-compose.yml
+
+tsconfig.json
+tsconfig.node.json
 
 .gitignore
 .prettierrc.json
@@ -27,4 +24,10 @@ index.js
 db/config/config.json
 src/**/*.js
 
+**/*.scss
+**/*.css
+
+index.html
+
 .idea/
+_build

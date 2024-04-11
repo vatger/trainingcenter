@@ -1,0 +1,183 @@
+.rdt_Pagination {
+    @apply bg-gray-50 pt-5 dark:bg-gray-800 dark:text-white rounded-b border-t-gray-50 dark:border-t-gray-700;
+
+    * {
+        @apply text-gray-600 dark:text-gray-300;
+    }
+}
+
+#pagination-previous-page, #pagination-first-page, #pagination-next-page, #pagination-last-page {
+    &[aria-disabled="true"] {
+        svg {
+            @apply fill-gray-300 dark:fill-gray-600
+        }
+    }
+
+    &[aria-disabled="false"] {
+        svg {
+            @apply fill-gray-600 dark:fill-gray-300
+        }
+    }
+}
+
+.table-default, .rdt_Table {
+    @apply table-auto min-w-full divide-y divide-gray-200 dark:divide-gray-700 dark:bg-transparent;
+
+    div:nth-child(2) {
+        @apply dark:bg-transparent dark:text-white;
+    }
+
+    thead, .rdt_TableHead, .rdt_TableHeadRow {
+        @apply bg-gray-50 rounded-t border-0 dark:bg-gray-700;
+
+        +div {
+            @apply bg-transparent;
+        }
+
+        >tr, .rdt_TableCol {
+            @apply mx-auto;
+
+            >th, .rdt_TableCol_Sortable {
+                @apply px-6 py-3 text-left flex justify-center text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-100;
+            }
+        }
+    }
+
+    tbody, .rdt_TableBody {
+        @apply divide-y divide-gray-200 dark:divide-gray-700;
+
+        >tr, .rdt_TableRow {
+            @apply dark:bg-gray-800 dark:hover:bg-gray-700 transition-colors hover:bg-gray-50 dark:text-white border-b-0;
+
+            >td, .rdt_TableCell {
+                @apply p-0 flex justify-center;
+            }
+        }
+    }
+
+    tfoot {
+        >tr {
+            >td {
+                @apply px-6 py-3 border-t border-gray-200 dark:border-gray-700;
+            }
+        }
+    }
+
+    &.borderless-row {
+        tbody {
+            @apply divide-none;
+        }
+    }
+
+    div + div:first-child {
+        @apply dark:bg-gray-700 dark:text-white;
+    }
+}
+
+.table-flex {
+    @apply  min-w-full divide-y divide-gray-200 dark:divide-gray-700;
+
+    .thead {
+        @apply bg-gray-50 dark:bg-gray-700;
+
+        .tr {
+            .th {
+                @apply px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-100;
+            }
+        }
+    }
+
+    .tbody {
+        @apply divide-y divide-gray-200 dark:divide-gray-700;
+
+        .tr {
+            .td {
+                @apply px-6 py-4;
+            }
+        }
+    }
+    
+    .tfoot {
+        .tr {
+            .td {
+                @apply px-6 py-3 border-t dark:border-gray-700;
+            }
+        }
+    }
+}
+
+.table-virtual {
+    > div {
+        @apply divide-y divide-gray-200 dark:divide-gray-700;;
+    }
+}
+
+.table-compact {
+
+    thead {
+
+        >tr {
+            >th {
+                @apply px-3 py-2 text-xs;
+            }
+        }
+    }
+
+    tbody {
+
+        >tr {
+            >td {
+                @apply px-3 py-2;
+            }
+        }
+    }
+
+    .thead {
+
+        >.tr {
+            >.th {
+                @apply px-3 py-2 text-xs;
+            }
+        }
+    }
+
+    .tbody {
+
+        >.tr {
+            >.td {
+                @apply px-3 py-2;
+            }
+        }
+    }
+}
+
+.table-hover {
+    >tbody {
+        >tr:hover {
+            >* {
+                @apply bg-gray-100/50 dark:bg-gray-700/40;
+            }
+        }
+    }
+
+    >.tbody {
+        >.tr:hover {
+            >* {
+                @apply bg-gray-100/50 dark:bg-gray-700/40;
+            }
+        }
+    }
+}
+
+.table-resizer {
+    @apply right-0 h-full absolute top-0 z-10 border-r-2 border-gray-200 dark:border-gray-600 w-2;
+    touch-action :none;
+
+    &.resizing {
+
+    }
+}
+
+th,td {
+    word-wrap: break-word;
+}

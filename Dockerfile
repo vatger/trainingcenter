@@ -1,23 +1,31 @@
-#######################
-# Base Image
-#######################
-FROM alpine
+FROM node:alpine as build
 
-WORKDIR /opt/trainingcenter_backend
+WORKDIR /build
+COPY package*.json ./
+RUN npm install && npm install typescript -g
+COPY . .
+RUN npm run all:build
 
-ARG NODE_ENV=development
+
+FROM nginx:alpine
+
+WORKDIR /opt
 
 COPY package*.json ./
 
 RUN apk update && apk add --update nodejs npm
-RUN npm install --quiet --unsafe-perm --no-progress --no-audit --include=dev
+RUN npm install --quiet --unsafe-perm --no-progress --no-audit
 
-COPY . .
+COPY --from=build /build/_build/ /opt/
+
+COPY .docker/default.conf /etc/nginx/conf.d/default.conf
 
 # Init cron
-ADD entry.sh /entry.sh
+ADD .docker/entry.sh /entry.sh
 RUN chmod 755 /entry.sh
 
-RUN npm run build
+RUN mkdir -p /opt/backend/log
+
+EXPOSE 80
 
 CMD ["sh", "/entry.sh"]

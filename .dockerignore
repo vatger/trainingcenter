@@ -1,5 +1,5 @@
-node_modules
-dist
-
 README.md
 CONTRIBUTING.md
+_build
+node_modules
+.git

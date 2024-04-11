@@ -1,6 +1,6 @@
-# Trainingcenter-Backend
+# Trainingcenter-Frontend
 
-The trainingcenter-backend project contains the backend code for the VATSIM Germany ATC Training Center. Built using Express.js, this project provides the logic and connection to other services such as the underlying SQL database. Data is exchanged with the React based [trainingcenter-frontend](https://github.com/vatger/trainingcenter-frontend) project. 
+The trainingcenter-frontend project contains the frontend code for the VATSIM Germany ATC Training Center. Built using React, this project focuses on providing an interactive user interface for both trainees and mentors alike. Data is exchanged with the underlying SQL database using the Express.js based [trainingcenter-backend](https://github.com/vatger/trainingcenter-backend) project. 
 
 ## Contact
 

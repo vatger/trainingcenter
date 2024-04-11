@@ -1,0 +1,19 @@
+.text-warning, .text-warning span {
+  @apply text-orange-500;
+}
+
+.text-danger, .text-danger span {
+  @apply text-red-500;
+}
+
+.text-success, .text-success span {
+  @apply text-emerald-500;
+}
+
+.text-primary, .text-primary span {
+  @apply text-indigo-500;
+}
+
+.text-secondary, .text-secondary span {
+  @apply text-gray-600 dark:text-gray-300;
+}
