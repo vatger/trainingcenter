@@ -3,4 +3,4 @@
 nginx
 
 # Run Node
-cd /opt/backend/src && node Application.js
+cd /opt/backend && node src/Application.js

@@ -30,7 +30,7 @@ async function clearLogEntries() {
     const directory = "log";
 
     fs.readdir(directory, (err, files) => {
-        if (err) throw err;
+        if (err) return;
 
         for (const file of files) {
             fs.writeFile(path.resolve(directory, file), "", { flag: "w+" }, err => {
