@@ -30,7 +30,7 @@ function getRedirectUri(request: Request, response: Response) {
         `&redirect_uri=${encodeURI(connectConfig.REDIRECT_URI ?? "")}`,
         "&response_type=code",
         `&scope=${encodeURI(connectConfig.SCOPE.split(",").join(" "))}`,
-    ].join("")
+    ].join("");
 
     response.send(uri);
 }

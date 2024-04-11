@@ -10,7 +10,22 @@ env:
   IMAGE_NAME_FRONTEND: ${{ github.repository }}-frontend
 
 jobs:
-  build-and-push:
+  prettier:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.head_ref }}
+
+      - name: Prettify Code
+        uses: creyD/prettier_action@v4.3
+        with:
+          dry: true
+          prettier_options: --write .
+
+  build-backend:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -32,6 +47,28 @@ jobs:
       - name: Build and push docker images
         run: |
           docker build --pull -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest -f backend.Dockerfile .
-          docker build --pull -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest -f frontend.Dockerfile .
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      # Log in to the Container registry
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Build and push Frontend Docker image
+      - name: Build and push docker images
+        run: |
+          docker build --pull -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest -f frontend.Dockerfile .
           docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
