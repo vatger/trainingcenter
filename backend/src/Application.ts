@@ -34,14 +34,14 @@ initializeApplication()
         application.set("trust proxy", ["loopback", "172.16.0.201"]);
 
         application.use("/api/v1", routerGroup((r: Router) => {
-            application.use(cookieParser(Config.APP_KEY));
-            application.use(multer({
+            r.use(cookieParser(Config.APP_KEY));
+            r.use(multer({
                 dest: Config.FILE_TMP_LOCATION
             }).array("files"));
 
-            application.use(syslogMiddleware);
-            application.use(router);
-            application.use(exceptionInterceptorMiddleware);
+            r.use(syslogMiddleware);
+            r.use(router);
+            r.use(exceptionInterceptorMiddleware);
         }));
 
         // Start listening
