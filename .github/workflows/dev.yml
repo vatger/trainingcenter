@@ -29,17 +29,9 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       # Build and push Backend Docker image
-      - name: Build backend image
+      - name: Build and push docker images
         run: |
           docker build --pull -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest -f backend.Dockerfile .
-
-      - name: Push backend image
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest
-
-      # Build and push Frontend Docker image
-      - name: Build frontend image
-        run: |
           docker build --pull -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest -f frontend.Dockerfile .
-
-      - name: Push frontend image
-        run: docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_BACKEND }}:latest
+          docker push ${{ env.REGISTRY }}/${{ env.IMAGE_NAME_FRONTEND }}:latest
