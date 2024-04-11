@@ -8,7 +8,7 @@ dayjs.extend(utc);
 dayjs.extend(relativeTime);
 dayjs.extend(duration);
 
-const DEV_ENV = import.meta.env.MODE;
+const DEV_ENV = import.meta.env.MODE == "development";
 
 export const Config = {
     VERSION: "0.0.1-Beta",
