@@ -4,7 +4,6 @@ import { Config } from "./core/Config";
 import cors from "cors";
 import Logger, { LogLevels } from "./utility/Logger";
 import cookieParser from "cookie-parser";
-import bodyParser from "body-parser";
 import { syslogMiddleware } from "./middlewares/SyslogMiddleware";
 import { router, routerGroup } from "./Router";
 import { exceptionInterceptorMiddleware } from "./middlewares/ExceptionInterceptorMiddleware";
@@ -41,7 +40,7 @@ initializeApplication()
             }).array("files"));
 
             application.use(syslogMiddleware);
-            application.use("/", router);
+            application.use(router);
             application.use(exceptionInterceptorMiddleware);
         }));
 
