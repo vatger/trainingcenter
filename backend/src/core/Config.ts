@@ -22,7 +22,6 @@ const required_env: Array<string> = [
     "APP_PORT",
     "APP_KEY",
     "APP_HOST",
-    "APP_CORS_ALLOW",
     "FRONTEND_URI",
     "SESSION_COOKIE_NAME",
     "VATSIM_API_BASE",
@@ -60,11 +59,11 @@ export const Config = {
     // Read from .env
     APP_DEBUG: process.env.APP_DEBUG?.toLowerCase() == "true",
     APP_LOG_SQL: process.env.APP_LOG_SQL?.toLowerCase() == "true",
-    APP_CORS_ALLOW: process.env.APP_CORS_ALLOW,
+    APP_CORS_ALLOW: process.env.APP_CORS_ALLOW ?? "*",
 
     APP_KEY: process.env.APP_KEY,
     APP_PORT: Number(process.env.APP_PORT),
-    APP_HOST: process.env.APP_HOST,
+    APP_HOST: process.env.APP_HOST ?? "0.0.0.0",
     SESSION_COOKIE_NAME: process.env.SESSION_COOKIE_NAME ?? "vatger_tc_session",
     FILE_STORAGE_LOCATION: process.env.FILE_STORAGE_LOCATION ?? "./storage/uploads/",
     FILE_TMP_LOCATION: process.env.FILE_TMP_LOCATION ?? "./storage/tmp/",

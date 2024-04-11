@@ -1,9 +1,10 @@
-import { axiosInstance } from "../../../utils/network/AxiosInstance";
+import { axiosInstance } from "@/utils/network/AxiosInstance";
 import { useEffect, useState } from "react";
 import { UserModel } from "../../../models/UserModel";
 import { AxiosError, AxiosResponse } from "axios";
 import { APIResponseError } from "./APIResponseError";
 import dayjs from "dayjs";
+import FormHelper from "@/utils/helper/FormHelper";
 
 const axiosAuthTimeout = 7000;
 
@@ -73,11 +74,12 @@ function getOAuthRedirectUri() {
  * @param remember
  */
 async function handleLogin(remember: boolean): Promise<UserModel> {
+    const formData = new FormData();
+    FormHelper.set(formData, "connect_code", new URL(window.location.toString()).searchParams.get("code"));
+    FormHelper.set(formData, "remember", remember);
+
     return axiosInstance
-        .post("/auth/login", {
-            connect_code: new URL(window.location.toString()).searchParams.get("code"),
-            remember: remember,
-        })
+        .post("/auth/login", formData)
         .then((res: AxiosResponse) => {
             return res.data as UserModel;
         })

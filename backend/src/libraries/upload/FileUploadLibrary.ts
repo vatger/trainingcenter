@@ -1,15 +1,12 @@
 import { Request } from "express";
 import { Config } from "../../core/Config";
 import { generateUUID } from "../../utility/UUID";
-import File from "express-fileupload";
+import fs from "fs";
 
-function _renameFile(file: File.UploadedFile) {
-    const fileName = generateUUID() + "." + file.name.split(".").pop();
+function _renameFile(file: Express.Multer.File) {
+    const fileName = generateUUID() + "." + file.originalname.split(".").pop();
 
-    // Move file to correct Location
-    file.mv(Config.FILE_STORAGE_LOCATION + fileName, (err: any) => {
-        if (err) throw err;
-    });
+    fs.renameSync(Config.FILE_TMP_LOCATION + file.filename, Config.FILE_STORAGE_LOCATION + fileName);
 
     return fileName;
 }
@@ -26,13 +23,11 @@ export function handleUpload(request: Request): string[] | null {
     // Check if files were supplied
     if (request.files == null || Object.keys(request.files).length == 0) return null;
 
-    let files = request.files.files;
+    let files = request.files;
     if (Array.isArray(files)) {
         for (const file of files) {
             fileNames.push(_renameFile(file));
         }
-    } else {
-        fileNames.push(_renameFile(files));
     }
 
     return fileNames;

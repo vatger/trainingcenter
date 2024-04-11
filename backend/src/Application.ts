@@ -1,4 +1,4 @@
-import express, { Express } from "express";
+import express, { Express, Router } from "express";
 import { initializeApplication } from "./core/StartupRoutine";
 import { Config } from "./core/Config";
 import cors from "cors";
@@ -6,46 +6,47 @@ import Logger, { LogLevels } from "./utility/Logger";
 import cookieParser from "cookie-parser";
 import bodyParser from "body-parser";
 import { syslogMiddleware } from "./middlewares/SyslogMiddleware";
-import { handleUncaughtException } from "./exceptions/handler/ExceptionHandler";
-import fileUpload from "express-fileupload";
-import { router } from "./Router";
+import { router, routerGroup } from "./Router";
 import { exceptionInterceptorMiddleware } from "./middlewares/ExceptionInterceptorMiddleware";
+import multer from "multer";
 
 const application: Express = express();
 
-if (Config.APP_DEBUG) {
-    process.on("uncaughtException", (err, origin) => handleUncaughtException(err, origin));
-}
+function logStartupOptions() {
+    Logger.log(LogLevels.LOG_WARN, `Debug mode: ${Config.APP_DEBUG ? "ENABLED" : "DISABLED"}`);
+    Logger.log(LogLevels.LOG_WARN, `SQL logging: ${Config.APP_LOG_SQL ? "ENABLED" : "DISABLED"}`);
+    Logger.log(LogLevels.LOG_WARN, `File Upload: {location: ${Config.FILE_STORAGE_LOCATION}, tmp: ${Config.FILE_TMP_LOCATION}}\n`);
 
-console.log(Config.EMAIL_CONFIG.DEBUG_EMAIL);
+    Logger.log(LogLevels.LOG_SUCCESS, `Server is running on http://${Config.APP_HOST ?? "0.0.0.0"}:${Config.APP_PORT}`, true);
+}
 
 initializeApplication()
     .then(() => {
         // Basic server configuration
-        application.use(
-            cors({
-                credentials: true,
-                origin: Config.APP_CORS_ALLOW,
-            })
-        );
-        application.use(cookieParser(Config.APP_KEY));
-        application.use(bodyParser.json());
-        application.use(fileUpload({ debug: Config.APP_DEBUG, useTempFiles: true, tempFileDir: Config.FILE_TMP_LOCATION }));
+        if (Config.APP_DEBUG) {
+            application.use(
+                cors({
+                    credentials: true,
+                    origin: Config.APP_CORS_ALLOW,
+                })
+            );
+        }
 
         application.set("trust proxy", ["loopback", "172.16.0.201"]);
 
+        application.use("/api/v1", routerGroup((r: Router) => {
+            application.use(cookieParser(Config.APP_KEY));
+            application.use(multer({
+                dest: Config.FILE_TMP_LOCATION
+            }).array("files"));
+
+            application.use(syslogMiddleware);
+            application.use("/", router);
+            application.use(exceptionInterceptorMiddleware);
+        }));
+
         // Start listening
-        application.listen(Config.APP_PORT, Config.APP_HOST ?? "127.0.0.1", () => {
-            Logger.log(LogLevels.LOG_WARN, `Debug mode: ${Config.APP_DEBUG ? "ENABLED" : "DISABLED"}`);
-            Logger.log(LogLevels.LOG_WARN, `SQL logging: ${Config.APP_LOG_SQL ? "ENABLED" : "DISABLED"}`);
-            Logger.log(LogLevels.LOG_WARN, `File Upload: {location: ${Config.FILE_STORAGE_LOCATION}, tmp: ${Config.FILE_TMP_LOCATION}}\n`);
-
-            Logger.log(LogLevels.LOG_SUCCESS, `Server is running on http://${Config.APP_HOST ?? "0.0.0.0"}:${Config.APP_PORT}`, true);
-        });
-
-        application.use(syslogMiddleware);
-        application.use("/", router);
-        application.use(exceptionInterceptorMiddleware);
+        application.listen(Config.APP_PORT, Config.APP_HOST, logStartupOptions);
     })
     .catch(() => {
         Logger.log(LogLevels.LOG_ERROR, "\n\nFatal Error detected. Application will now shutdown!\n\n");

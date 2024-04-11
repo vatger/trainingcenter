@@ -38,7 +38,7 @@ import SyslogAdminController from "./controllers/admin-logs/SyslogAdminControlle
 import JoblogAdminController from "./controllers/admin-logs/JoblogAdminController";
 import UserInformationController from "./controllers/user/UserInformationController";
 
-const routerGroup = (callback: (router: Router) => void) => {
+export const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
     callback(router);
     return router;
