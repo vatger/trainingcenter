@@ -9,7 +9,7 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-and-push-image:
+  build-backend:
     runs-on: ubuntu-latest
     permissions:
       contents: read
@@ -28,5 +28,27 @@ jobs:
 
       - name: Build and push Docker image
         run: |
-          docker build --pull -t ${{ env.REGISTRY }}/${{ github.repository }}:latest .
-          docker push ${{ env.REGISTRY }}/${{ github.repository }}:latest
+          docker build --pull -t ${{ env.REGISTRY }}/${{ github.repository }}-backend:latest -f backend.Dockerfile .
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}-backend:latest
+
+  build-frontend:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Log in to the Container registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Build and push Docker image
+        run: |
+          docker build --pull -t ${{ env.REGISTRY }}/${{ github.repository }}-frontend:latest -f frontend.Dockerfile .
+          docker push ${{ env.REGISTRY }}/${{ github.repository }}-frontend:latest
