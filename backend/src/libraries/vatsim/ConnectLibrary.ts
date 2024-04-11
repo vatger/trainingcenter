@@ -264,7 +264,7 @@ export class VatsimConnectLibrary {
     private _validateSuppliedScopes() {
         if (this.m_suppliedScopes == null) throw new VatsimConnectException();
 
-        const required_scopes = this.m_connectOptions?.client_scopes.split(" ") as VatsimScopes;
+        const required_scopes = this.m_connectOptions?.client_scopes.split(",") as VatsimScopes;
         for (let i = 0; i < required_scopes.length; i++) {
             if (this.m_suppliedScopes.indexOf(required_scopes[i]) === -1) {
                 throw new VatsimConnectException(ConnectLibraryErrors.ERR_INV_SCOPES);
