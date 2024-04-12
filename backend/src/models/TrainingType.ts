@@ -10,6 +10,18 @@ import {
     TRAINING_TYPES_TABLE_TYPES,
 } from "../../db/migrations/20221115171246-create-training-types-table";
 
+export interface ITrainingType {
+    id: number;
+    name: string;
+    type: (typeof TRAINING_TYPES_TABLE_NAME)[number];
+    description?: string;
+    log_template_id?: number;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    training_stations?: any;
+}
+
 export class TrainingType extends Model<InferAttributes<TrainingType>, InferCreationAttributes<TrainingType>> {
     //
     // Attributes
@@ -21,6 +33,7 @@ export class TrainingType extends Model<InferAttributes<TrainingType>, InferCrea
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
+    declare description: CreationOptional<string> | null;
     declare log_template_id: CreationOptional<ForeignKey<TrainingLogTemplate["id"]>> | null;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;

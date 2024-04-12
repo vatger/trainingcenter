@@ -16,6 +16,10 @@ export const TRAINING_TYPES_TABLE_ATTRIBUTES = {
         comment: "Name of training type (eg. 'Frankfurt Tower Online'). Max length 70 chars",
         allowNull: false,
     },
+    description: {
+        type: DataType.TEXT,
+        allowNull: true,
+    },
     type: {
         type: DataType.ENUM(...TRAINING_TYPES_TABLE_TYPES),
         comment: "Type of Training Type (ie. Sim Session - Sim)",

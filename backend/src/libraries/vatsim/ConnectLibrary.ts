@@ -293,7 +293,7 @@ export class VatsimConnectLibrary {
      */
     private async _checkIsUserAllowed() {
         if (this.m_userData == undefined) return null;
-        const allowed_cids = [1373921, 1450775, 1331358, 1357290, 1439797, 1583954, 1438611, 1432304, 1439600, 1463320, 1238939];
+        const allowed_cids = [1373921, 1450775, 1331358, 1357290, 1439797, 1583954, 1438611, 1432304, 1439600, 1463320, 1238939, 10000010];
 
         if (!allowed_cids.includes(Number(this.m_userData.data.cid))) {
             throw new VatsimConnectException(ConnectLibraryErrors.ERR_SUSPENDED);

@@ -14,6 +14,7 @@ const application: Express = express();
 function logStartupOptions() {
     Logger.log(LogLevels.LOG_WARN, `Debug mode: ${Config.APP_DEBUG ? "ENABLED" : "DISABLED"}`);
     Logger.log(LogLevels.LOG_WARN, `SQL logging: ${Config.APP_LOG_SQL ? "ENABLED" : "DISABLED"}`);
+    Logger.log(LogLevels.LOG_WARN, `CORS enabled: ${Config.APP_CORS_ALLOW ? "ENABLED" : "DISABLED"}`);
     Logger.log(LogLevels.LOG_WARN, `File Upload: {location: ${Config.FILE_STORAGE_LOCATION}, tmp: ${Config.FILE_TMP_LOCATION}}\n`);
 
     Logger.log(LogLevels.LOG_SUCCESS, `Server is running on http://${Config.APP_HOST ?? "0.0.0.0"}:${Config.APP_PORT}`, true);
@@ -22,11 +23,11 @@ function logStartupOptions() {
 initializeApplication()
     .then(() => {
         // Basic server configuration
-        if (Config.APP_DEBUG) {
+        if (Config.APP_CORS_ALLOW) {
             application.use(
                 cors({
                     credentials: true,
-                    origin: Config.APP_CORS_ALLOW,
+                    origin: "http://localhost:8000",
                 })
             );
         }

@@ -59,7 +59,7 @@ export const Config = {
     // Read from .env
     APP_DEBUG: process.env.APP_DEBUG?.toLowerCase() == "true",
     APP_LOG_SQL: process.env.APP_LOG_SQL?.toLowerCase() == "true",
-    APP_CORS_ALLOW: process.env.APP_CORS_ALLOW ?? "*",
+    APP_CORS_ALLOW: process.env.APP_CORS_ALLOW == "true",
 
     APP_KEY: process.env.APP_KEY,
     APP_PORT: Number(process.env.APP_PORT),

@@ -20,18 +20,15 @@ async function getAll(request: Request, response: Response) {
  * Gets a training type by its ID
  * @param request
  * @param response
+ * @param next
  */
 async function getByID(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };
 
-        // const validation = ValidationHelper.validate([
-        //     {
-        //         name: "id",
-        //         validationObject: params.id,
-        //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-        //     },
-        // ]);
+        Validator.validate(params, {
+            id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        });
 
         const trainingType = await TrainingType.findOne({
             where: {
@@ -65,7 +62,7 @@ async function getByID(request: Request, response: Response, next: NextFunction)
  * @param response
  */
 async function create(request: Request, response: Response) {
-    const body = request.body as { name: string; type: "online" | "sim" | "lesson" | "cpt"; log_template_id?: string };
+    const body = request.body as { name: string; type: "online" | "sim" | "lesson" | "cpt"; log_template_id?: string; description?: string };
     Validator.validate(body, {
         name: [ValidationTypeEnum.NON_NULL],
         type: [ValidationTypeEnum.NON_NULL, { option: ValidationTypeEnum.IN_ARRAY, value: ["online", "sim", "lesson", "cpt"] }],
@@ -75,6 +72,7 @@ async function create(request: Request, response: Response) {
     const trainingType = await TrainingType.create({
         name: body.name,
         type: body.type,
+        description: !body.description || body.description == "" ? null : body.description,
         log_template_id: isNaN(log_template_id) || log_template_id == -1 ? null : log_template_id,
     });
 
@@ -88,9 +86,7 @@ async function create(request: Request, response: Response) {
  */
 async function update(request: Request, response: Response) {
     const training_type_id = request.params.id;
-    const body = request.body as { name: string; type: "online" | "sim" | "cpt" | "lesson"; log_template_id?: string };
-
-    console.log(body);
+    const body = request.body as { name: string; type: "online" | "sim" | "cpt" | "lesson"; log_template_id?: string; description?: string };
 
     Validator.validate(body, {
         name: [ValidationTypeEnum.NON_NULL],
@@ -111,6 +107,7 @@ async function update(request: Request, response: Response) {
     let updatedTrainingType = await trainingType.update({
         name: body.name,
         type: body.type,
+        description: !body.description || body.description == "" ? null : body.description,
         log_template_id: body.log_template_id == null || isNaN(Number(body.log_template_id)) ? null : Number(body.log_template_id),
     });
 

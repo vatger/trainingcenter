@@ -29,6 +29,8 @@ src/**/*.js
 **/*.css
 **/*.config.ts
 **/*.html
+**/*.d.ts
+**/*.cjs
 
 index.html
 

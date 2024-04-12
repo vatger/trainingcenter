@@ -21,6 +21,7 @@ import { axiosInstance } from "@/utils/network/AxiosInstance";
 import { AxiosResponse } from "axios";
 import useApi from "@/utils/hooks/useApi";
 import { TrainingTypeModel } from "@/models/TrainingTypeModel";
+import { ITrainingType } from "@models/TrainingType";
 
 type RequestTrainingModalPartialProps = {
     show: boolean;
@@ -33,7 +34,7 @@ type RequestTrainingModalPartialProps = {
 export function CAVRequestTrainingModal(props: RequestTrainingModalPartialProps) {
     const [submitting, setSubmitting] = useState<boolean>(false);
 
-    const { data: nextTraining, loading: loadingNextTraining } = useApi<TrainingTypeModel>({
+    const { data: nextTraining, loading: loadingNextTraining } = useApi<ITrainingType>({
         url: `/training-type/${props.course?.UsersBelongsToCourses?.next_training_type}`,
         method: "get",
     });
@@ -67,14 +68,25 @@ export function CAVRequestTrainingModal(props: RequestTrainingModalPartialProps)
                 elementTrue={<CAVTrainingModalSkeleton />}
                 elementFalse={
                     <form onSubmit={handleSubmit}>
-                        <Input disabled label={"Name"} labelSmall readOnly value={nextTraining?.name ?? ""} />
+                        <div className={"grid gap-5 grid-cols-1 sm:grid-cols-2"}>
+                            <Input disabled label={"Name"} labelSmall readOnly value={nextTraining?.name ?? ""} />
 
-                        <Input disabled className={"mt-5"} label={"Typ"} readOnly labelSmall value={StringHelper.capitalize(nextTraining?.type) ?? ""} />
+                            <Input disabled label={"Typ"} readOnly labelSmall value={StringHelper.capitalize(nextTraining?.type) ?? ""} />
+                        </div>
+
+                        <RenderIf
+                            truthValue={nextTraining?.description != null}
+                            elementTrue={
+                                <TextArea className={"mt-5"} label={"Beschreibung"} labelSmall disabled value={nextTraining?.description} />
+                            }
+                        />
+
+                        <Separator />
 
                         <RenderIf
                             truthValue={nextTraining?.type == "cpt"}
                             elementTrue={
-                                <Alert className={"mt-5"} rounded showIcon type={TYPE_OPTS.DANGER}>
+                                <Alert rounded showIcon type={TYPE_OPTS.DANGER}>
                                     Das aktuell zugewiesene Training ist ein CPT. Dieses kannst du nicht beantragen. Sollte das CPT noch nicht geplant worden
                                     sein (siehe unten in der Trainingshistorie), spreche bitte mit einem Mentoren.
                                 </Alert>
@@ -82,7 +94,6 @@ export function CAVRequestTrainingModal(props: RequestTrainingModalPartialProps)
                             elementFalse={
                                 <>
                                     <TextArea
-                                        className={"mt-5"}
                                         label={"Kommentar"}
                                         maxLength={150}
                                         description={"Optionaler Kommentar, bspw. zu deiner generellen Verfügbarkeit"}

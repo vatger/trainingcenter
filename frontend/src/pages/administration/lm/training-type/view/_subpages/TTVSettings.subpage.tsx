@@ -1,5 +1,5 @@
 import { Input } from "@/components/ui/Input/Input";
-import { TbBook2, TbCirclePlus, TbEdit, TbId, TbTemplate, TbTrash } from "react-icons/tb";
+import { TbBook2, TbEdit, TbId, TbTemplate } from "react-icons/tb";
 import { Select } from "@/components/ui/Select/Select";
 import { Separator } from "@/components/ui/Separator/Separator";
 import { Button } from "@/components/ui/Button/Button";
@@ -15,6 +15,8 @@ import { MapArray } from "@/components/conditionals/MapArray";
 import { TTViewSettingsSkeleton } from "@/pages/administration/lm/training-type/_skeletons/TTViewSettings.skeleton";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
 import { AxiosResponse } from "axios";
+import { ITrainingType } from "@models/TrainingType";
+import { TextArea } from "@/components/ui/Textarea/TextArea";
 
 type TrainingTypeViewSettingsSubpageProps = {
     trainingTypeID?: string;
@@ -28,7 +30,7 @@ export function TTVSettingsSubpage(props: TrainingTypeViewSettingsSubpageProps) 
         data: trainingType,
         loading: loadingTrainingType,
         setData: setTrainingType,
-    } = useApi<TrainingTypeModel>({
+    } = useApi<ITrainingType>({
         url: `/administration/training-type/${props.trainingTypeID ?? "-1"}`,
         method: "get",
         onLoad: trainingType => {
@@ -108,6 +110,17 @@ export function TTVSettingsSubpage(props: TrainingTypeViewSettingsSubpageProps) 
                             {/*<option value={"cpt"}>CPT</option>*/}
                         </Select>
                     </div>
+
+                    <TextArea
+                        label={"Beschreibung"}
+                        labelSmall
+                        className={"mt-5"}
+                        description={
+                            "Optionale Beschreibung des Trainingstyps. Wird dem Benutzer bei der Anfrage angezeigt. Könnte bspw. weitere Voraussetzungen, wie das Bestehen eines Moodle-Kurses beinhalten."
+                        }
+                        name={"description"}
+                        value={trainingType?.description}
+                    />
 
                     <Separator />
 

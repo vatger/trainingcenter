@@ -12,6 +12,7 @@ import { useNavigate } from "react-router-dom";
 import hero from "@/assets/img/hero.jpg";
 import vatsimLogoRound from "@/assets/img/vatsim_logo_round.png";
 import { useSettingsSelector } from "@/app/features/settingsSlice";
+import { RenderIf } from "@/components/conditionals/RenderIf";
 
 export function LoginView() {
     const auth = useAuthSelector();
@@ -64,7 +65,7 @@ export function LoginView() {
                                         <div>
                                             <Button
                                                 loading={loading}
-                                                disabled={loadingError != null}
+                                                disabled={loadingError != null || new URL(window.location.toString()).searchParams.get("sus") != null}
                                                 icon={<img src={vatsimLogoRound} width={24} height={24} alt={"VATSIM Logo"} />}
                                                 variant={"twoTone"}
                                                 block

@@ -16,6 +16,7 @@ import useApi from "@/utils/hooks/useApi";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
 import { AxiosResponse } from "axios";
 import { TrainingTypeModel } from "@/models/TrainingTypeModel";
+import { TextArea } from "@/components/ui/Textarea/TextArea";
 
 export function TrainingTypeCreateView() {
     const navigate = useNavigate();
@@ -92,6 +93,16 @@ export function TrainingTypeCreateView() {
                             {/*<option value={"cpt"} disabled>CPT</option>*/}
                         </Select>
                     </div>
+
+                    <TextArea
+                        label={"Beschreibung"}
+                        labelSmall
+                        className={"mt-5"}
+                        description={
+                            "Optionale Beschreibung des Trainingstyps. Wird dem Benutzer bei der Anfrage angezeigt. Könnte bspw. weitere Voraussetzungen, wie das Bestehen eines Moodle-Kurses beinhalten."
+                        }
+                        name={"description"}
+                    />
 
                     <Separator />
 

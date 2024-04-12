@@ -6,11 +6,29 @@ import { Course } from "../../models/Course";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { TrainingSession } from "../../models/TrainingSession";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
+/**
+ * Returns information about the progress of a user within the specified course.
+ * For example:
+ * - Training Requests
+ * - Training Sessions
+ * - Training Logs
+ * etc.
+ * @param request
+ * @param response
+ * @param next
+ */
 async function getInformation(request: Request, response: Response, next: NextFunction) {
     try {
         const query = request.query as { course_uuid: string; user_id: string };
-        _UserCourseProgressAdministrationValidator.validateGetAllRequest(query);
+        Validator.validate(query, {
+            course_uuid: [ValidationTypeEnum.NON_NULL],
+            user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        });
+
+        // TODO: Return the relevant information for this course ONLY!
+        // Currently, the controller returns ALL Requests and Histories for the user with this ID, not only those in the specified course!
 
         const user = await User.findOne({
             where: {

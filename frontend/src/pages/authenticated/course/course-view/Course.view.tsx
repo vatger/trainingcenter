@@ -70,8 +70,6 @@ export function CourseView() {
                             <div className={"grid grid-cols-1 md:grid-cols-2 gap-5 mb-5"}>
                                 <Input labelSmall preIcon={<TbId size={20} />} label={"Name"} disabled value={course?.name} />
 
-                                <Input labelSmall preIcon={<TbId size={20} />} label={"UUID"} disabled value={course?.uuid} />
-
                                 <Input
                                     labelSmall
                                     preIcon={<TbClock size={20} />}

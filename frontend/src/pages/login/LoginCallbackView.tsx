@@ -38,6 +38,12 @@ export function LoginCallbackView() {
                 navigate("/");
             })
             .catch((err: AxiosError) => {
+                const data = err.response?.data as { code: string; message: string };
+                if (data.code == "ERR_SUSP") {
+                    navigate("/login?sus");
+                    return;
+                }
+
                 setSignInError({
                     error: err,
                     custom: {

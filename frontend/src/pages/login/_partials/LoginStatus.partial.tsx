@@ -1,9 +1,9 @@
-import { RenderIf } from "../../../components/conditionals/RenderIf";
-import { NetworkError } from "../../../components/errors/NetworkError";
+import { RenderIf } from "@/components/conditionals/RenderIf";
+import { NetworkError } from "@/components/errors/NetworkError";
 import React from "react";
 import { APIResponseError } from "../_services/APIResponseError";
-import { Alert } from "../../../components/ui/Alert/Alert";
-import { TYPE_OPTS } from "../../../assets/theme.config";
+import { Alert } from "@/components/ui/Alert/Alert";
+import { TYPE_OPTS } from "@/assets/theme.config";
 
 export function LoginStatusPartial(props: { loadingError: APIResponseError }) {
     const url = new URL(window.location.toString());
@@ -38,6 +38,17 @@ export function LoginStatusPartial(props: { loadingError: APIResponseError }) {
                     <div className={"mb-5"}>
                         <Alert rounded showIcon type={TYPE_OPTS.WARNING}>
                             Logge dich bitte erneut ein, um deine VATSIM Daten zu synchronisieren
+                        </Alert>
+                    </div>
+                }
+            />
+
+            <RenderIf
+                truthValue={props.loadingError == null && url.searchParams.get("sus") != null}
+                elementTrue={
+                    <div className={"mb-5"}>
+                        <Alert rounded showIcon type={TYPE_OPTS.DANGER}>
+                            Dein Konto ist gesperrt, eine Anmeldung ist daher nicht möglich.
                         </Alert>
                     </div>
                 }

@@ -1,10 +1,10 @@
 import { Link, NavigateFunction } from "react-router-dom";
 import { TableColumn } from "react-data-table-component";
-import { UserModel } from "../../../../../../models/UserModel";
-import { Button } from "../../../../../../components/ui/Button/Button";
-import { COLOR_OPTS, SIZE_OPTS } from "../../../../../../assets/theme.config";
+import { UserModel } from "@/models/UserModel";
+import { Button } from "@/components/ui/Button/Button";
+import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 import { TbEye, TbTrash } from "react-icons/tb";
-import { Badge } from "../../../../../../components/ui/Badge/Badge";
+import { Badge } from "@/components/ui/Badge/Badge";
 import { Dispatch } from "react";
 
 function getColumns(
@@ -25,7 +25,7 @@ function getColumns(
                 row == null ? (
                     "N/A"
                 ) : (
-                    <Link to={"/administration/user/" + row.id}>
+                    <Link to={"/administration/users/" + row.id}>
                         <span className={"text-primary hover:cursor-pointer hover:underline"}>
                             {row.first_name} {row.last_name}
                         </span>

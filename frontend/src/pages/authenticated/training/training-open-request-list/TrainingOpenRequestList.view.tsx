@@ -8,7 +8,6 @@ import { TrainingRequestModel } from "@/models/TrainingRequestModel";
 
 export function TrainingOpenRequestListView() {
     const navigate = useNavigate();
-    const columns = TrainingOpenRequestListTypes.getColumns(navigate);
 
     const { data: openTrainingRequests, loading } = useApi<TrainingRequestModel[]>({
         url: "/training-request/open",
@@ -20,7 +19,7 @@ export function TrainingOpenRequestListView() {
             <PageHeader title={"Offene Trainingsanfragen"} hideBackLink />
 
             <Card>
-                <Table loading={loading} columns={columns} data={openTrainingRequests ?? []} />
+                <Table loading={loading} columns={TrainingOpenRequestListTypes.getColumns(navigate)} data={openTrainingRequests ?? []} />
             </Card>
         </>
     );

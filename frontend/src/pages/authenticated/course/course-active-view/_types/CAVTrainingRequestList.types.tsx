@@ -21,10 +21,9 @@ function getColumns(navigate: NavigateFunction): TableColumn<TrainingRequestMode
             cell: row => {
                 switch (row.status) {
                     case "requested":
-                        const n = <span className={"text-info"}>Position in Warteschlange {row.number_in_queue}</span>;
                         return (
                             <div>
-                                <Badge color={COLOR_OPTS.PRIMARY}>Beantragt</Badge> {n}
+                                <Badge color={COLOR_OPTS.PRIMARY}>Beantragt</Badge>
                             </div>
                         );
 
@@ -45,6 +44,10 @@ function getColumns(navigate: NavigateFunction): TableColumn<TrainingRequestMode
             sortFunction: (a: TrainingRequestModel, b: TrainingRequestModel) => {
                 return a.status > b.status ? -1 : 1;
             },
+        },
+        {
+            name: "Position",
+            selector: row => (row.number_in_queue ? `#${row.number_in_queue}` : "N/A"),
         },
         {
             name: "Station",

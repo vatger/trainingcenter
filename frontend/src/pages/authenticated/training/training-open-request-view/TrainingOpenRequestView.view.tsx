@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card } from "@/components/ui/Card/Card";
 import { Input } from "@/components/ui/Input/Input";
-import { TbCalendar, TbCalendarEvent, TbCalendarTime, TbEye, TbId, TbLink, TbListCheck, TbRadar, TbTrash } from "react-icons/tb";
+import { TbCalendar, TbCalendarEvent, TbId, TbLink, TbListCheck, TbRadar, TbTrash } from "react-icons/tb";
 import React, { useState } from "react";
 import { Button } from "@/components/ui/Button/Button";
 import { Separator } from "@/components/ui/Separator/Separator";
@@ -37,11 +37,8 @@ export function TrainingOpenRequestViewView() {
                         <PageHeader title={"Trainingsanfrage Verwalten"} />
 
                         <Card>
-                            <Input labelSmall label={"UUID"} preIcon={<TbId size={20} />} disabled value={training_request_uuid} />
-
                             <Input
                                 labelSmall
-                                className={"mt-5"}
                                 label={"Zuletzt aktualisiert"}
                                 preIcon={<TbCalendarEvent size={20} />}
                                 disabled
