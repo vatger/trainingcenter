@@ -81,7 +81,11 @@ function getColumns(my_user_id: number | undefined, users: IUserInMentorGroup[],
         {
             name: "Aktion",
             cell: row => {
-                if (isEditing && row.user.id != my_user_id) {
+                if (row.user.id == my_user_id) {
+                    return <></>;
+                }
+
+                if (isEditing) {
                     return (
                         <Button
                             variant={"twoTone"}

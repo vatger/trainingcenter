@@ -6,6 +6,8 @@ import { TrainingRequestModel } from "@/models/TrainingRequestModel";
 import { TrainingSessionModel } from "@/models/TrainingSessionModel";
 import { TrainingLogModel } from "@/models/TrainingSessionBelongsToUser.model";
 
+export type MinimalUser = Pick<UserModel, "id" | "first_name" | "last_name">;
+
 export type UserModel = {
     id: number;
     first_name: string;

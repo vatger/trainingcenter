@@ -1,8 +1,23 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, ForeignKey, NonAttribute, Association } from "sequelize";
-import { User } from "./User";
-import { DataType } from "sequelize-typescript";
+import { ISensitiveUser, IUser, User } from "./User";
 import { sequelize } from "../core/Sequelize";
 import { USER_SESSION_ATTRIBUTES, USER_SESSION_TABLE_NAME } from "../../db/migrations/20221115171243-create-user-session-table";
+
+export interface IUserSession {
+    id: number;
+    uuid: string;
+    browser_uuid: string;
+    client: string;
+    user_id: number;
+    expires_at: Date;
+    expires_latest: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    // The login session is pretty sensitive anyway, so we might as well add the
+    // sensitive user here
+    user?: ISensitiveUser;
+}
 
 export class UserSession extends Model<InferAttributes<UserSession>, InferCreationAttributes<UserSession>> {
     //

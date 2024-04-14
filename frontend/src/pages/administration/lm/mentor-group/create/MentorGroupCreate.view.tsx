@@ -7,7 +7,7 @@ import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 import { Separator } from "@/components/ui/Separator/Separator";
 import React, { FormEvent, useState } from "react";
 import FormHelper from "../../../../../utils/helper/FormHelper";
-import { UserModel } from "@/models/UserModel";
+import { MinimalUser, UserModel } from "@/models/UserModel";
 import { Table } from "@/components/ui/Table/Table";
 import { MentorGroupModel } from "@/models/MentorGroupModel";
 import ToastHelper from "../../../../../utils/helper/ToastHelper";
@@ -18,9 +18,10 @@ import { CommonConstants, CommonRegexp } from "@/core/Config";
 import { useUserSelector } from "@/app/features/authSlice";
 import MGCUsersTableTypes from "@/pages/administration/lm/mentor-group/create/_types/MGCUsersTable.types";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
+import { UserFilter } from "@/components/ui/UserFilter/UserFilter";
 
 export interface IUserInMentorGroup {
-    user: UserModel;
+    user: MinimalUser;
     admin: boolean;
     can_manage: boolean;
 }
@@ -29,7 +30,7 @@ export function MentorGroupCreateView() {
     const navigate = useNavigate();
     const user = useUserSelector();
 
-    const defaultUser: IUserInMentorGroup = { user: user ?? ({} as UserModel), admin: true, can_manage: true };
+    const defaultUser: IUserInMentorGroup = { user: user ?? ({} as MinimalUser), admin: true, can_manage: true };
     const [newUserID, setNewUserID] = useState<string>("");
     const [loadingUser, setLoadingUser] = useState<boolean>(false);
     const [users, setUsers] = useState<IUserInMentorGroup[]>([defaultUser]);
@@ -64,36 +65,13 @@ export function MentorGroupCreateView() {
             .finally(() => setSubmitting(false));
     }
 
-    function addUser() {
-        setLoadingUser(true);
-
-        axiosInstance
-            .get(`/administration/user/data/basic`, {
-                params: { user_id: newUserID },
-            })
-            .then((res: AxiosResponse) => {
-                const newUser = {
-                    user: res.data as UserModel,
-                    admin: false,
-                    can_manage: false,
-                };
-                setUsers([...users, newUser]);
-            })
-            .catch(() => {
-                ToastHelper.error(`Fehler beim Laden des Benutzers mit der ID ${newUserID}`);
-            })
-            .finally(() => {
-                setLoadingUser(false);
-                setNewUserID("");
-            });
-    }
-
-    function removeUser(user: UserModel) {
-        const newUsers = users.filter(u => {
-            return u.user.id != user.id;
-        });
-
-        setUsers(newUsers);
+    function addUser(u: MinimalUser) {
+        const newUser = {
+            user: { ...u },
+            admin: false,
+            can_manage: false,
+        };
+        setUsers([...users, newUser]);
     }
 
     return (
@@ -140,29 +118,7 @@ export function MentorGroupCreateView() {
             </Card>
 
             <Card className={"mt-5"} header={"Mitglieder"} headerBorder>
-                <Input
-                    onChange={e => setNewUserID(e.target.value)}
-                    regex={CommonRegexp.CID}
-                    maxLength={CommonConstants.CID_MAX_LEN}
-                    label={"Benutzer Hinzufügen"}
-                    labelSmall
-                    inputError={users.length == 0}
-                    preIcon={<TbUser size={20} />}
-                    placeholder={users[0]?.user.id.toString() ?? "1373921"}
-                />
-
-                <Button
-                    size={SIZE_OPTS.SM}
-                    color={COLOR_OPTS.PRIMARY}
-                    loading={loadingUser}
-                    disabled={submitting}
-                    variant={"twoTone"}
-                    className={"mt-3"}
-                    onClick={() => {
-                        addUser();
-                    }}>
-                    Hinzufügen
-                </Button>
+                <UserFilter onUserSelect={addUser} removeIDs={users.map(u => u.user.id)} />
 
                 <Separator />
 

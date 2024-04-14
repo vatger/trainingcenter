@@ -1,6 +1,6 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association } from "sequelize";
 import { sequelize } from "../core/Sequelize";
-import { UserData } from "./UserData";
+import { IUserData, UserData } from "./UserData";
 import { UserSettings } from "./UserSettings";
 import { MentorGroup } from "./MentorGroup";
 import { TrainingSession } from "./TrainingSession";
@@ -17,6 +17,22 @@ import { EndorsementGroupsBelongsToUsers } from "./through/EndorsementGroupsBelo
 import { UserSolo } from "./UserSolo";
 import { USER_TABLE_ATTRIBUTES, USER_TABLE_NAME } from "../../db/migrations/20221115171242-create-user-table";
 import { UserNote } from "./UserNote";
+
+export type IMinimalUser = Pick<ISensitiveUser, "id" | "first_name" | "last_name">;
+export type IUser = Omit<ISensitiveUser, "access_token" | "refresh_token">;
+
+export interface ISensitiveUser {
+    id: number;
+    first_name: string;
+    last_name: string;
+    email: string;
+    access_token?: string;
+    refresh_token?: string;
+    createdAt?: Date;
+    updatedAt?: Date;
+
+    user_data?: IUserData;
+}
 
 export class User extends Model<InferAttributes<User>, InferCreationAttributes<User>> {
     //

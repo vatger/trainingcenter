@@ -27,7 +27,6 @@ export const USER_TABLE_ATTRIBUTES = {
     refresh_token: {
         type: DataType.TEXT,
     },
-
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
 };

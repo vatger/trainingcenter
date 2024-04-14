@@ -76,9 +76,7 @@ export function CAVRequestTrainingModal(props: RequestTrainingModalPartialProps)
 
                         <RenderIf
                             truthValue={nextTraining?.description != null}
-                            elementTrue={
-                                <TextArea className={"mt-5"} label={"Beschreibung"} labelSmall disabled value={nextTraining?.description} />
-                            }
+                            elementTrue={<TextArea className={"mt-5"} label={"Beschreibung"} labelSmall disabled value={nextTraining?.description} />}
                         />
 
                         <Separator />
