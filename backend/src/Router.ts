@@ -37,6 +37,7 @@ import UserStatisticsController from "./controllers/user/UserStatisticsControlle
 import SyslogAdminController from "./controllers/admin-logs/SyslogAdminController";
 import JoblogAdminController from "./controllers/admin-logs/JoblogAdminController";
 import UserInformationController from "./controllers/user/UserInformationController";
+import CourseInformationAdministrationController from "./controllers/course/CourseInformationAdministrationController";
 
 export const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -251,6 +252,9 @@ router.use(
                 r.post("/", CourseAdministrationController.createCourse);
                 r.patch("/", CourseAdministrationController.updateCourse);
                 r.get("/:course_uuid", CourseAdministrationController.getCourse);
+
+                r.get("/information/:course_uuid", CourseInformationAdministrationController.getInformation);
+                r.post("/information/:course_uuid", CourseInformationAdministrationController.setInformation);
 
                 r.get("/user/:course_uuid", CourseAdministrationController.getCourseParticipants);
                 r.delete("/user/:course_uuid", CourseAdministrationController.removeCourseParticipant);

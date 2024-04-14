@@ -1,4 +1,4 @@
-export const enum E_VATSIM_RATING {
+export enum E_VATSIM_RATING {
     INAC = -1,
     SUS,
     OBS,
@@ -13,6 +13,14 @@ export const enum E_VATSIM_RATING {
     I3,
     SUP,
     ADM,
+}
+
+export const RATINGS_MAP = new Map<number, { long: string; short: string }>();
+for (let i = 0; i < E_VATSIM_RATING.ADM; i++) {
+    RATINGS_MAP.set(i, {
+        long: getAtcRatingLong(i),
+        short: getAtcRatingShort(i),
+    });
 }
 
 export function getAtcRatingShort(rating: number) {

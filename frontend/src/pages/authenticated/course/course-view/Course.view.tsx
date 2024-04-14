@@ -13,6 +13,10 @@ import { getAtcRatingLong, getAtcRatingShort } from "@/utils/helper/vatsim/AtcRa
 import React from "react";
 import useApi from "@/utils/hooks/useApi";
 import { CourseModel } from "@/models/CourseModel";
+import { ICourseInformationData, ICourseInformationDurationUnits } from "@models/CourseInformation";
+import genericTranslation from "@/assets/lang/generic.translation";
+import { useUserSelector } from "@/app/features/authSlice";
+import { TLanguage, useSettingsSelector } from "@/app/features/settingsSlice";
 
 function getTypeString(type: "online" | "sim" | "cpt" | "lesson") {
     switch (type) {
@@ -30,13 +34,13 @@ function getTypeString(type: "online" | "sim" | "cpt" | "lesson") {
     }
 }
 
-function getDuration(data: any) {
-    if (data == null) return "Keine Angabe";
+function getDuration(data: ICourseInformationData, language: TLanguage) {
+    if (data == null || data.duration == null) return "Keine Angabe";
 
-    const duration = data.estimated_duration?.value;
-    const unit = data.estimated_duration?.unit;
+    const duration = data.duration;
+    const unit = data?.duration_unit;
 
-    return `${duration} ${unit}`;
+    return `${duration} ${genericTranslation.durations[unit ?? "day"][language]}`;
 }
 
 function getAtcRating(rating: number | undefined): string {
@@ -48,6 +52,7 @@ function getAtcRating(rating: number | undefined): string {
 }
 
 export function CourseView() {
+    const language = useSettingsSelector().language;
     const navigate = useNavigate();
     const { uuid } = useParams();
 
@@ -75,7 +80,7 @@ export function CourseView() {
                                     preIcon={<TbClock size={20} />}
                                     label={"Ungefähre Dauer"}
                                     disabled
-                                    value={getDuration(course?.information?.data)}
+                                    value={getDuration(course?.information?.data, language)}
                                 />
 
                                 <Input
@@ -83,7 +88,15 @@ export function CourseView() {
                                     preIcon={<TbCertificate size={20} />}
                                     label={"Rating nach Abschluss"}
                                     disabled
-                                    value={getAtcRating(course?.information?.data?.rating_on_complete)}
+                                    value={getAtcRating(course?.information?.data?.rating)}
+                                />
+
+                                <Input
+                                    labelSmall
+                                    preIcon={<TbCertificate size={20} />}
+                                    label={"Endorsement nach Abschluss (TODO)"}
+                                    disabled
+                                    value={course?.information?.data?.endorsement_id}
                                 />
                             </div>
 

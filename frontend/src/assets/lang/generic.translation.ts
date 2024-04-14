@@ -19,4 +19,22 @@ export default {
         de: "Erneut versuchen",
         en: "Retry",
     },
+    durations: {
+        day: {
+            de: "Tag(e)",
+            en: "Day(s)",
+        },
+        week: {
+            de: "Woche(n)",
+            en: "Week(s)",
+        },
+        month: {
+            de: "Monat(e)",
+            en: "Month(s)",
+        },
+        year: {
+            de: "Jahr(e)",
+            en: "Monat(e)",
+        },
+    },
 };

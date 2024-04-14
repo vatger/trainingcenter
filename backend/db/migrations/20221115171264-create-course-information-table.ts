@@ -4,14 +4,10 @@ import { DataType } from "sequelize-typescript";
 export const COURSE_INFORMATION_TABLE = "course_information";
 
 export const COURSE_INFORMATION_TABLE_ATTRIBUTES = {
-    id: {
-        type: DataType.INTEGER,
-        primaryKey: true,
-        autoIncrement: true,
-    },
     course_id: {
         type: DataType.INTEGER,
         allowNull: false,
+        primaryKey: true,
         references: {
             model: "courses",
             key: "id",

@@ -16,6 +16,8 @@ import ToastHelper from "@/utils/helper/ToastHelper";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { MGVUsersSkeleton } from "@/pages/administration/lm/mentor-group/view/_skeletons/MGVUsers.skeleton";
 import MGVUsersTypes from "@/pages/administration/lm/mentor-group/view/_types/MGVUsers.types";
+import { UserFilter } from "@/components/ui/UserFilter/UserFilter";
+import { IMinimalUser } from "@models/User";
 
 export function MGVUsersSubpage({ mentorGroupID }: { mentorGroupID: string | undefined }) {
     const {
@@ -28,18 +30,19 @@ export function MGVUsersSubpage({ mentorGroupID }: { mentorGroupID: string | und
         method: "get",
     });
 
-    const [newUserID, setNewUserID] = useState<string | undefined>(undefined);
+    const [newUser, setNewUser] = useState<undefined | IMinimalUser>(undefined);
     const [addingUser, setAddingUser] = useState<boolean>(false);
 
     function addUser(e: FormEvent<HTMLFormElement>) {
         e?.preventDefault();
 
-        if (newUserID == null || isNaN(Number(newUserID))) {
+        if (newUser == null) {
             return;
         }
 
         setAddingUser(true);
         const formData = FormHelper.getEntries(e.target);
+        FormHelper.set(formData, "user_id", newUser.id);
         FormHelper.set(formData, "mentor_group_id", mentorGroupID);
         FormHelper.setBool(formData, "group_admin", formData.get("group_admin") == "on");
         FormHelper.setBool(formData, "can_manage_course", formData.get("can_manage_course") == "on");
@@ -58,7 +61,10 @@ export function MGVUsersSubpage({ mentorGroupID }: { mentorGroupID: string | und
             .catch(() => {
                 ToastHelper.error("Fehler beim Hinzufügen des Benutzers");
             })
-            .finally(() => setAddingUser(false));
+            .finally(() => {
+                setAddingUser(false);
+                setNewUser(undefined);
+            });
     }
 
     return (
@@ -67,37 +73,34 @@ export function MGVUsersSubpage({ mentorGroupID }: { mentorGroupID: string | und
                 truthValue={loadingUsers}
                 elementTrue={<MGVUsersSkeleton />}
                 elementFalse={
-                    <form onSubmit={addUser}>
-                        <Input
-                            onChange={e => {
-                                setNewUserID(e.target.value);
-                            }}
-                            label={"Benutzer Hinzufügen"}
-                            name={"user_id"}
-                            labelSmall
-                            maxLength={CommonConstants.CID_MAX_LEN}
-                            regex={CommonRegexp.CID}
-                            preIcon={<TbUser size={20} />}
-                            placeholder={"1373921"}
-                        />
+                    <>
+                        <UserFilter onUserSelect={u => setNewUser(u)} removeIDs={users?.map(u => u.id)} />
 
-                        <div className={"flex flex-col mt-3"}>
-                            <Checkbox name={"group_admin"}>Gruppenadministrator</Checkbox>
-                            <Checkbox name={"can_manage_course"} className={"mt-3"}>
-                                Kursverwaltung
-                            </Checkbox>
-                        </div>
+                        <Separator />
 
-                        <Button size={SIZE_OPTS.SM} color={COLOR_OPTS.PRIMARY} loading={addingUser} variant={"twoTone"} className={"mt-5"} type={"submit"}>
-                            Hinzufügen
-                        </Button>
-                    </form>
+                        <form onSubmit={addUser}>
+                            <p>
+                                <strong>Ausgewählter Benutzer</strong>: {newUser ? `${newUser.first_name} ${newUser.last_name} (${newUser.id})` : "N/A"}
+                            </p>
+
+                            <div className={"flex flex-col mt-3"}>
+                                <Checkbox name={"group_admin"}>Gruppenadministrator</Checkbox>
+                                <Checkbox name={"can_manage_course"} className={"mt-3"}>
+                                    Kursverwaltung
+                                </Checkbox>
+                            </div>
+
+                            <Button size={SIZE_OPTS.SM} color={COLOR_OPTS.PRIMARY} loading={addingUser} variant={"twoTone"} className={"mt-5"} type={"submit"}>
+                                Hinzufügen
+                            </Button>
+                        </form>
+                    </>
                 }
             />
 
             <Separator />
 
-            <Table paginate columns={MGVUsersTypes.getColumns(users, setUsers, mentorGroupID)} data={users ?? []} loading={loadingUsers} />
+            <Table paginate columns={MGVUsersTypes.getColumns(users, setUsers, mentorGroupID)} defaultSortField={1} data={users ?? []} loading={loadingUsers} />
         </>
     );
 }
