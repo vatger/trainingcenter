@@ -9,7 +9,7 @@ import { TbCertificate, TbCheckbox, TbClock, TbId } from "react-icons/tb";
 import { TextArea } from "@/components/ui/Textarea/TextArea";
 import { Button } from "@/components/ui/Button/Button";
 import { Card } from "@/components/ui/Card/Card";
-import { getAtcRatingLong, getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingCombined, getAtcRatingLong, getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
 import React from "react";
 import useApi from "@/utils/hooks/useApi";
 import { CourseModel } from "@/models/CourseModel";
@@ -43,12 +43,10 @@ function getDuration(data: ICourseInformationData, language: TLanguage) {
     return `${duration} ${genericTranslation.durations[unit ?? "day"][language]}`;
 }
 
-function getAtcRating(rating: number | undefined): string {
-    if (rating == null) return "Keine Angabe";
+function getEndorsement(data?: ICourseInformationData) {
+    if (data?.endorsement_id == null) return "Keine Angabe";
 
-    const short = getAtcRatingShort(rating);
-    const long = getAtcRatingLong(rating);
-    return `${long} (${short})`;
+    return `${data.endorsement_id} (TODO: Name)`
 }
 
 export function CourseView() {
@@ -88,7 +86,7 @@ export function CourseView() {
                                     preIcon={<TbCertificate size={20} />}
                                     label={"Rating nach Abschluss"}
                                     disabled
-                                    value={getAtcRating(course?.information?.data?.rating)}
+                                    value={getAtcRatingCombined(course?.information?.data?.rating)}
                                 />
 
                                 <Input
@@ -96,7 +94,7 @@ export function CourseView() {
                                     preIcon={<TbCertificate size={20} />}
                                     label={"Endorsement nach Abschluss (TODO)"}
                                     disabled
-                                    value={course?.information?.data?.endorsement_id}
+                                    value={getEndorsement(course?.information?.data)}
                                 />
                             </div>
 
