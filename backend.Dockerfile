@@ -16,7 +16,7 @@ COPY package*.json ./
 RUN apk update && apk add --update nodejs npm
 RUN npm install --quiet --unsafe-perm --no-progress --no-audit
 
-COPY /backend/misc/mail-templates /opt/misc/
+COPY /backend/misc/mail-templates /opt/misc/mail-templates/
 COPY --from=build /build/_build/backend /opt/
 
 # Init cron
