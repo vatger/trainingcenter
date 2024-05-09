@@ -25,6 +25,8 @@ const required_env: Array<string> = [
     "FRONTEND_URI",
     "SESSION_COOKIE_NAME",
     "VATSIM_API_BASE",
+    "VATEUD_API_BASE",
+    "VATEUD_API_KEY",
     "VATGER_API_BASE",
     "MOODLE_API_BASE",
     "CONNECT_BASE",
@@ -76,7 +78,7 @@ export const Config = {
     },
 
     VATEUD_CORE_CONFIG: {
-        API_KEY: process.env.VATEUD_CORE_API_KEY,
+        API_KEY: process.env.VATEUD_API_KEY,
     },
 
     CONNECT_CONFIG: {
