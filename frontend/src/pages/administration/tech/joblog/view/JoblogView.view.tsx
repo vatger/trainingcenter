@@ -77,7 +77,7 @@ export function JoblogViewView() {
                             elementTrue={
                                 <>
                                     <h6 className="text-sm mb-2 mt-5">Payload</h6>
-                                    <pre className={"input input-disabled whitespace-pre"}>{JSON.stringify(joblog?.payload, undefined, 4)}</pre>
+                                    <pre className={"input input-disabled whitespace-break-spaces"}>{JSON.stringify(joblog?.payload, undefined, 4)}</pre>
                                 </>
                             }
                         />
