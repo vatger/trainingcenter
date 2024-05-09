@@ -60,7 +60,7 @@ export function UVAddEndorsementModal({
         FormHelper.set(formData, "user_id", user?.id);
 
         axiosInstance
-            .post("/administration/endorsement", formData)
+            .post("/administration/endorsement", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 ToastHelper.success("Freigabe erfolgreich erstellt");
                 const endorsements = res.data as EndorsementGroupModel[];

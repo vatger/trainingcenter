@@ -24,7 +24,6 @@ import {
     TbRss,
     TbSearch,
     TbSettings,
-    TbSquareCheck,
     TbTemplate,
     TbUsers,
     TbX,
@@ -188,7 +187,7 @@ export function SideNav() {
                                             <MenuItem href={"administration/training-type"} icon={<TbTemplate size={20} />}>
                                                 Trainingstypen
                                             </MenuItem>
-                                            <MenuItem disabled icon={<TbAdjustments size={20} />} href={"administration/action-requirement"}>
+                                            <MenuItem icon={<TbAdjustments size={20} />} href={"administration/action-requirement"}>
                                                 Aktionen | Bedingungen
                                             </MenuItem>
                                         </>

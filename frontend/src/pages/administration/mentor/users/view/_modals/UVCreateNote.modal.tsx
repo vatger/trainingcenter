@@ -34,7 +34,7 @@ export function UVCreateNoteModal(props: CreateUserNotePartialProps) {
 
         const formData = FormHelper.getEntries(e.target);
         axiosInstance
-            .post("/administration/user/note", formData)
+            .post("/administration/user/note", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 props.onCreate(res.data as UserNoteModel);
                 toastHelper.success("Notiz erfolgreich erstellt");
@@ -64,7 +64,9 @@ export function UVCreateNoteModal(props: CreateUserNotePartialProps) {
                     defaultValue={"-1"}
                     name={"course_id"}
                     label={"Kurs"}
-                    description={"Wähle einen Kurs aus um diese Notiz dem Kurs zuzuordnen"}>
+                    description={
+                        'Wähle einen Kurs aus um diese Notiz dem Kurs zuzuordnen. Falls kein Kurs ausgewählt wurde, gilt diese Notiz "global", d.h. sie wird keinem Kurs zugewiesen.'
+                    }>
                     <option value="-1" selected>
                         Kurs Auswählen
                     </option>

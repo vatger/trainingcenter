@@ -38,6 +38,7 @@ initializeApplication()
             "/api/v1",
             routerGroup((r: Router) => {
                 r.use(cookieParser(Config.APP_KEY));
+                r.use(express.json());
                 r.use(
                     multer({
                         dest: Config.FILE_TMP_LOCATION,

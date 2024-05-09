@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from "express";
 import { Course } from "../../models/Course";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { TrainingRequest } from "../../models/TrainingRequest";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
  * Returns courses that are available to the current user (i.e. not enrolled in course)
@@ -103,27 +104,23 @@ async function getMyCourses(request: Request, response: Response) {
  */
 async function enrolInCourse(request: Request, response: Response) {
     const user: User = response.locals.user;
-    const query = request.body as { course_uuid: string };
+    const body = request.body as { course_uuid: string };
 
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "course_uuid",
-    //         validationObject: query.course_uuid,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    // ]);
+    Validator.validate(body, {
+        course_uuid: [ValidationTypeEnum.NON_NULL],
+    });
 
     // Get course in question
     const course: Course | null = await Course.findOne({
         where: {
-            uuid: query.course_uuid,
+            uuid: body.course_uuid,
         },
         include: [Course.associations.training_type],
     });
 
     // If Course-Instance couldn't be found, throw an error (caught locally)
     if (course == null) {
-        throw Error("Course with id " + query.course_uuid + " could not be found!");
+        throw Error("Course with id " + body.course_uuid + " could not be found!");
     }
 
     // Enrol user in course

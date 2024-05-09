@@ -42,7 +42,7 @@ export function UVAddSoloModal({
         FormHelper.set(formData, "trainee_id", user?.id);
 
         axiosInstance
-            .post("/administration/solo", formData)
+            .post("/administration/solo", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const data: UserModel = res.data as UserModel;
 

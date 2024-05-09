@@ -43,7 +43,7 @@ export function UVUseKontingentSoloModal({
         FormHelper.set(formData, "trainee_id", user?.id);
 
         axiosInstance
-            .patch("/administration/solo", formData)
+            .patch("/administration/solo", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const res_data: UserModel = res.data as UserModel;
 

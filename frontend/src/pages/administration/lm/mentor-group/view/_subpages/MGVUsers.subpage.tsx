@@ -48,7 +48,7 @@ export function MGVUsersSubpage({ mentorGroupID }: { mentorGroupID: string | und
         FormHelper.setBool(formData, "can_manage_course", formData.get("can_manage_course") == "on");
 
         axiosInstance
-            .put("/administration/mentor-group/member", formData)
+            .put("/administration/mentor-group/member", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 let user = res.data as UserModel;
                 user.UserBelongToMentorGroups = {} as UserMentorGroupThrough;

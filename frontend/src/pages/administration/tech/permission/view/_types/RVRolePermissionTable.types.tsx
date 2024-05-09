@@ -24,7 +24,7 @@ function getColumns(
         FormHelper.set(formData, "permission_id", row.id);
 
         axiosInstance
-            .put(`/administration/role/perm/${role.id}`, formData)
+            .put(`/administration/role/perm/${role.id}`, FormHelper.toJSON(formData))
             .then(() => {
                 const p: PermissionModel = {
                     id: row.id,

@@ -53,7 +53,7 @@ export function MentorGroupCreateView() {
         );
 
         axiosInstance
-            .post("/administration/mentor-group", formData)
+            .post("/administration/mentor-group", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const mentorGroup = res.data as MentorGroupModel;
                 navigate("/administration/mentor-group/" + mentorGroup.id + "?r");

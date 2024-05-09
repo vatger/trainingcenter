@@ -20,7 +20,7 @@ export function PLAddPermissionModal(props: { show: boolean; onClose: () => any;
         const formData = FormHelper.getEntries(e.target);
 
         axiosInstance
-            .put("/administration/permission", formData)
+            .put("/administration/permission", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const permission: PermissionModel = res.data as PermissionModel;
                 props.onCreate(permission);

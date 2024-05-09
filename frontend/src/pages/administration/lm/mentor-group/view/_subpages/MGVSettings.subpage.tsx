@@ -30,7 +30,7 @@ export function MGVSettingsSubpage({ mentorGroupID }: { mentorGroupID: string | 
         FormHelper.set(formData, "mentor_group_id", mentorGroup?.id);
 
         axiosInstance
-            .patch("/administration/mentor-group", formData)
+            .patch("/administration/mentor-group", FormHelper.toJSON(formData))
             .then(() => {
                 ToastHelper.success("Mentorengruppe erfolgreich aktualisiert");
             })

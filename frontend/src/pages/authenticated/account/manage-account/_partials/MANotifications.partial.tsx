@@ -38,7 +38,7 @@ export function MANotificationsPartial() {
         FormHelper.set(formData, "notification_id", notificationID);
 
         axiosInstance
-            .delete("/notification", { data: formData })
+            .delete("/notification", { data: FormHelper.toJSON(formData) })
             .then(() => {
                 const newNotifications = notifications.filter(n => n.id != notificationID);
                 dispatch(setNotifications(newNotifications));
@@ -61,7 +61,7 @@ export function MANotificationsPartial() {
         FormHelper.set(formData, "notification_id", notificationID);
 
         axiosInstance
-            .post("/notification/toggle", formData)
+            .post("/notification/toggle", FormHelper.toJSON(formData))
             .then(() => {
                 const newNotifications = notifications.map(n => {
                     if (n.id === notificationID) {

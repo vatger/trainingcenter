@@ -52,6 +52,9 @@ export function RequestFastTrackView() {
             .post("/administration/fast-track", formData, {
                 onUploadProgress: onUploadProgress,
                 timeout: 50_000,
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
             })
             .then((res: AxiosResponse) => {
                 const fastTrack = res.data as FastTrackRequestModel;

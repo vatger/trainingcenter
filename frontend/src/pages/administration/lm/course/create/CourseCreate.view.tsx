@@ -48,7 +48,7 @@ export function CourseCreateView() {
         FormHelper.setBool(formData, "self_enrol_enabled", formData.get("self_enrol_enabled") == "1");
 
         axiosInstance
-            .post("/administration/course", formData)
+            .post("/administration/course", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const course = res.data as CourseModel;
                 navigate(`/administration/course/${course.uuid}`);

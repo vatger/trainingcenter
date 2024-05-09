@@ -6,10 +6,10 @@ import { TbRefresh } from "react-icons/tb";
 
 function getColor(passed?: boolean) {
     if (passed == null) {
-        return "bg-gray-400";
+        return "bg-gray-400 dark:bg-gray-600";
     }
 
-    return passed ? "bg-emerald-500" : "bg-red-500";
+    return passed ? "bg-emerald-500 dark:bg-emerald-600" : "bg-red-500 dark:bg-red-500";
 }
 
 export function EnrolRequirementItemComponent({ action, passed }: { action: string; passed?: boolean }) {

@@ -13,7 +13,7 @@ export const AxiosConfiguration: AxiosRequestConfig = {
     withCredentials: true,
     timeout: 5000,
     headers: {
-        "Content-Type": "multipart/form-data",
+        "Content-Type": "application/json",
         "Access-Control-Allow-Origin": "*",
         "Access-Control-Allow-Credentials": "true",
         "unique-browser-token": window.localStorage.getItem(Config.VATGER_BROWSER_TOKEN_NAME),

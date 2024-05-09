@@ -33,7 +33,7 @@ export function TrainingTypeListView() {
                     </Link>
                 }
                 headerBorder>
-                <Table searchable loading={loading} columns={trainingTypesColumns} data={trainingTypes ?? []} />
+                <Table searchable paginate loading={loading} columns={trainingTypesColumns} data={trainingTypes ?? []} />
             </Card>
         </>
     );

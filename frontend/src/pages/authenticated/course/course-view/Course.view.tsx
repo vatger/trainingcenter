@@ -46,7 +46,7 @@ function getDuration(data: ICourseInformationData, language: TLanguage) {
 function getEndorsement(data?: ICourseInformationData) {
     if (data?.endorsement_id == null) return "Keine Angabe";
 
-    return `${data.endorsement_id} (TODO: Name)`
+    return `${data.endorsement_id} (TODO: Name)`;
 }
 
 export function CourseView() {

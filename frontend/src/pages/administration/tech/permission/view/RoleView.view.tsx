@@ -46,7 +46,7 @@ export function RoleViewView() {
         const formData = FormHelper.getEntries(e.target);
 
         axiosInstance
-            .patch(`/administration/role/${role_id}`, formData)
+            .patch(`/administration/role/${role_id}`, FormHelper.toJSON(formData))
             .then(() => {
                 ToastHelper.success("Rolle aktualisiert");
             })

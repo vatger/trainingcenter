@@ -86,7 +86,7 @@ function SubmitTrainingLogs(data: ITrainingSessionServiceProps) {
             ToastHelper.success("Logs erfolgreich erstellt");
             data.navigate("/administration/training-request/planned");
         })
-        .catch((err: AxiosError) => {
+        .catch(() => {
             ToastHelper.error("Fehler beim erstellen der Logs");
         })
         .finally(() => data.setSubmitting(false));

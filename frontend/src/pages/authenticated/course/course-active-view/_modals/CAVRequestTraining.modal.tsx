@@ -48,7 +48,7 @@ export function CAVRequestTrainingModal(props: RequestTrainingModalPartialProps)
         FormHelper.set(formData, "training_type_id", nextTraining?.id);
 
         axiosInstance
-            .post("/training-request", formData)
+            .post("/training-request", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const trainingRequest = res.data as TrainingRequestModel;
                 props.setTrainingRequests([...props.trainingRequests, trainingRequest]);

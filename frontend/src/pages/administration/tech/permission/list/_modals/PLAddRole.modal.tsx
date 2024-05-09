@@ -20,7 +20,7 @@ export function PLAddRoleModal(props: { show: boolean; onClose: () => any; onCre
         const formData = FormHelper.getEntries(e.target);
 
         axiosInstance
-            .post("/administration/role", formData)
+            .post("/administration/role", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const role: RoleModel = res.data as RoleModel;
                 props.onCreate(role);

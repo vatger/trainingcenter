@@ -29,7 +29,7 @@ export function PVAddUserModal(props: AddUserModalT) {
         FormHelper.set(formData, "role_id", props.role_id);
 
         axiosInstance
-            .post("/administration/role/user", formData)
+            .post("/administration/role/user", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const user: UserModel = res.data as UserModel;
                 props.onCreate(user);

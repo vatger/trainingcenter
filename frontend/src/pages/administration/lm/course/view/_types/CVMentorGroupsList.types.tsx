@@ -30,7 +30,7 @@ function getColumns(
 
         axiosInstance
             .delete(`/administration/course/mentor-group/${courseUUID}`, {
-                data: formData,
+                data: FormHelper.toJSON(formData),
             })
             .then(() => {
                 const toBeRemoved = mentorGroups.find(mg => mg.id == id);

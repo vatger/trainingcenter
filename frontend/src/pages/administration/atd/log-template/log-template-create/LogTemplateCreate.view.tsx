@@ -34,7 +34,7 @@ export function LogTemplateCreateView() {
         FormHelper.set(formData, "content", content);
 
         axiosInstance
-            .post("/administration/training-log/template", formData)
+            .post("/administration/training-log/template", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const data = res.data as TrainingLogTemplateModel;
 

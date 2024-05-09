@@ -79,7 +79,7 @@ async function handleLogin(remember: boolean): Promise<UserModel> {
     FormHelper.set(formData, "remember", remember);
 
     return axiosInstance
-        .post("/auth/login", formData)
+        .post("/auth/login", FormHelper.toJSON(formData))
         .then((res: AxiosResponse) => {
             return res.data as UserModel;
         })

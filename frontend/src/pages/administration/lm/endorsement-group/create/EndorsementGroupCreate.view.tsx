@@ -63,7 +63,7 @@ export function EndorsementGroupCreateView() {
         FormHelper.set(formData, "training_station_ids", trainingStationIDs);
 
         axiosInstance
-            .post("/administration/endorsement-group", formData)
+            .post("/administration/endorsement-group", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 const eg = res.data as EndorsementGroupModel;
                 ToastHelper.success("Freigabegruppe erfolgreich erstellt");

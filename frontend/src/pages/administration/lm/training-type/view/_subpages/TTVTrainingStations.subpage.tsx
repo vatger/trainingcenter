@@ -8,13 +8,20 @@ import { MapArray } from "@/components/conditionals/MapArray";
 import { Button } from "@/components/ui/Button/Button";
 import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 import { TbPlus } from "react-icons/tb";
-import { useState } from "react";
+import React, { useState } from "react";
 import { Separator } from "@/components/ui/Separator/Separator";
 import ToastHelper from "@/utils/helper/ToastHelper";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { TTVSkeleton } from "@/pages/administration/lm/training-type/view/_skeletons/TTV.skeleton";
 import FormHelper from "@/utils/helper/FormHelper";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
+import { Input } from "@/components/ui/Input/Input";
+import { useDebounce } from "@/utils/hooks/useDebounce";
+import { useFilter } from "@/utils/hooks/useFilter";
+
+function filterStations(element: TrainingStationModel, searchValue: string) {
+    return element.callsign.startsWith(searchValue.toUpperCase());
+}
 
 export function TTVTrainingStationsSubpage(props: { trainingTypeID?: string }) {
     const [selectedTrainingStation, setSelectedTrainingStation] = useState<string | undefined>(undefined);
@@ -34,6 +41,10 @@ export function TTVTrainingStationsSubpage(props: { trainingTypeID?: string }) {
         method: "get",
     });
 
+    const [searchValue, setSearchValue] = useState<string>("");
+    const debouncedSearchValue = useDebounce<string>(searchValue);
+    const filteredData = useFilter<TrainingStationModel>(trainingStations ?? [], searchValue, debouncedSearchValue, filterStations);
+
     function addTrainingStation() {
         setSubmitting(true);
 
@@ -51,7 +62,7 @@ export function TTVTrainingStationsSubpage(props: { trainingTypeID?: string }) {
         FormHelper.set(formData, "training_station_id", selectedTrainingStation);
 
         axiosInstance
-            .put("/administration/training-type/station", formData)
+            .put("/administration/training-type/station", FormHelper.toJSON(formData))
             .then(() => {
                 ToastHelper.success("Trainingsstation erfolgreich hinzugefügt");
                 setTrainingType({ ...trainingType, training_stations: newStations });
@@ -70,9 +81,19 @@ export function TTVTrainingStationsSubpage(props: { trainingTypeID?: string }) {
                 elementTrue={<TTVSkeleton />}
                 elementFalse={
                     <>
+                        <Input
+                            label={"Stationen Filtern"}
+                            onChange={e => setSearchValue(e.target.value)}
+                            value={searchValue}
+                            fieldClassName={"uppercase"}
+                            placeholder={"EDDF"}
+                            labelSmall
+                        />
+
                         <Select
                             label={"Trainingsstation Hinzufügen"}
                             labelSmall
+                            className={"mt-5"}
                             value={selectedTrainingStation ?? "-1"}
                             disabled={submitting}
                             onChange={v => {
@@ -85,7 +106,7 @@ export function TTVTrainingStationsSubpage(props: { trainingTypeID?: string }) {
                             <option value={"-1"}>Trainingsstation Auswählen</option>
 
                             <MapArray
-                                data={trainingStations?.filter(ts => !trainingType?.training_stations?.find(t => t.id == ts.id)) ?? []}
+                                data={filteredData?.filter(ts => !trainingType?.training_stations?.find(t => t.id == ts.id)) ?? []}
                                 mapFunction={(trainingType: TrainingStationModel, index) => {
                                     return (
                                         <option key={index} value={trainingType.id}>

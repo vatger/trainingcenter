@@ -27,7 +27,7 @@ export function CWithdrawPartial(props: WithdrawFromCoursePartialProps) {
 
         axiosInstance
             .delete("/course/withdraw", {
-                data: formData,
+                data: FormHelper.toJSON(formData),
             })
             .then(() => {
                 ToastHelper.success("Erfolgreich vom Kurs abgemeldet");

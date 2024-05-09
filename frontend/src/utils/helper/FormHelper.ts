@@ -48,10 +48,17 @@ function setBool(form: FormData, key: string, expr: boolean) {
     form.set(key, expr ? "true" : "false");
 }
 
+function toJSON(form: FormData) {
+    let object: any = {};
+    form.forEach((value, key) => (object[key] = value));
+    return object;
+}
+
 export default {
     getEntries,
     addFiles,
     append,
     set,
     setBool,
+    toJSON,
 };

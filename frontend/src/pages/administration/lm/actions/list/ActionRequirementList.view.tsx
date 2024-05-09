@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button/Button";
 import { TbPlus } from "react-icons/tb";
 import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 
-export function ActionListView() {
+export function ActionRequirementListView() {
     const navigate = useNavigate();
 
     const { loading: loadingActionRequirements, data: actionRequirements } = useApi<ActionRequirementModel[]>({
@@ -32,6 +32,7 @@ export function ActionListView() {
                 headerBorder>
                 <Table
                     searchable
+                    paginate
                     loading={loadingActionRequirements}
                     columns={ALTypes.getActionRequirementTableColumns(navigate)}
                     data={actionRequirements ?? []}

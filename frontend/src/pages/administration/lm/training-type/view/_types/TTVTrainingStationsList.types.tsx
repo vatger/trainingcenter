@@ -25,7 +25,7 @@ function getColumns(
 
         axiosInstance
             .delete("/administration/training-type/station", {
-                data: formData,
+                data: FormHelper.toJSON(formData),
             })
             .then(() => {
                 if (trainingType.training_stations == null) {

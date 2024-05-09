@@ -409,11 +409,12 @@ async function getCourseTrainingTypes(request: Request, response: Response) {
 }
 
 async function createTrainingLogs(request: Request, response: Response, next: NextFunction) {
-    // TODO: Rewrite slightly :) - especially add validation :D
-
     // All of these steps MUST complete, else we are left in an undefined state
     const t = await sequelize.transaction();
 
+    // TODO: Add Validation!
+
+    console.log(request.body);
     try {
         const user: User = response.locals.user;
         const params = request.params as { uuid: string };

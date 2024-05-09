@@ -39,7 +39,7 @@ export function CourseEnrolView() {
         FormHelper.set(formData, "course_uuid", courseUUID);
 
         axiosInstance
-            .put("/course/enrol", formData)
+            .put("/course/enrol", FormHelper.toJSON(formData))
             .then(() => {
                 navigate(`/course/active/${courseUUID}?r`);
                 ToastHelper.success("Du wurdest erfolgreich in diesen Kurs eingeschrieben");
@@ -82,17 +82,24 @@ export function CourseEnrolView() {
                             />
                         </div>
 
-                        <Separator />
+                        <RenderIf
+                            truthValue={loadingRequirements || allRequirementsSatisfied}
+                            elementTrue={
+                                <>
+                                    <Separator />
 
-                        <Button
-                            color={COLOR_OPTS.PRIMARY}
-                            variant={"twoTone"}
-                            loading={loadingRequirements || enrolling}
-                            disabled={!allRequirementsSatisfied}
-                            icon={allRequirementsSatisfied ? <TbCheckbox size={20} /> : <TbX size={20} />}
-                            onClick={enrol}>
-                            {loadingRequirements ? "Lade Voraussetzungen" : "Jetzt Einschreiben"}
-                        </Button>
+                                    <Button
+                                        color={COLOR_OPTS.PRIMARY}
+                                        variant={"twoTone"}
+                                        loading={loadingRequirements || enrolling}
+                                        disabled={!allRequirementsSatisfied}
+                                        icon={allRequirementsSatisfied ? <TbCheckbox size={20} /> : <TbX size={20} />}
+                                        onClick={enrol}>
+                                        {loadingRequirements ? "Lade Voraussetzungen" : "Jetzt Einschreiben"}
+                                    </Button>
+                                </>
+                            }
+                        />
                     </Card>
                 }
             />

@@ -27,7 +27,7 @@ import { LogTemplateListView } from "@/pages/administration/atd/log-template/log
 import { LogTemplateViewView } from "@/pages/administration/atd/log-template/log-template-view/LogTemplateView.view";
 import { LogTemplateCreateView } from "@/pages/administration/atd/log-template/log-template-create/LogTemplateCreate.view";
 import { TrainingStationListView } from "@/pages/administration/atd/training-station/training-station-list/TrainingStationList.view";
-import { ActionListView } from "@/pages/administration/lm/actions/list/ActionList.view";
+import { ActionRequirementListView } from "@/pages/administration/lm/actions/list/ActionRequirementList.view";
 import { EndorsementGroupListView } from "@/pages/administration/lm/endorsement-group/list/EndorsementGroupList.view";
 import { EndorsementGroupCreateView } from "@/pages/administration/lm/endorsement-group/create/EndorsementGroupCreate.view";
 import { EndorsementGroupViewView } from "@/pages/administration/lm/endorsement-group/view/EndorsementGroupView.view";
@@ -41,6 +41,7 @@ import { PermissionListView } from "@/pages/administration/tech/permission/list/
 import { RoleViewView } from "@/pages/administration/tech/permission/view/RoleView.view";
 import { MyTrainingSessionListView } from "@/pages/administration/mentor/training-session/my-list/MyTrainingSessionList.view";
 import { MyTrainingSessionView } from "@/pages/administration/mentor/training-session/my-view/MyTrainingSession.view";
+import { ActionRequirementCreateView } from "@/pages/administration/lm/actions/create/ActionRequirementCreate.view";
 
 export function AdministrationRouter() {
     const location = useLocation();
@@ -111,8 +112,8 @@ export function AdministrationRouter() {
             </Route>
 
             <Route path={"action-requirement"}>
-                <Route path={""} element={<ActionListView />} />
-                <Route path={"create"} element={<></>} />
+                <Route path={""} element={<ActionRequirementListView />} />
+                <Route path={"create"} element={<ActionRequirementCreateView />} />
             </Route>
 
             <Route path={"endorsement-group"}>

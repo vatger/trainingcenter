@@ -47,7 +47,7 @@ export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefin
         FormHelper.setBool(formData, "self_enrol_enabled", formData.get("self_enrol_enabled") == "1");
 
         axiosInstance
-            .patch("/administration/course", formData)
+            .patch("/administration/course", FormHelper.toJSON(formData))
             .then(() => {
                 setCourse({ ...course, updatedAt: new Date() });
                 ToastHelper.success("Kurs aktualisiert");

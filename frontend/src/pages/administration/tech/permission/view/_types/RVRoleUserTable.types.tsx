@@ -23,7 +23,7 @@ function getColumns(roleData: RoleModel | undefined, setRoleData: Dispatch<RoleM
 
         axiosInstance
             .delete("/administration/role/user", {
-                data: formData,
+                data: FormHelper.toJSON(formData),
             })
             .then(() => {
                 const roleD = { ...roleData };

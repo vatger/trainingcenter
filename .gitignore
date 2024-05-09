@@ -31,3 +31,6 @@ _build
 *.njsproj
 *.sln
 *.sw?
+
+# Ignore uploaded files in storage
+backend/storage/**/*
