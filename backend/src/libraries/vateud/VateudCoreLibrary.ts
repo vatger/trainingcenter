@@ -57,8 +57,8 @@ export async function createSolo(userSolo: UserSolo, endorsementGroup: Endorseme
             user_id: userSolo.user_id,
             position: endorsementGroup.name,
             instructor_cid: userSolo.created_by,
-            starts_at: userSolo.current_solo_start?.toString() ?? "",
-            expires_at: userSolo.current_solo_end?.toString() ?? "",
+            starts_at: userSolo.current_solo_start?.toISOString() ?? "",
+            expires_at: userSolo.current_solo_end?.toISOString() ?? "",
         },
     };
 
