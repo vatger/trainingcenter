@@ -184,6 +184,8 @@ router.use(
                 r.get("/min", UserController.getAllUsersMinimalData);
                 r.get("/sensitive", UserController.getAllSensitive);
 
+                r.post("/enrol", UserCourseAdminController.enrolUser);
+
                 r.get("/course/match", UserCourseAdminController.getUserCourseMatch);
             })
         );

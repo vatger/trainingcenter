@@ -5,15 +5,15 @@ import { TrainingLogModel } from "@/models/TrainingSessionBelongsToUser.model";
 import { Card } from "@/components/ui/Card/Card";
 import { MapArray } from "@/components/conditionals/MapArray";
 import { LogTemplateElement } from "@/models/TrainingLogTemplateModel";
-import { TLVLogTemplateElementPartial } from "@/pages/authenticated/training/training-log-view/_partials/TLVLogTemplateElement.partial";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { TLVViewSkeleton } from "@/pages/authenticated/training/training-log-view/_skeletons/TLVView.skeleton";
 import { Input } from "@/components/ui/Input/Input";
-import { CommonRegexp, Config } from "@/core/Config";
-import { TbCalendar, TbId, TbUser } from "react-icons/tb";
+import { Config } from "@/core/Config";
+import { TbCalendar, TbUser } from "react-icons/tb";
 import React from "react";
 import { Separator } from "@/components/ui/Separator/Separator";
 import dayjs from "dayjs";
+import { LogTemplateElementReadOnly } from "@/components/shared/log-template-element/LogTemplateElementReadOnly";
 
 export function TrainingLogViewView() {
     const { uuid } = useParams();
@@ -63,7 +63,7 @@ export function TrainingLogViewView() {
                         <MapArray
                             data={(trainingLog?.content ?? []) as LogTemplateElement[]}
                             mapFunction={(t: LogTemplateElement, index: number) => {
-                                return <TLVLogTemplateElementPartial element={t} index={index} key={index} />;
+                                return <LogTemplateElementReadOnly logElement={t} idx={index} />;
                             }}
                         />
                     </Card>

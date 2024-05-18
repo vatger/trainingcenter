@@ -148,12 +148,10 @@ function _validateEntry(
             break;
 
         case ValidationTypeEnum.NOT_EQUAL:
-            let invalid = false;
-            if (typeof valOption.value == "number" && Number(data) === valOption.value) break;
-            if (typeof valOption.value == "string" && data.toLowerCase() == valOption.value) break;
+            if (typeof valOption.value == "number" && Number(data) !== valOption.value) break;
+            if (typeof valOption.value == "string" && data.toLowerCase() != valOption.value) break;
 
             addErrorEntry(`Parameter can't equal ${valOption.value}`);
-
             break;
 
         case ValidationTypeEnum.IN_ARRAY:

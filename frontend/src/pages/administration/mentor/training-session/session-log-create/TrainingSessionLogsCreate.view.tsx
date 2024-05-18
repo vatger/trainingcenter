@@ -1,13 +1,11 @@
 import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import React, { useEffect, useState } from "react";
-import { LogTemplateElement } from "@/models/TrainingLogTemplateModel";
+import { LogTemplateElement, LogTemplateElementRating, TrainingLogTemplateModel } from "@/models/TrainingLogTemplateModel";
 import { MapArray } from "@/components/conditionals/MapArray";
 import { Card } from "@/components/ui/Card/Card";
 import { UserModel } from "@/models/UserModel";
-import { TSLCLogTemplateElementPartial } from "@/pages/administration/mentor/training-session/session-log-create/_partials/TSLCLogTemplateElement.partial";
 import useApi from "@/utils/hooks/useApi";
-import { TrainingLogTemplateModel } from "@/models/TrainingLogTemplateModel";
 import { generateUUID } from "@/utils/helper/UUIDHelper";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { Button } from "@/components/ui/Button/Button";
@@ -19,6 +17,7 @@ import { Select } from "@/components/ui/Select/Select";
 import StringHelper from "@/utils/helper/StringHelper";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
 import ToastHelper from "@/utils/helper/ToastHelper";
+import { LogTemplateElementEditable } from "@/components/shared/log-template-element/LogTemplateElementEditable";
 
 export type ParticipantStatus = {
     user_id: number;
@@ -86,6 +85,12 @@ export function TrainingSessionLogsCreateView() {
         if (loadingParticipants || loadingLogTemplate || participantValues.length == 0 || logTemplateElements.length == 0) return;
 
         let newStatus = [...participantValues];
+        const templateElements = logTemplateElements.map((l: LogTemplateElement) => {
+            if (l.type == "rating") (l as LogTemplateElementRating).value = 0;
+
+            return l;
+        });
+
         for (const s of newStatus) {
             s.user_log?.push(...logTemplateElements);
         }
@@ -124,7 +129,7 @@ export function TrainingSessionLogsCreateView() {
                                     className={index > 0 ? "mt-5" : ""}
                                     header={`${user?.first_name} ${user?.last_name} (${user?.id})`}
                                     headerBorder>
-                                    <TSLCLogTemplateElementPartial
+                                    <LogTemplateElementEditable
                                         participantStatus={v}
                                         participantStatusList={participantValues}
                                         setParticipantValues={setParticipantValues}

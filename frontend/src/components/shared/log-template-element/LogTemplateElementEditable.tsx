@@ -95,13 +95,13 @@ function LogTemplateSection({ element, index }: { element: LogTemplateElementSec
     );
 }
 
-interface ITSLCLogTemplateElementPartial {
+interface ILogTemplateElementEditable {
     participantStatus: ParticipantStatus;
     participantStatusList: ParticipantStatus[];
     setParticipantValues: Dispatch<ParticipantStatus[]>;
 }
 
-export function TSLCLogTemplateElementPartial({ participantStatus, participantStatusList, setParticipantValues }: ITSLCLogTemplateElementPartial) {
+export function LogTemplateElementEditable({ participantStatus, participantStatusList, setParticipantValues }: ILogTemplateElementEditable) {
     function handleChange(oldElem: LogTemplateElement, newElem: LogTemplateElement) {
         // Check if the old value exists
         const foundIndex = participantStatus.user_log.findIndex(l => l == oldElem);

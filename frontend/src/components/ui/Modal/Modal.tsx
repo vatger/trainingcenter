@@ -3,6 +3,7 @@ import { RenderIf } from "../../conditionals/RenderIf";
 import React, { useRef } from "react";
 import { Separator } from "../Separator/Separator";
 import { ModalProps } from "./Modal.props";
+import { ButtonRow } from "@/components/ui/Button/ButtonRow";
 
 export function Modal(props: ModalProps) {
     const modalRef = useRef<HTMLDivElement>(null);
@@ -44,7 +45,8 @@ export function Modal(props: ModalProps) {
                                     elementTrue={
                                         <>
                                             <Separator />
-                                            <div className={"w-full mt-4 flex justify-end sm:flex-row flex-col"}>{props.footer}</div>
+
+                                            <ButtonRow className={"justify-end"}>{props.footer!}</ButtonRow>
                                         </>
                                     }
                                 />

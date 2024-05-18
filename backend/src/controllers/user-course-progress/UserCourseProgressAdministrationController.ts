@@ -28,7 +28,12 @@ async function getInformation(request: Request, response: Response, next: NextFu
         });
 
         // TODO: Return the relevant information for this course ONLY!
+        // TODO(2): Limit the amount of data in the return (attribute: [...])
         // Currently, the controller returns ALL Requests and Histories for the user with this ID, not only those in the specified course!
+
+        const course_id = await Course.getIDFromUUID(query.course_uuid);
+
+        console.log("Course id: " + course_id);
 
         const user = await User.findOne({
             where: {
@@ -38,9 +43,14 @@ async function getInformation(request: Request, response: Response, next: NextFu
             include: [
                 {
                     association: User.associations.courses,
+                    attributes: ["uuid", "name"],
+                    through: {
+                        attributes: ["id", "completed", "next_training_type"],
+                    },
                     include: [
                         {
                             association: Course.associations.training_types,
+                            attributes: ["id", "name", "type"],
                             through: {
                                 attributes: [],
                             },
@@ -52,8 +62,16 @@ async function getInformation(request: Request, response: Response, next: NextFu
                 },
                 {
                     association: User.associations.training_requests,
+                    attributes: ["uuid", "status", "createdAt"],
+                    where: {
+                        course_id: course_id,
+                    },
+                    required: false,
                     include: [
-                        TrainingRequest.associations.training_type,
+                        {
+                            association: TrainingRequest.associations.training_type,
+                            attributes: ["name", "type"],
+                        },
                         {
                             association: TrainingRequest.associations.training_session,
                             attributes: ["id", "mentor_id"],
@@ -63,13 +81,30 @@ async function getInformation(request: Request, response: Response, next: NextFu
                 },
                 {
                     association: User.associations.training_sessions,
+                    attributes: ["uuid", "completed", "date"],
+                    where: {
+                        course_id: course_id,
+                    },
+                    required: false,
                     through: {
                         as: "training_session_belongs_to_users",
                     },
-                    include: [TrainingSession.associations.training_type, TrainingSession.associations.mentor],
+                    include: [
+                        {
+                            association: TrainingSession.associations.training_type,
+                            attributes: ["name", "type"],
+                        },
+                        {
+                            association: TrainingSession.associations.mentor,
+                        },
+                    ],
                 },
                 {
                     association: User.associations.training_logs,
+                    attributes: ["uuid"],
+                    through: {
+                        attributes: ["id", "user_id", "passed"],
+                    },
                 },
             ],
         });

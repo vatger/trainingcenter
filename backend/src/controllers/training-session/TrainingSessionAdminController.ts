@@ -412,9 +412,6 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
     // All of these steps MUST complete, else we are left in an undefined state
     const t = await sequelize.transaction();
 
-    // TODO: Add Validation!
-
-    console.log(request.body);
     try {
         const user: User = response.locals.user;
         const params = request.params as { uuid: string };
@@ -429,6 +426,23 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
         if (body == null || body.length == 0) {
             response.sendStatus(HttpStatusCode.BadRequest);
             return;
+        }
+
+        // Validate body
+        for (const entry of body) {
+            Validator.validate(entry, {
+                user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+                passed: [ValidationTypeEnum.NON_NULL],
+                user_log: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
+            });
+
+            for (const logEntry of entry.user_log) {
+                if (logEntry.type == "rating") {
+                    Validator.validate(logEntry, {
+                        value: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+                    });
+                }
+            }
         }
 
         const session = await TrainingSession.findOne({

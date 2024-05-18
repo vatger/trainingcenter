@@ -15,6 +15,7 @@ import { Config } from "@/core/Config";
 import StringHelper from "../../../../utils/helper/StringHelper";
 import CAVTrainingHistoryHelper from "@/pages/authenticated/course/course-active-view/_helpers/CAVTrainingHistory.helper";
 import { CAVTrainingHistorySkeleton } from "@/pages/authenticated/course/course-active-view/_skeletons/CAVTrainingHistory.skeleton";
+import { ButtonRow } from "@/components/ui/Button/ButtonRow";
 
 export function CTrainingHistoryPartial({ trainingData, loading }: { trainingData: UserTrainingSessionModel[]; loading: boolean }) {
     const navigate = useNavigate();
@@ -65,35 +66,37 @@ export function CTrainingHistoryPartial({ trainingData, loading }: { trainingDat
                                                     }
                                                 />
 
-                                                <Button
-                                                    variant={"twoTone"}
-                                                    className={"mt-4 mr-2"}
-                                                    icon={<TbCalendarStats size={20} />}
-                                                    onClick={() => navigate(`/training/planned/${value.uuid}`)}
-                                                    color={COLOR_OPTS.PRIMARY}
-                                                    size={SIZE_OPTS.SM}>
-                                                    Session Ansehen
-                                                </Button>
-                                                <RenderIf
-                                                    truthValue={value.training_session_belongs_to_users?.log_id != null}
-                                                    elementTrue={
-                                                        <Link
-                                                            to={`/training/log/${
-                                                                value.training_logs?.find((log: TrainingLogModel) => {
-                                                                    return value.training_session_belongs_to_users?.log_id == log.id;
-                                                                })?.uuid ?? "-1"
-                                                            }`}>
+                                                <ButtonRow className={"mt-2"}>
+                                                    <Button
+                                                        variant={"twoTone"}
+                                                        icon={<TbCalendarStats size={20} />}
+                                                        onClick={() => navigate(`/training/planned/${value.uuid}`)}
+                                                        color={COLOR_OPTS.PRIMARY}
+                                                        size={SIZE_OPTS.SM}>
+                                                        Session Ansehen
+                                                    </Button>
+                                                    <RenderIf
+                                                        truthValue={value.training_session_belongs_to_users?.log_id != null}
+                                                        elementTrue={
                                                             <Button
                                                                 variant={"twoTone"}
-                                                                className={"mt-4"}
                                                                 icon={<TbClipboardList size={20} />}
                                                                 color={COLOR_OPTS.PRIMARY}
-                                                                size={SIZE_OPTS.SM}>
+                                                                size={SIZE_OPTS.SM}
+                                                                onClick={() => {
+                                                                    navigate(
+                                                                        `/training/log/${
+                                                                            value.training_logs?.find((log: TrainingLogModel) => {
+                                                                                return value.training_session_belongs_to_users?.log_id == log.id;
+                                                                            })?.uuid ?? "-1"
+                                                                        }`
+                                                                    );
+                                                                }}>
                                                                 Log Ansehen
                                                             </Button>
-                                                        </Link>
-                                                    }
-                                                />
+                                                        }
+                                                    />
+                                                </ButtonRow>
                                             </TimeLineItem>
                                         );
                                     }}

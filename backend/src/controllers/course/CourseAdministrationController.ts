@@ -342,14 +342,17 @@ async function getMentorable(request: Request, response: Response) {
                 include: [
                     {
                         association: MentorGroup.associations.courses,
+                        attributes: ["id", "uuid", "name", "name_en"],
                         through: { attributes: [] },
                         include: [
                             {
                                 association: Course.associations.training_types,
+                                attributes: ["id", "name", "type"],
                                 through: { attributes: [] },
                                 include: [
                                     {
                                         association: TrainingType.associations.training_stations,
+                                        attributes: ["id", "callsign", "frequency"],
                                         through: { attributes: [] },
                                     },
                                 ],

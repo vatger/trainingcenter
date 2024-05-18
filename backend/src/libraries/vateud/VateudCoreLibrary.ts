@@ -39,7 +39,7 @@ async function _send<T>(props: SendT): Promise<T | undefined> {
         });
 
         return res.data as T;
-    } catch (e : any ) {
+    } catch (e: any) {
         Logger.log(LogLevels.LOG_WARN, e);
         return undefined;
     }
@@ -57,7 +57,7 @@ export async function createSolo(userSolo: UserSolo, endorsementGroup: Endorseme
         post_data: {
             user_cid: userSolo.user_id,
             position: endorsementGroup.name,
-            instructor_cid: 1439797,//userSolo.created_by,
+            instructor_cid: 1439797, //userSolo.created_by,
             start_at: userSolo.current_solo_start?.toISOString() ?? "",
             expire_at: userSolo.current_solo_end?.toISOString() ?? "",
         },

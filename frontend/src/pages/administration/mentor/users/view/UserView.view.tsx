@@ -43,7 +43,7 @@ export function UserViewView() {
                             <>
                                 <UVGeneralInformationPartial user={userData} />
                                 <UVSoloPartial user={userData} setUser={setUserData} />
-                                <UVCoursesPartial courses={userData?.courses} user_id={user_id!} />
+                                <UVCoursesPartial user={userData} setUser={setUserData} user_id={user_id!} />
                                 <UVEndorsementsPartial user={userData} setUser={setUserData} />
                                 <RenderIf
                                     truthValue={(userData?.mentor_groups?.length ?? 0) > 0}
