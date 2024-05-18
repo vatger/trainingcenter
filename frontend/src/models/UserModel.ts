@@ -60,6 +60,7 @@ export type UserDataModel = {
 export type UserSoloModel = {
     id: number;
     user_id: number;
+    vateud_solo_id: number|null;
     created_by: number;
     solo_rating: "s1" | "s2" | "s3" | "c1";
     solo_used: number;

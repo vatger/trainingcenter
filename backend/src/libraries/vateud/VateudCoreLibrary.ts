@@ -31,7 +31,7 @@ async function _send<T>(props: SendT): Promise<T | undefined> {
     try {
         const res = await axios({
             headers: {
-                "x-api-key": Config.VATEUD_CORE_CONFIG.API_KEY,
+                "X-API-KEY": Config.VATEUD_CORE_CONFIG.API_KEY,
             },
             url: `${Config.URI_CONFIG.VATEUD_API_BASE}/${props.endpoint}`,
             method: props.method,
@@ -39,7 +39,8 @@ async function _send<T>(props: SendT): Promise<T | undefined> {
         });
 
         return res.data as T;
-    } catch (e) {
+    } catch (e : any ) {
+        Logger.log(LogLevels.LOG_WARN, e);
         return undefined;
     }
 }
@@ -54,16 +55,16 @@ export async function createSolo(userSolo: UserSolo, endorsementGroup: Endorseme
     const soloInfo: VateudCoreSoloCreateT = {
         local_solo_id: userSolo.id,
         post_data: {
-            user_id: userSolo.user_id,
+            user_cid: userSolo.user_id,
             position: endorsementGroup.name,
-            instructor_cid: userSolo.created_by,
-            starts_at: userSolo.current_solo_start?.toISOString() ?? "",
-            expires_at: userSolo.current_solo_end?.toISOString() ?? "",
+            instructor_cid: 1439797,//userSolo.created_by,
+            start_at: userSolo.current_solo_start?.toISOString() ?? "",
+            expire_at: userSolo.current_solo_end?.toISOString() ?? "",
         },
     };
 
     const res = await _send<VateudCoreSoloCreateResponseT>({
-        endpoint: "/solo",
+        endpoint: "facility/endorsements/solo",
         method: "post",
         data: soloInfo.post_data,
     });
@@ -75,10 +76,10 @@ export async function createSolo(userSolo: UserSolo, endorsementGroup: Endorseme
             data: {
                 solo_create: {
                     local_solo_id: soloInfo.local_solo_id,
-                    user_id: soloInfo.post_data.user_id,
+                    user_id: soloInfo.post_data.user_cid,
                     position: soloInfo.post_data.position,
                     instructor_cid: soloInfo.post_data.instructor_cid,
-                    expire_at: soloInfo.post_data.expires_at,
+                    expire_at: soloInfo.post_data.expire_at,
                 },
             },
         });
@@ -105,7 +106,7 @@ export async function createSolo(userSolo: UserSolo, endorsementGroup: Endorseme
  */
 export async function removeSolo(userSolo: UserSolo) {
     const res = await _send<VateudCoreSoloRemoveResponseT>({
-        endpoint: `/solo/${userSolo.vateud_solo_id}`,
+        endpoint: `facility/endorsements/solo/${userSolo.vateud_solo_id}`,
         method: "delete",
     });
 

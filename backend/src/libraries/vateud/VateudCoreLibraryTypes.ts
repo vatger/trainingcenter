@@ -16,11 +16,11 @@ export type VateudCorePayload = {
 export type VateudCoreSoloCreateT = {
     local_solo_id: number;
     post_data: {
-        user_id: number;
+        user_cid: number;
         position: string;
         instructor_cid: number;
-        starts_at: string;
-        expires_at: string;
+        start_at: string;
+        expire_at: string;
     };
 };
 
