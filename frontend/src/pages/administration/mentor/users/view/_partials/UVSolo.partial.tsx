@@ -164,9 +164,10 @@ export function UVSoloPartial({ user, setUser }: { user?: UserModel; setUser: Di
                                     value={`${user?.user_solo?.solo_creator?.first_name} ${user?.user_solo?.solo_creator?.last_name} (${user?.user_solo?.solo_creator?.id})`}
                                 />
                             </div>
-
+                            <RenderIf truthValue={user?.user_solo?.vateud_solo_id == null} elementTrue={
+                                <span className="text-danger flex text-xs mt-4">Die Solo konnte nicht bei VATEUD Core eingetragen werden.</span>
+                            } />
                             <Separator />
-
                             <div className={"flex flex-col lg:flex-row"}>
                                 <RenderIf
                                     truthValue={kontingent > 0}
