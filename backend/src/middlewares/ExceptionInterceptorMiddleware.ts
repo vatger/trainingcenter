@@ -52,6 +52,7 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
             method: request.method,
             code: HttpStatusCode.Forbidden,
             message: error.message,
+            stay: error.getPageStayAttribute(),
         });
         return;
     }

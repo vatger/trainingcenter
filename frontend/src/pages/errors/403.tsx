@@ -1,9 +1,9 @@
 import { TbArrowLeft, TbLock } from "react-icons/tb";
 import { useNavigate } from "react-router-dom";
-import { Button } from "../../components/ui/Button/Button";
-import { COLOR_OPTS } from "../../assets/theme.config";
+import { Button } from "@/components/ui/Button/Button";
+import { COLOR_OPTS } from "@/assets/theme.config";
 import { ConversionUtils } from "turbocommons-ts";
-import { RenderIf } from "../../components/conditionals/RenderIf";
+import { RenderIf } from "@/components/conditionals/RenderIf";
 
 export function Error403() {
     const navigate = useNavigate();

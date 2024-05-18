@@ -9,14 +9,14 @@ import { TbCertificate, TbCheckbox, TbClock, TbId } from "react-icons/tb";
 import { TextArea } from "@/components/ui/Textarea/TextArea";
 import { Button } from "@/components/ui/Button/Button";
 import { Card } from "@/components/ui/Card/Card";
-import { getAtcRatingCombined, getAtcRatingLong, getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingCombined } from "@/utils/helper/vatsim/AtcRatingHelper";
 import React from "react";
 import useApi from "@/utils/hooks/useApi";
 import { CourseModel } from "@/models/CourseModel";
 import { ICourseInformationData, ICourseInformationDurationUnits } from "@models/CourseInformation";
 import genericTranslation from "@/assets/lang/generic.translation";
-import { useUserSelector } from "@/app/features/authSlice";
 import { TLanguage, useSettingsSelector } from "@/app/features/settingsSlice";
+import { ButtonRow } from "@/components/ui/Button/ButtonRow";
 
 function getTypeString(type: "online" | "sim" | "cpt" | "lesson") {
     switch (type) {
@@ -100,15 +100,22 @@ export function CourseView() {
 
                             <TextArea labelSmall disabled label={"Kursbeschreibung"} value={course?.description} />
 
-                            <Button
-                                disabled={!course?.self_enrollment_enabled}
-                                icon={<TbCheckbox size={20} />}
-                                className={"mt-7"}
-                                variant={"twoTone"}
-                                color={COLOR_OPTS.PRIMARY}
-                                onClick={() => navigate("enrol")}>
-                                Jetzt Einschreiben
-                            </Button>
+                            <ButtonRow>
+                                <RenderIf
+                                    truthValue={course?.self_enrollment_enabled == true}
+                                    elementTrue={
+                                        <Button
+                                            icon={<TbCheckbox size={20} />}
+                                            className={"mt-7"}
+                                            variant={"twoTone"}
+                                            color={COLOR_OPTS.PRIMARY}
+                                            onClick={() => navigate("enrol")}>
+                                            Jetzt Einschreiben
+                                        </Button>
+                                    }
+                                />
+                            </ButtonRow>
+
                             <RenderIf
                                 truthValue={!course?.self_enrollment_enabled}
                                 elementTrue={

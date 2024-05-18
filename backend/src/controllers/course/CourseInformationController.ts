@@ -1,10 +1,11 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Course } from "../../models/Course";
 import { User } from "../../models/User";
 import { TrainingSession } from "../../models/TrainingSession";
 import { ActionRequirement } from "../../models/ActionRequirement";
 import RequirementHelper from "../../utility/helper/RequirementHelper";
 import { HttpStatusCode } from "axios";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
 
 /**
  * Returns course information based on the provided uuid (request.query.uuid)
@@ -75,66 +76,69 @@ async function getUserCourseInformationByUUID(request: Request, response: Respon
  * @param request
  * @param response
  */
-async function getCourseTrainingInformationByUUID(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const course_uuid: string = request.query.uuid?.toString() ?? "";
+async function getCourseTrainingInformationByUUID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const course_uuid: string = request.query.uuid?.toString() ?? "";
 
-    if (!(await user.isMemberOfCourse(course_uuid))) {
-        response.status(HttpStatusCode.Forbidden).send({ message: "You are not enroled in this course" });
-        return;
-    }
-
-    const data: User | null = await User.findOne({
-        where: {
-            id: user.id,
-        },
-        include: [
-            {
-                association: User.associations.training_sessions,
-                through: {
-                    as: "training_session_belongs_to_users",
-                    attributes: ["passed", "log_id"],
-                    where: {
-                        user_id: user.id,
-                    },
-                },
-                include: [
-                    {
-                        association: TrainingSession.associations.training_logs,
-                        attributes: ["uuid", "id"],
-                        through: { attributes: [] },
-                    },
-                    {
-                        association: TrainingSession.associations.training_type,
-                        attributes: ["id", "name", "type"],
-                    },
-                    {
-                        association: TrainingSession.associations.course,
-                        where: {
-                            uuid: course_uuid,
-                        },
-                        attributes: ["uuid"],
-                        as: "course",
-                    },
-                ],
-            },
-        ],
-    });
-
-    if (data == null) {
-        response.sendStatus(HttpStatusCode.InternalServerError);
-        return;
-    }
-
-    data.training_sessions?.sort((a, b) => {
-        if (a.date == null || b.date == null) {
-            return 0;
+        if (!(await user.isMemberOfCourse(course_uuid))) {
+            throw new ForbiddenException("You are not enrolled in this course!", true);
         }
 
-        return a.date > b.date ? 1 : -1;
-    });
+        const data: User | null = await User.findOne({
+            where: {
+                id: user.id,
+            },
+            include: [
+                {
+                    association: User.associations.training_sessions,
+                    through: {
+                        as: "training_session_belongs_to_users",
+                        attributes: ["passed", "log_id"],
+                        where: {
+                            user_id: user.id,
+                        },
+                    },
+                    include: [
+                        {
+                            association: TrainingSession.associations.training_logs,
+                            attributes: ["uuid", "id"],
+                            through: { attributes: [] },
+                        },
+                        {
+                            association: TrainingSession.associations.training_type,
+                            attributes: ["id", "name", "type"],
+                        },
+                        {
+                            association: TrainingSession.associations.course,
+                            where: {
+                                uuid: course_uuid,
+                            },
+                            attributes: ["uuid"],
+                            as: "course",
+                        },
+                    ],
+                },
+            ],
+        });
 
-    response.send(data.training_sessions);
+        if (data == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        data.training_sessions?.sort((a, b) => {
+            if (a.date == null || b.date == null) {
+                return 0;
+            }
+
+            return a.date > b.date ? 1 : -1;
+        });
+
+        response.send(data.training_sessions);
+    } catch (e) {
+        next(e);
+    }
 }
 
 async function validateCourseRequirements(request: Request, response: Response) {

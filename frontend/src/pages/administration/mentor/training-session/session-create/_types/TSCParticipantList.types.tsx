@@ -1,11 +1,11 @@
 import { TableColumn } from "react-data-table-component";
-import { UserModel } from "@/models/UserModel";
 import { Button } from "@/components/ui/Button/Button";
 import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 import { TbTrash } from "react-icons/tb";
 import { Dispatch } from "react";
+import { IMinimalUser } from "@models/User";
 
-function getColumns(participants: UserModel[], setParticipants: Dispatch<UserModel[]>): TableColumn<UserModel>[] {
+function getColumns(participants: IMinimalUser[], setParticipants: Dispatch<IMinimalUser[]>): TableColumn<IMinimalUser>[] {
     function removeUser(user_id: number) {
         let p = [];
         for (const u of participants) {

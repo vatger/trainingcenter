@@ -2,7 +2,7 @@ import useApi from "@/utils/hooks/useApi";
 import { Table } from "@/components/ui/Table/Table";
 import { Input } from "@/components/ui/Input/Input";
 import { useFilter } from "@/utils/hooks/useFilter";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useDebounce } from "@/utils/hooks/useDebounce";
 import { fuzzySearch } from "@/utils/helper/fuzzysearch/FuzzySearchHelper";
 import UserFilterTypes from "@/components/ui/UserFilter/UserFilter.types";
@@ -12,6 +12,7 @@ import { IMinimalUser } from "@models/User";
 interface IUserFilterProps {
     onUserSelect: (user: IMinimalUser) => any;
     removeIDs?: number[];
+    description?: string;
 }
 
 function filterFunction(user: IMinimalUser, searchValue: string) {
@@ -37,7 +38,14 @@ export function UserFilter(props: IUserFilterProps) {
 
     return (
         <>
-            <Input label={"Benutzer Suchen"} labelSmall placeholder={"CID, Name"} value={searchValue} onChange={e => setSearchValue(e.target.value)} />
+            <Input
+                label={"Benutzer Suchen"}
+                labelSmall
+                description={props.description}
+                placeholder={"CID, Name"}
+                value={searchValue}
+                onChange={e => setSearchValue(e.target.value)}
+            />
 
             <RenderIf
                 truthValue={searchValue != ""}

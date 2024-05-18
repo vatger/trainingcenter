@@ -14,6 +14,7 @@ import ToastHelper from "@/utils/helper/ToastHelper";
 import useApi from "@/utils/hooks/useApi";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
 import FormHelper from "@/utils/helper/FormHelper";
+import { ButtonRow } from "@/components/ui/Button/ButtonRow";
 
 export function CourseEnrolView() {
     const navigate = useNavigate();
@@ -88,15 +89,17 @@ export function CourseEnrolView() {
                                 <>
                                     <Separator />
 
-                                    <Button
-                                        color={COLOR_OPTS.PRIMARY}
-                                        variant={"twoTone"}
-                                        loading={loadingRequirements || enrolling}
-                                        disabled={!allRequirementsSatisfied}
-                                        icon={allRequirementsSatisfied ? <TbCheckbox size={20} /> : <TbX size={20} />}
-                                        onClick={enrol}>
-                                        {loadingRequirements ? "Lade Voraussetzungen" : "Jetzt Einschreiben"}
-                                    </Button>
+                                    <ButtonRow>
+                                        <Button
+                                            color={COLOR_OPTS.PRIMARY}
+                                            variant={"twoTone"}
+                                            loading={loadingRequirements || enrolling}
+                                            disabled={!allRequirementsSatisfied}
+                                            icon={allRequirementsSatisfied ? <TbCheckbox size={20} /> : <TbX size={20} />}
+                                            onClick={enrol}>
+                                            {loadingRequirements ? "Lade Voraussetzungen" : "Jetzt Einschreiben"}
+                                        </Button>
+                                    </ButtonRow>
                                 </>
                             }
                         />

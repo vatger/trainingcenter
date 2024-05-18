@@ -13,30 +13,30 @@ import { RenderIf } from "@/components/conditionals/RenderIf";
 import { Button } from "@/components/ui/Button/Button";
 import { COLOR_OPTS } from "@/assets/theme.config";
 import { TbPlus } from "react-icons/tb";
-import TrainingSessionService from "@/pages/administration/mentor/training-session/session-log-create/_services/TrainingSessionService";
 import { TrainingTypeModel } from "@/models/TrainingTypeModel";
 import { Checkbox } from "@/components/ui/Checkbox/Checkbox";
 import { Select } from "@/components/ui/Select/Select";
 import StringHelper from "@/utils/helper/StringHelper";
+import { axiosInstance } from "@/utils/network/AxiosInstance";
+import ToastHelper from "@/utils/helper/ToastHelper";
 
 export type ParticipantStatus = {
     user_id: number;
-    stringValues: Map<string, string>;
-    progressValues: Map<string, number>;
+    user_log: LogTemplateElement[];
     passed: boolean;
-    visible: boolean;
-    nextTraining?: number;
+    log_public: boolean;
+    next_training_id?: number;
     course_completed: boolean;
+    _uuid: string; // This is used internally only!
 };
 
 export function TrainingSessionLogsCreateView() {
     const { uuid } = useParams();
     const navigate = useNavigate();
 
-    const [logTemplateElements, setLogTemplateElements] = useState<(LogTemplateElement & { uuid: string })[]>([]);
-    const [participantValues, setParticipantValues] = useState<ParticipantStatus[] | undefined>(undefined);
+    const [logTemplateElements, setLogTemplateElements] = useState<LogTemplateElement[]>([]);
+    const [participantValues, setParticipantValues] = useState<ParticipantStatus[]>([]);
 
-    const [completedIds, setCompletedIds] = useState<number[]>([]);
     const [submitting, setSubmitting] = useState<boolean>(false);
 
     const { data: participants, loading: loadingParticipants } = useApi<UserModel[]>({
@@ -46,19 +46,19 @@ export function TrainingSessionLogsCreateView() {
             if (participants == null) return;
 
             let arr: ParticipantStatus[] = [];
-            for (let i = 0; i < participants?.length; i++) {
+            for (const participant of participants) {
                 arr.push({
-                    user_id: participants[i].id,
-                    stringValues: new Map<string, string>(),
-                    progressValues: new Map<string, number>(),
+                    user_id: participant.id,
+                    user_log: [],
                     passed: true,
-                    visible: true,
-                    nextTraining: undefined,
+                    log_public: true,
+                    next_training_id: undefined,
                     course_completed: false,
+                    _uuid: generateUUID(),
                 });
             }
 
-            setParticipantValues(arr);
+            setParticipantValues([...arr]);
         },
     });
 
@@ -68,14 +68,10 @@ export function TrainingSessionLogsCreateView() {
         onLoad: logTemplate => {
             let logTemplates = logTemplate.content as LogTemplateElement[];
             if (logTemplates == null) return;
-
-            const logTemplatesWithUUID = logTemplates.map(logTempElement => ({ ...logTempElement, uuid: generateUUID() }));
-
-            setLogTemplateElements(logTemplatesWithUUID);
-            return;
+            setLogTemplateElements(logTemplates);
         },
         onError: () => {
-            setLogTemplateElements([{ uuid: generateUUID(), type: "textarea", title: "Bewertung" }]);
+            setLogTemplateElements([{ type: "textarea", title: "Bewertung" }]);
         },
     });
 
@@ -83,6 +79,32 @@ export function TrainingSessionLogsCreateView() {
         url: `/administration/training-session/training-types/${uuid}`,
         method: "get",
     });
+
+    useEffect(() => {
+        // Make sure that both of these are false! (i.e. have loaded)
+        // We now need to append to the participantStatus array...
+        if (loadingParticipants || loadingLogTemplate || participantValues.length == 0 || logTemplateElements.length == 0) return;
+
+        let newStatus = [...participantValues];
+        for (const s of newStatus) {
+            s.user_log?.push(...logTemplateElements);
+        }
+
+        setParticipantValues(newStatus);
+    }, [loadingParticipants, loadingLogTemplate]);
+
+    function submitTrainingLogs() {
+        axiosInstance
+            .post(`/administration/training-session/log/${uuid}`, participantValues)
+            .then(() => {
+                ToastHelper.success("Logs erfolgreich angelegt");
+                navigate("/administration/training-request/planned");
+            })
+            .catch(() => {
+                ToastHelper.error("Fehler beim Erstellen der Logs");
+            })
+            .finally(() => setSubmitting(false));
+    }
 
     return (
         <>
@@ -92,30 +114,27 @@ export function TrainingSessionLogsCreateView() {
                 truthValue={!loadingParticipants && !loadingLogTemplate && participantValues != null}
                 elementTrue={
                     <MapArray
-                        data={participants ?? []}
-                        mapFunction={(user: UserModel, index) => {
+                        data={participantValues ?? []}
+                        mapFunction={(v: ParticipantStatus, index: number) => {
+                            const user = participants?.find(p => p.id == v.user_id);
+
                             return (
-                                <Card key={index} className={index > 0 ? "mt-5" : ""} header={`${user.first_name} ${user.last_name} (${user.id})`} headerBorder>
-                                    <MapArray
-                                        data={logTemplateElements ?? []}
-                                        mapFunction={(v, i) => {
-                                            return (
-                                                <TSLCLogTemplateElementPartial
-                                                    element={v}
-                                                    index={i}
-                                                    key={i}
-                                                    stringValues={participantValues![index].stringValues}
-                                                    progressValues={participantValues![index].progressValues}
-                                                />
-                                            );
-                                        }}
+                                <Card
+                                    key={index}
+                                    className={index > 0 ? "mt-5" : ""}
+                                    header={`${user?.first_name} ${user?.last_name} (${user?.id})`}
+                                    headerBorder>
+                                    <TSLCLogTemplateElementPartial
+                                        participantStatus={v}
+                                        participantStatusList={participantValues}
+                                        setParticipantValues={setParticipantValues}
                                     />
 
                                     <div className={"flex flex-col mt-5"}>
                                         <Checkbox
                                             checked
                                             onChange={e => {
-                                                const p = [...participantValues!];
+                                                const p = [...participantValues];
                                                 p[index].passed = e;
                                                 setParticipantValues(p);
                                             }}>
@@ -126,8 +145,8 @@ export function TrainingSessionLogsCreateView() {
                                             className={"mt-3"}
                                             checked
                                             onChange={e => {
-                                                const p = [...participantValues!];
-                                                p[index].visible = e;
+                                                const p = [...participantValues];
+                                                p[index].log_public = e;
                                                 setParticipantValues(p);
                                             }}>
                                             Log Öffentlich - Für den Trainee sichtbar
@@ -137,15 +156,9 @@ export function TrainingSessionLogsCreateView() {
                                             className={"mt-3"}
                                             checked={false}
                                             onChange={e => {
-                                                const p = [...participantValues!];
+                                                const p = [...participantValues];
                                                 p[index].course_completed = e;
                                                 setParticipantValues(p);
-
-                                                if (e) {
-                                                    setCompletedIds([...completedIds, index]);
-                                                } else {
-                                                    setCompletedIds(completedIds.filter(c => c != index));
-                                                }
                                             }}>
                                             Kurs Abgeschlossen - Markiert den Kurs als abgeschlossen und ignoriert die Auswahl des nächsten Trainings
                                         </Checkbox>
@@ -153,8 +166,8 @@ export function TrainingSessionLogsCreateView() {
                                         <Select
                                             label={"Nächstes Training"}
                                             labelSmall
-                                            inputError={!completedIds.includes(index) && participantValues![index].nextTraining == undefined}
-                                            disabled={completedIds.includes(index)}
+                                            inputError={!v.course_completed && v.next_training_id == undefined}
+                                            disabled={v.course_completed}
                                             className={"mt-3"}
                                             defaultValue={"none"}
                                             onChange={e => {
@@ -163,8 +176,8 @@ export function TrainingSessionLogsCreateView() {
                                                     num = undefined;
                                                 }
 
-                                                let p = [...participantValues!];
-                                                p[index].nextTraining = num;
+                                                let p = [...participantValues];
+                                                p[index].next_training_id = num;
                                                 setParticipantValues(p);
                                             }}>
                                             <option value={"none"} disabled>
@@ -193,21 +206,7 @@ export function TrainingSessionLogsCreateView() {
                 truthValue={participants != null && participants?.length > 0}
                 elementTrue={
                     <Card className={"mt-5"} header={"Abschließen"} headerBorder>
-                        <Button
-                            color={COLOR_OPTS.PRIMARY}
-                            variant={"twoTone"}
-                            icon={<TbPlus size={20} />}
-                            onClick={() => {
-                                TrainingSessionService.SubmitTrainingLogs({
-                                    uuid: uuid ?? "-1",
-                                    participants: participants,
-                                    setSubmitting: setSubmitting,
-                                    navigate: navigate,
-                                    logTemplateElements: logTemplateElements,
-                                    participantValues: participantValues,
-                                });
-                            }}
-                            loading={submitting}>
+                        <Button color={COLOR_OPTS.PRIMARY} variant={"twoTone"} icon={<TbPlus size={20} />} onClick={submitTrainingLogs} loading={submitting}>
                             Logs Erstellen
                         </Button>
                     </Card>

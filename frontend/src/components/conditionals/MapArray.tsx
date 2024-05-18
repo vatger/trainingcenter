@@ -1,10 +1,8 @@
-import { ReactElement } from "react";
-
 type MapArrayProps<T> = {
     data: T[];
-    mapFunction: (value: T, index: number) => ReactElement | ReactElement[];
+    mapFunction: (value: T, index: number) => any;
 };
 
-export function MapArray(props: MapArrayProps<any>) {
-    return <>{props.data.map(props.mapFunction)}</>;
+export function MapArray<T>(props: MapArrayProps<T>) {
+    return <>{props.data.map<T>(props.mapFunction)}</>;
 }

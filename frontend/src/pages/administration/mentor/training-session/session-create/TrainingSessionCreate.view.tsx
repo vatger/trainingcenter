@@ -26,6 +26,8 @@ import { Calendar, dayjsLocalizer, Views } from "react-big-calendar";
 
 import "react-big-calendar/lib/css/react-big-calendar.css";
 import { TrainingSessionCalendar } from "@/pages/administration/mentor/training-session/_components/TrainingSessionCalendar";
+import { TrainingSessionParticipants } from "@/pages/administration/mentor/training-session/_components/TrainingSessionParticipants";
+import { IMinimalUser } from "@models/User";
 
 export function TrainingSessionCreateView() {
     const navigate = useNavigate();
@@ -39,10 +41,7 @@ export function TrainingSessionCreateView() {
 
     const [courseUUID, setCourseUUID] = useState<string | undefined>(undefined);
     const [trainingTypeID, setTrainingTypeID] = useState<number | undefined>(undefined);
-    const [participants, setParticipants] = useState<UserModel[]>([]);
-
-    const [newParticipantID, setNewParticipantID] = useState<string>("");
-    const [loadingUser, setLoadingUser] = useState<boolean>(false);
+    const [participants, setParticipants] = useState<IMinimalUser[]>([]);
 
     return (
         <>
@@ -194,50 +193,7 @@ export function TrainingSessionCreateView() {
                             </Card>
                         </form>
 
-                        <Card
-                            header={"Teilnehmer"}
-                            headerBorder
-                            className={"mt-5"}
-                            headerExtra={
-                                participants.length == 0 ? <Badge color={COLOR_OPTS.DANGER}>Mindestens ein Teilnehmer erforderlich</Badge> : undefined
-                            }>
-                            <Input
-                                onChange={e => setNewParticipantID(e.target.value)}
-                                value={newParticipantID}
-                                label={"Benutzer Hinzufügen"}
-                                description={
-                                    "Benutzer, die nicht in diesem Kurs eingeschrieben sind werden nicht berücksichtigt und der Session entsprechend nicht hinzugefügt."
-                                }
-                                labelSmall
-                                preIcon={<TbUser size={20} />}
-                                placeholder={participants[0]?.id.toString() ?? "1373921"}
-                            />
-
-                            <Button
-                                size={SIZE_OPTS.SM}
-                                color={COLOR_OPTS.PRIMARY}
-                                loading={loadingUser}
-                                disabled={submitting}
-                                variant={"twoTone"}
-                                className={"mt-3"}
-                                onClick={async () => {
-                                    await TrainingSessionCreateService.addUser({
-                                        participants: participants,
-                                        setParticipants: setParticipants,
-                                        newParticipantId: newParticipantID,
-                                        setNewParticipantId: setNewParticipantID,
-                                        setLoadingUser: setLoadingUser,
-                                    });
-                                }}>
-                                Hinzufügen
-                            </Button>
-
-                            <Separator />
-
-                            <Table paginate columns={TSCParticipantListTypes.getColumns(participants, setParticipants)} data={participants} />
-                        </Card>
-
-                        <TrainingSessionCalendar />
+                        <TrainingSessionParticipants participants={participants} setParticipants={setParticipants} submitting={submitting} />
                     </>
                 }
             />

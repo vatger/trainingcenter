@@ -6,6 +6,7 @@ import { TrainingRequest } from "../../models/TrainingRequest";
 import dayjs from "dayjs";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 import { HttpStatusCode } from "axios";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
 
 /**
  * Gets a list of upcoming training sessions
@@ -75,11 +76,24 @@ async function getByUUID(request: Request, response: Response) {
                 attributes: ["id"],
                 through: { attributes: [] },
             },
-            TrainingSession.associations.mentor,
-            TrainingSession.associations.cpt,
-            TrainingSession.associations.training_type,
-            TrainingSession.associations.training_station,
-            TrainingSession.associations.course,
+            {
+                association: TrainingSession.associations.mentor,
+            },
+            {
+                association: TrainingSession.associations.cpt,
+            },
+            {
+                association: TrainingSession.associations.training_type,
+                attributes: ["id", "name", "type"],
+            },
+            {
+                association: TrainingSession.associations.training_station,
+                attributes: ["id", "callsign", "frequency"],
+            },
+            {
+                association: TrainingSession.associations.course,
+                attributes: ["uuid", "name", "name_en"],
+            },
         ],
     });
 
@@ -91,8 +105,7 @@ async function getByUUID(request: Request, response: Response) {
 
     // Check if the user even exists in this session, else deny the request
     if (session?.users?.find((u: User) => u.id == user.id) == null) {
-        response.sendStatus(HttpStatusCode.Forbidden);
-        return;
+        throw new ForbiddenException("You don't have permission to view this log", true);
     }
 
     const requestingUserPassed = await TrainingSessionBelongsToUsers.findOne({
@@ -100,11 +113,18 @@ async function getByUUID(request: Request, response: Response) {
             user_id: user.id,
             training_session_id: session.id,
         },
+        include: [
+            {
+                association: TrainingSessionBelongsToUsers.associations.training_log,
+                attributes: ["uuid"],
+            },
+        ],
     });
 
     response.send({
         ...session.toJSON(),
         user_passed: requestingUserPassed == null ? null : requestingUserPassed.passed,
+        log_id: requestingUserPassed?.training_log?.uuid ?? null,
     });
 }
 

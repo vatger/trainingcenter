@@ -2,7 +2,7 @@ import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { useNavigate, useParams } from "react-router-dom";
 import { Card } from "@/components/ui/Card/Card";
 import { Input } from "@/components/ui/Input/Input";
-import { TbCalendarEvent, TbDoorExit, TbId, TbLink, TbListCheck, TbRadar, TbUsers } from "react-icons/tb";
+import { TbCalendarEvent, TbClipboard, TbDoorExit, TbId, TbLink, TbListCheck, TbRadar, TbUsers } from "react-icons/tb";
 import React, { useState } from "react";
 import StringHelper from "../../../../utils/helper/StringHelper";
 import dayjs from "dayjs";
@@ -15,11 +15,12 @@ import { TPVWithdrawModal } from "./_modals/TPVWithdraw.modal";
 import useApi from "@/utils/hooks/useApi";
 import { TrainingSessionModel } from "@/models/TrainingSessionModel";
 import { PlannedTrainingViewSkeleton } from "@/pages/authenticated/training/training-planned-view/_skeletons/PlannedTrainingView.skeleton";
+import { ButtonRow } from "@/components/ui/Button/ButtonRow";
 
 export function PlannedTrainingView() {
     const navigate = useNavigate();
     const { uuid } = useParams();
-    const { data: trainingSession, loading } = useApi<TrainingSessionModel>({
+    const { data: trainingSession, loading } = useApi<TrainingSessionModel & { log_id?: string }>({
         url: `/training-session/${uuid}`,
         method: "get",
     });
@@ -102,41 +103,55 @@ export function PlannedTrainingView() {
                             />
                         </div>
 
-                        <RenderIf
-                            truthValue={trainingSession?.user_passed == null && dayjs.utc(trainingSession?.date).isAfter(dayjs.utc())}
-                            elementTrue={
-                                <>
-                                    <Separator />
+                        <Separator />
 
+                        <ButtonRow>
+                            <RenderIf
+                                truthValue={trainingSession?.user_passed == null && dayjs.utc(trainingSession?.date).isAfter(dayjs.utc())}
+                                elementTrue={
+                                    <>
+                                        <Button
+                                            variant={"twoTone"}
+                                            loading={submitting}
+                                            onClick={() => setShowWithdrawModal(true)}
+                                            color={COLOR_OPTS.DANGER}
+                                            icon={<TbDoorExit size={20} />}>
+                                            Abmelden
+                                        </Button>
+                                    </>
+                                }
+                            />
+
+                            <RenderIf
+                                truthValue={trainingSession?.completed == true}
+                                elementTrue={
+                                    <>
+                                        <Button
+                                            variant={"twoTone"}
+                                            loading={submitting}
+                                            onClick={() => navigate(`/course/completed/${trainingSession?.course?.uuid}`)}
+                                            color={COLOR_OPTS.PRIMARY}
+                                            icon={<TbLink size={20} />}>
+                                            Zum Kurs
+                                        </Button>
+                                    </>
+                                }
+                            />
+
+                            <RenderIf
+                                truthValue={trainingSession?.log_id != null}
+                                elementTrue={
                                     <Button
                                         variant={"twoTone"}
                                         loading={submitting}
-                                        onClick={() => setShowWithdrawModal(true)}
-                                        color={COLOR_OPTS.DANGER}
-                                        icon={<TbDoorExit size={20} />}>
-                                        Abmelden
-                                    </Button>
-                                </>
-                            }
-                        />
-
-                        <RenderIf
-                            truthValue={trainingSession?.completed == true}
-                            elementTrue={
-                                <>
-                                    <Separator />
-
-                                    <Button
-                                        variant={"twoTone"}
-                                        loading={submitting}
-                                        onClick={() => navigate(`/course/completed/${trainingSession?.course?.uuid}`)}
+                                        onClick={() => navigate(`/training/log/${trainingSession?.log_id}`)}
                                         color={COLOR_OPTS.PRIMARY}
-                                        icon={<TbLink size={20} />}>
-                                        Zum Kurs
+                                        icon={<TbClipboard size={20} />}>
+                                        Log Ansehen
                                     </Button>
-                                </>
-                            }
-                        />
+                                }
+                            />
+                        </ButtonRow>
                     </Card>
                 }
             />

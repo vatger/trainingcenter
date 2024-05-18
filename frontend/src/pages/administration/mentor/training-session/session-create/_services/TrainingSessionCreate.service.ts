@@ -7,42 +7,12 @@ import { AxiosResponse } from "axios";
 import { TrainingSessionModel } from "@/models/TrainingSessionModel";
 import { NavigateFunction } from "react-router-dom";
 import { TrainingRequestModel } from "@/models/TrainingRequestModel";
-
-interface AddUserPropsT {
-    participants: UserModel[];
-    setParticipants: Dispatch<UserModel[]>;
-    newParticipantId: string;
-    setNewParticipantId: Dispatch<string>;
-    setLoadingUser: Dispatch<boolean>;
-}
-
-async function addUser(opts: AddUserPropsT) {
-    if (opts.participants.find(u => u.id == Number(opts.newParticipantId)) || opts.newParticipantId.length < 4) {
-        return;
-    }
-
-    opts.setLoadingUser(true);
-    axiosInstance
-        .get(`/administration/user/data/basic`, {
-            params: { user_id: opts.newParticipantId },
-        })
-        .then(res => {
-            let p = [...opts.participants];
-            const user = res.data as UserModel;
-            p.push(user);
-            opts.setParticipants(p);
-            opts.setNewParticipantId("");
-        })
-        .catch(() => {
-            ToastHelper.error(`Fehler beim laden des Benutzers ${opts.newParticipantId}`);
-        })
-        .finally(() => opts.setLoadingUser(false));
-}
+import { IMinimalUser } from "@models/User";
 
 interface CreateSessionPropsT {
     event: FormEvent<HTMLFormElement>;
     setSubmitting: Dispatch<boolean>;
-    participants: UserModel[];
+    participants: IMinimalUser[];
     navigate: NavigateFunction;
     fromRequest: boolean;
     trainingRequest?: TrainingRequestModel;
@@ -79,6 +49,5 @@ async function createSession(opts: CreateSessionPropsT) {
 }
 
 export default {
-    addUser,
     createSession,
 };
