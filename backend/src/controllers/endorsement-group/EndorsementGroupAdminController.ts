@@ -289,12 +289,7 @@ async function removeStationByID(request: Request, response: Response, next: Nex
  */
 async function getUsersByID(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = response.locals.user;
         const params = request.params as { id: string };
-
-        if (!(await user.isMentor())) {
-            throw new ForbiddenException("You are not a mentor.");
-        }
 
         const endorsementGroup = await EndorsementGroup.findOne({
             where: {

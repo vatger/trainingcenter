@@ -175,19 +175,28 @@ export function SideNav() {
                                     elementTrue={
                                         <>
                                             <div className="menu-title menu-title-transparent">LM</div>
-                                            <MenuItem href={"administration/endorsement-group"} icon={<TbCertificate size={20} />}>
+                                            <MenuItem
+                                                requiredPerm={"lm.endorsement_groups.view"}
+                                                href={"administration/endorsement-group"}
+                                                icon={<TbCertificate size={20} />}>
                                                 Freigabegruppen
                                             </MenuItem>
-                                            <MenuItem href={"administration/mentor-group"} icon={<TbUsers size={20} />}>
+                                            <MenuItem requiredPerm={"lm.mentor_group.view"} href={"administration/mentor-group"} icon={<TbUsers size={20} />}>
                                                 Mentorgruppen
                                             </MenuItem>
-                                            <MenuItem href={"administration/course"} icon={<TbClipboardList size={20} />}>
+                                            <MenuItem requiredPerm={"lm.course.view"} href={"administration/course"} icon={<TbClipboardList size={20} />}>
                                                 Kurse
                                             </MenuItem>
-                                            <MenuItem href={"administration/training-type"} icon={<TbTemplate size={20} />}>
+                                            <MenuItem
+                                                requiredPerm={"lm.training_types.view"}
+                                                href={"administration/training-type"}
+                                                icon={<TbTemplate size={20} />}>
                                                 Trainingstypen
                                             </MenuItem>
-                                            <MenuItem icon={<TbAdjustments size={20} />} href={"administration/action-requirement"}>
+                                            <MenuItem
+                                                requiredPerm={"lm.action_requirements.view"}
+                                                icon={<TbAdjustments size={20} />}
+                                                href={"administration/action-requirement"}>
                                                 Aktionen | Bedingungen
                                             </MenuItem>
                                         </>

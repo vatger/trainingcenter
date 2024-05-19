@@ -112,11 +112,6 @@ async function update(request: Request, response: Response, next: NextFunction) 
  */
 async function getAll(_request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = response.locals.user;
-        if (!(await user.isMentor())) {
-            throw new ForbiddenException("You are not a mentor.");
-        }
-
         const mentorGroups: MentorGroup[] = await MentorGroup.findAll({
             include: {
                 association: MentorGroup.associations.users,
@@ -174,6 +169,8 @@ async function getByID(request: Request, response: Response, next: NextFunction)
 
 /**
  * Gets all mentor groups in which the response.locals.user is an admin in
+ * This is only used to display the mentor group admin list, so we can use the respective permission, rather than generically checking
+ * if the user is a mentor.
  * @param _request
  * @param response
  * @param next
@@ -181,9 +178,7 @@ async function getByID(request: Request, response: Response, next: NextFunction)
 async function getAllAdmin(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
-        if (!(await user.isMentor())) {
-            throw new ForbiddenException("You are not a mentor.");
-        }
+        PermissionHelper.checkUserHasPermission(user, "lm.mentor_group.view");
 
         const userInMentorGroup: UserBelongToMentorGroups[] = await UserBelongToMentorGroups.findAll({
             where: {
@@ -215,10 +210,6 @@ async function getMembers(request: Request, response: Response, next: NextFuncti
     try {
         const user: User = response.locals.user;
         const query = request.query;
-
-        if (!(await user.isMentor())) {
-            throw new ForbiddenException("You are not a mentor");
-        }
 
         // Check if the mentor group is even a number
         const mentor_group_id = Number(query.mentor_group_id);
@@ -274,9 +265,6 @@ async function getMembers(request: Request, response: Response, next: NextFuncti
 async function getAllCourseManager(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
-        if (!(await user.isMentor())) {
-            throw new ForbiddenException("You are not a mentor");
-        }
 
         const userInMentorGroup: UserBelongToMentorGroups[] = await UserBelongToMentorGroups.findAll({
             where: {
@@ -389,12 +377,7 @@ async function removeMember(request: Request, response: Response, next: NextFunc
  */
 async function getEndorsementGroupsByID(request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = response.locals.user;
         const params = request.params as { mentor_group_id: string };
-
-        if (!(await user.isMentor())) {
-            throw new ForbiddenException("You are not a mentor.");
-        }
 
         Validator.validate(params, {
             mentor_group_id: [ValidationTypeEnum.NON_NULL],

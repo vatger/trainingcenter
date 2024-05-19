@@ -37,6 +37,7 @@ import JoblogAdminController from "./controllers/admin-logs/JoblogAdminControlle
 import UserInformationController from "./controllers/user/UserInformationController";
 import CourseInformationAdministrationController from "./controllers/course/CourseInformationAdministrationController";
 import UserAdminController from "./controllers/user/UserAdminController";
+import { isMentorMiddleware } from "./middlewares/IsMentorMiddleware";
 
 export const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -172,6 +173,9 @@ router.use(
 router.use(
     "/administration",
     routerGroup((r: Router) => {
+        // For all routes from this point onwards, a user MUST be at least a mentor.
+        r.use(isMentorMiddleware);
+
         r.use(
             "/user",
             routerGroup((r: Router) => {

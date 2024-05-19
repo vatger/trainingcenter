@@ -10,7 +10,15 @@ import { User } from "../models/User";
 
 const sequelizeErrors = ["SequelizeValidationError", "SequelizeForeignKeyConstraintError", "SequelizeUniqueConstraintError"];
 
-export async function exceptionInterceptorMiddleware(error: any, request: Request, response: Response, next: NextFunction) {
+/**
+ * Intercepts and properly formats any exceptions that occur, such that the frontend
+ * can handle the data accordingly.
+ * @param error
+ * @param request
+ * @param response
+ * @param _next
+ */
+export async function exceptionInterceptorMiddleware(error: any, request: Request, response: Response, _next: NextFunction) {
     console.error(error);
 
     if (error instanceof UnauthorizedException) {

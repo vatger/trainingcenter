@@ -90,10 +90,6 @@ async function create(request: Request, response: Response, next: NextFunction) 
         const user: User = response.locals.user;
         const data = request.body;
 
-        if (!(await user.isMentor())) {
-            throw new ForbiddenException("You are not a mentor");
-        }
-
         const file_name = handleUpload(request);
 
         if (file_name == null) {

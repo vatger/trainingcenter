@@ -24,7 +24,6 @@ export type VateudCoreSoloCreateT = {
     };
 };
 
-
 export type VateudCoreSoloCreateResponseT = {
     success: boolean;
     data: {

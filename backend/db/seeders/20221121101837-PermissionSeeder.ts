@@ -18,6 +18,8 @@ const allPerms = [
     "lm.endorsement_groups.edit",
     "lm.endorsement_groups.create",
 
+    "lm.training_types.view",
+
     "atd.view",
     "atd.solo.delete",
     "atd.examiner.view",

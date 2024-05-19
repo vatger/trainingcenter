@@ -6,7 +6,7 @@ import {
     VateudCoreSoloCreateT,
     VateudCoreSoloRemoveResponseT,
     VateudCoreSoloRemoveT,
-    VateudCoreTypeEnum
+    VateudCoreTypeEnum,
 } from "./VateudCoreLibraryTypes";
 import { Config } from "../../core/Config";
 import { UserSolo } from "../../models/UserSolo";
@@ -42,7 +42,7 @@ async function _send<T>(props: SendT): Promise<T | undefined> {
 
         return res.data as T;
     } catch (e: any) {
-        console.error(e)
+        console.error(e);
         Logger.log(LogLevels.LOG_WARN, e);
         return undefined;
     }
@@ -136,13 +136,13 @@ export async function removeSolo(userSolo: UserSolo) {
  * - If it fails more than n times, then it really isn't our problem anymore tbh...
  */
 export async function createEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers, endorsementGroup: EndorsementGroup | null) {
-    if(!endorsementGroup) return false;
+    if (!endorsementGroup) return false;
     const endorsementInfo: VateudCoreEndorsementCreateT = {
         local_id: userEndorsement.id,
         post_data: {
             user_cid: userEndorsement.user_id,
             position: endorsementGroup.name,
-            instructor_cid: 1439797,//todo userEndorsement.created_by,
+            instructor_cid: 1439797, //todo userEndorsement.created_by,
         },
     };
 
@@ -169,5 +169,3 @@ export async function createEndorsement(userEndorsement: EndorsementGroupsBelong
 
     return true;
 }
-
-

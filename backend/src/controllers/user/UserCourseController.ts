@@ -7,6 +7,8 @@ import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { MentorGroup } from "../../models/MentorGroup";
 import { TrainingType } from "../../models/TrainingType";
 import { HttpStatusCode } from "axios";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
+import PermissionHelper from "../../utility/helper/PermissionHelper";
 
 /**
  * Returns courses that are available to the current user (i.e. not enrolled in course)
@@ -177,13 +179,16 @@ async function withdrawFromCourseByUUID(request: Request, response: Response) {
 /**
  * Gets all courses that the current user can mentor (i.e. is member of a mentor group, which is
  * assigned to a course)
- * @param request
+ * @param _request
  * @param response
  * @param next
  */
-async function getMentorable(request: Request, response: Response, next: NextFunction) {
+async function getMentorable(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
+        if (!(await user.isMentor())) {
+            throw new ForbiddenException("You are not a mentor");
+        }
 
         const userWithCourses = await User.findOne({
             where: {
@@ -240,10 +245,18 @@ async function getMentorable(request: Request, response: Response, next: NextFun
  * Gets the courses that the user can actively edit
  * These are all courses associated to a user through their respective
  * mentor groups, where admin == true!
+ *
+ * This is only used to display the course list, so we can simply use the respective permission
+ * @param _request
+ * @param response
+ * @param next
  */
-async function getEditable(request: Request, response: Response, next: NextFunction) {
+async function getEditable(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
+        if (!user.isMentor()) {
+            throw new ForbiddenException("You are not a mentor");
+        }
 
         const dbUser = await User.findOne({
             where: {

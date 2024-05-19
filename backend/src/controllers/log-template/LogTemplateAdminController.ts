@@ -32,11 +32,6 @@ async function getAll(_request: Request, response: Response, next: NextFunction)
  */
 async function getAllMinimalData(_request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = response.locals.user;
-        if (!(await user.isMentor())) {
-            throw new ForbiddenException("You are not a mentor");
-        }
-
         const logTemplates = await TrainingLogTemplate.findAll({
             attributes: ["id", "name"],
         });
