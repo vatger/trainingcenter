@@ -71,6 +71,25 @@ async function getGroupAdminMentorGroups(this: User): Promise<MentorGroup[]> {
 }
 
 /**
+ * Returns true if and only if the user is a member of a mentor group, which is assigned to the specified
+ * course and is, by extension, allowed to mentor it.
+ * @param uuid
+ */
+async function isMentorInCourse(this: User, uuid: string): Promise<boolean> {
+    const mentorGroups = await this.getMentorGroupsAndCourses();
+
+    for (const mentorGroup of mentorGroups) {
+        for (const course of mentorGroup.courses ?? []) {
+            if (course.uuid == uuid) {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
+/**
  * Returns a list of mentor groups this user can manage courses
  * Manage in this context means, create, update, delete - although this might be reevaluated in the future
  */
@@ -115,8 +134,19 @@ async function canManageCourseInMentorGroup(this: User, mentorGroupID: number): 
  * @param courseUUID
  */
 async function canEditCourse(this: User, courseUUID: string): Promise<boolean> {
-    // TODO: Find an overlap between 1 & 2 (above) and return a boolean if the case is true
-    return true;
+    const mentorGroups: MentorGroup[] = await this.getMentorGroupsAndCourses();
+
+    for (const mentorGroup of mentorGroups) {
+        if (!mentorGroup.UserBelongToMentorGroups?.can_manage_course) break;
+
+        for (const course of mentorGroup.courses ?? []) {
+            if (course.uuid == courseUUID) {
+                return true;
+            }
+        }
+    }
+
+    return false;
 }
 
 /**
@@ -156,4 +186,5 @@ export default {
     canEditCourse,
     getCourses,
     getCoursesWithInformation,
+    isMentorInCourse,
 };

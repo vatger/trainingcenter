@@ -7,6 +7,8 @@ const allPerms = [
     "mentor.view",
 
     "lm.view",
+    "lm.action_requirements.view",
+    "lm.course.view",
 
     "atd.view",
     "atd.solo.delete",

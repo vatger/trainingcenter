@@ -103,6 +103,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     getCoursesWithInformation = UserExtensions.getCoursesWithInformation.bind(this);
     canManageCourseInMentorGroup = UserExtensions.canManageCourseInMentorGroup.bind(this);
     canEditCourse = UserExtensions.canEditCourse.bind(this);
+    isMentorInCourse = UserExtensions.isMentorInCourse.bind(this);
 
     async isMemberOfCourse(uuid: string): Promise<boolean> {
         const course = await Course.findOne({
@@ -171,7 +172,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     }
 
     async getMentorGroupsAndCourses(): Promise<MentorGroup[]> {
-        const user = await User.findOne({
+        const user: User | null = await User.findOne({
             where: {
                 id: this.id,
             },
@@ -179,9 +180,6 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
             include: {
                 association: User.associations.mentor_groups,
                 attributes: ["id", "name"],
-                through: {
-                    attributes: [],
-                },
 
                 // MentorGroup --> Courses
                 include: [

@@ -135,7 +135,7 @@ function _validateEntry(
 
         case ValidationTypeEnum.NUMBER:
             let n = Number(data);
-            if (Number.isNaN(n)) {
+            if (isNaN(n)) {
                 addErrorEntry(`Parameter is not a number`);
             }
             break;
