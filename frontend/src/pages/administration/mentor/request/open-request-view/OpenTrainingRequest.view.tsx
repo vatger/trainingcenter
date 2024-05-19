@@ -16,6 +16,7 @@ import { TrainingRequestModel } from "@/models/TrainingRequestModel";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { OpenTrainingRequestSkeleton } from "@/pages/administration/mentor/request/open-request-view/_skeletons/OpenTrainingRequest.skeleton";
 import useApi from "@/utils/hooks/useApi";
+import { ConversionUtils } from "turbocommons-ts";
 
 export function OpenTrainingRequestView() {
     const navigate = useNavigate();
@@ -108,7 +109,13 @@ export function OpenTrainingRequestView() {
                                 className={"lg:mr-3"}
                                 variant={"twoTone"}
                                 color={COLOR_OPTS.PRIMARY}
-                                onClick={() => navigate(`/administration/training-session/create/${trainingRequest?.uuid}`)}
+                                onClick={() =>
+                                    navigate(
+                                        `/administration/training-session/create?users=${ConversionUtils.stringToBase64(
+                                            JSON.stringify([trainingRequest?.user_id])
+                                        )}&request_uuid=${trainingRequest?.uuid}`
+                                    )
+                                }
                                 icon={<TbCalendarPlus size={20} />}>
                                 Session Erstellen
                             </Button>

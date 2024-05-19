@@ -83,7 +83,7 @@ async function enrolUser(request: Request, response: Response, next: NextFunctio
                 user_id: Number(body.user_id),
                 course_id: Number(body.course_id),
                 completed: false,
-                next_training_type: course.training_type?.id ?? null,
+                next_training_type: course.initial_training_type ?? null,
             },
         });
 

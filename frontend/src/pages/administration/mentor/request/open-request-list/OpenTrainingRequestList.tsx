@@ -16,6 +16,8 @@ import { Card } from "@/components/ui/Card/Card";
 import { Tabs } from "@/components/ui/Tabs/Tabs";
 import { Badge } from "@/components/ui/Badge/Badge";
 import useApi from "@/utils/hooks/useApi";
+import OTRLessonListTypes from "@/pages/administration/mentor/request/open-request-list/_types/OTRLessonList.types";
+import { ORLLessonSubpage } from "@/pages/administration/mentor/request/open-request-list/subpages/ORLLesson.subpage";
 
 type SearchFilter = {
     modal_open: boolean;
@@ -45,7 +47,6 @@ export function OpenTrainingRequestList() {
     const [searchInputValue, setSearchInputValue] = useState<string>("");
     const debouncedInput = useDebounce(searchInputValue, 250);
 
-    const columns: TableColumn<TrainingRequestModel>[] = OpenRequestListTypes.getColumns(navigate);
     const filteredTrainingRequests = useFilter<TrainingRequestModel>(trainingRequests ?? [], searchInputValue, debouncedInput, filterTrainingRequestFunction);
 
     return (
@@ -95,18 +96,12 @@ export function OpenTrainingRequestList() {
                         paginate
                         paginationPerPage={15}
                         className={"mt-5"}
-                        columns={columns}
+                        columns={OpenRequestListTypes.getColumns(navigate)}
                         data={filteredTrainingRequests.filter((f: TrainingRequestModel) => f.training_type?.type != "lesson")}
                         loading={loading}
                     />
-                    <Table
-                        paginate
-                        paginationPerPage={15}
-                        className={"mt-5"}
-                        columns={columns}
-                        data={filteredTrainingRequests.filter((f: TrainingRequestModel) => f.training_type?.type == "lesson")}
-                        loading={loading}
-                    />
+
+                    <ORLLessonSubpage filteredTrainingRequests={filteredTrainingRequests} loading={loading} />
                 </Tabs>
             </Card>
         </>

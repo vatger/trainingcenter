@@ -1,4 +1,3 @@
-import { UserModel } from "@/models/UserModel";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
 import ToastHelper from "@/utils/helper/ToastHelper";
 import { Dispatch, FormEvent } from "react";

@@ -11,7 +11,6 @@ import TrainingRequestController from "./controllers/training-request/TrainingRe
 import TrainingTypeController from "./controllers/training-type/TrainingTypeController";
 import UserInformationAdminController from "./controllers/user/UserInformationAdminController";
 import UserNoteAdminController from "./controllers/user/UserNoteAdminController";
-import UserController from "./controllers/user/UserAdminController";
 import TrainingRequestAdminController from "./controllers/training-request/TrainingRequestAdminController";
 import TrainingTypeAdministrationController from "./controllers/training-type/TrainingTypeAdminController";
 import FastTrackAdministrationController from "./controllers/fast-track/FastTrackAdminController";
@@ -38,6 +37,7 @@ import SyslogAdminController from "./controllers/admin-logs/SyslogAdminControlle
 import JoblogAdminController from "./controllers/admin-logs/JoblogAdminController";
 import UserInformationController from "./controllers/user/UserInformationController";
 import CourseInformationAdministrationController from "./controllers/course/CourseInformationAdministrationController";
+import UserAdminController from "./controllers/user/UserAdminController";
 
 export const routerGroup = (callback: (router: Router) => void) => {
     const router = Router();
@@ -180,9 +180,9 @@ router.use(
                 r.get("/notes", UserNoteAdminController.getGeneralUserNotes);
                 r.get("/notes/course", UserNoteAdminController.getNotesByCourseID);
 
-                r.get("/", UserController.getAll);
-                r.get("/min", UserController.getAllUsersMinimalData);
-                r.get("/sensitive", UserController.getAllSensitive);
+                r.get("/", UserAdminController.getAll);
+                r.get("/min", UserAdminController.getAllUsersMinimalData);
+                r.get("/sensitive", UserAdminController.getAllSensitive);
 
                 r.post("/enrol", UserCourseAdminController.enrolUser);
 

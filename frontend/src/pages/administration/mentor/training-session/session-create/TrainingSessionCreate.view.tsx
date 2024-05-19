@@ -2,15 +2,12 @@ import { Card } from "@/components/ui/Card/Card";
 import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { useNavigate } from "react-router-dom";
 import { Input } from "@/components/ui/Input/Input";
-import { TbCalendarEvent, TbCalendarPlus, TbUser } from "react-icons/tb";
+import { TbCalendarEvent, TbCalendarPlus } from "react-icons/tb";
 import dayjs from "dayjs";
-import React, { FormEvent, useState } from "react";
-import { Table } from "@/components/ui/Table/Table";
+import React, { useEffect, useState } from "react";
 import { Separator } from "@/components/ui/Separator/Separator";
 import { Button } from "@/components/ui/Button/Button";
-import { COLOR_OPTS, SIZE_OPTS, TYPE_OPTS } from "@/assets/theme.config";
-import { UserModel } from "@/models/UserModel";
-import TSCParticipantListTypes from "@/pages/administration/mentor/training-session/session-create/_types/TSCParticipantList.types";
+import { COLOR_OPTS, TYPE_OPTS } from "@/assets/theme.config";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { TrainingSessionCreateSkeleton } from "@/pages/administration/mentor/training-session/session-create/_skeletons/TrainingSessionCreate.skeleton";
 import { Select } from "@/components/ui/Select/Select";
@@ -19,18 +16,35 @@ import { TrainingStationModel } from "@/models/TrainingStationModel";
 import useApi from "@/utils/hooks/useApi";
 import { CourseModel } from "@/models/CourseModel";
 import { TrainingTypeModel } from "@/models/TrainingTypeModel";
-import { Badge } from "@/components/ui/Badge/Badge";
 import { Alert } from "@/components/ui/Alert/Alert";
 import TrainingSessionCreateService from "@/pages/administration/mentor/training-session/session-create/_services/TrainingSessionCreate.service";
-import { Calendar, dayjsLocalizer, Views } from "react-big-calendar";
-
 import "react-big-calendar/lib/css/react-big-calendar.css";
-import { TrainingSessionCalendar } from "@/pages/administration/mentor/training-session/_components/TrainingSessionCalendar";
 import { TrainingSessionParticipants } from "@/pages/administration/mentor/training-session/_components/TrainingSessionParticipants";
 import { IMinimalUser } from "@models/User";
+import { axiosInstance } from "@/utils/network/AxiosInstance";
+import { TrainingRequestModel } from "@/models/TrainingRequestModel";
+import ToastHelper from "@/utils/helper/ToastHelper";
+
+interface ISessionParams {
+    users: string | null;
+    request_uuid: string | null;
+}
+
+function getURLParams(): ISessionParams {
+    const url = new URL(window.location.toString());
+
+    let users = url.searchParams.get("users");
+    let request_uuid = url.searchParams.get("request_uuid");
+
+    return {
+        users: users,
+        request_uuid: request_uuid,
+    };
+}
 
 export function TrainingSessionCreateView() {
     const navigate = useNavigate();
+    const params = getURLParams();
 
     const { data: courses, loading: loadingCourses } = useApi<CourseModel[]>({
         url: "/administration/course/mentorable",
@@ -43,12 +57,56 @@ export function TrainingSessionCreateView() {
     const [trainingTypeID, setTrainingTypeID] = useState<number | undefined>(undefined);
     const [participants, setParticipants] = useState<IMinimalUser[]>([]);
 
+    const [loadingTrainingRequestData, setLoadingTrainingRequestData] = useState<boolean>(true);
+    const [defaultRequestState, setDefaultRequestState] = useState<TrainingRequestModel | undefined>(undefined);
+
+    // Load the initial session data (including course, training type and users...)
+    useEffect(() => {
+        if (params.users == null && params.request_uuid == null) {
+            setLoadingTrainingRequestData(false);
+            return;
+        }
+
+        let userPromise;
+        let sessionPromise;
+
+        if (params.users != null) {
+            // Load the users here
+            userPromise = axiosInstance.get("/administration/user/min", {
+                params: {
+                    users: params.users,
+                },
+            });
+        }
+
+        if (params.request_uuid != null) {
+            // Load the session data
+            sessionPromise = axiosInstance.get(`/administration/training-request/${params.request_uuid}`);
+        }
+
+        Promise.all([userPromise, sessionPromise])
+            .then(results => {
+                const users = results[0]!.data as IMinimalUser[];
+                const request = results[1]!.data as TrainingRequestModel;
+
+                setCourseUUID(request.course?.uuid);
+                setTrainingTypeID(request.training_type_id);
+
+                setDefaultRequestState(request);
+                setParticipants(users);
+            })
+            .catch(() => {
+                ToastHelper.error("Fehler beim Laden der Informationen aus den Trainingsanfragen. Versuche es bitte später erneut.");
+            })
+            .finally(() => setLoadingTrainingRequestData(false));
+    }, []);
+
     return (
         <>
             <PageHeader title={"Trainingssession Erstellen"} hideBackLink />
 
             <RenderIf
-                truthValue={loadingCourses}
+                truthValue={loadingCourses || loadingTrainingRequestData}
                 elementTrue={<TrainingSessionCreateSkeleton />}
                 elementFalse={
                     <>
@@ -68,7 +126,7 @@ export function TrainingSessionCreateView() {
                                         label={`Kurs Auswählen`}
                                         labelSmall
                                         name={"course_uuid"}
-                                        defaultValue={"none"}
+                                        defaultValue={courseUUID ?? "none"}
                                         onChange={value => {
                                             if (value == "none") {
                                                 setCourseUUID(undefined);
@@ -95,7 +153,7 @@ export function TrainingSessionCreateView() {
                                         labelSmall
                                         disabled={courses?.find(c => c.uuid == courseUUID)?.training_types?.length == 0 || courseUUID == null}
                                         name={"training_type_id"}
-                                        defaultValue={"none"}
+                                        defaultValue={trainingTypeID ?? "none"}
                                         onChange={value => {
                                             if (value == "none") {
                                                 setTrainingTypeID(undefined);
@@ -143,7 +201,7 @@ export function TrainingSessionCreateView() {
                                             courseUUID == null
                                         }
                                         name={"training_station_id"}
-                                        defaultValue={"none"}>
+                                        defaultValue={defaultRequestState?.training_station?.id ?? "none"}>
                                         <option value={"none"}>N/A</option>
                                         <MapArray
                                             data={

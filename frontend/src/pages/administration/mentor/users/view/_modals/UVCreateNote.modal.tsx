@@ -68,7 +68,7 @@ export function UVCreateNoteModal(props: CreateUserNotePartialProps) {
                         'Wähle einen Kurs aus um diese Notiz dem Kurs zuzuordnen. Falls kein Kurs ausgewählt wurde, gilt diese Notiz "global", d.h. sie wird keinem Kurs zugewiesen.'
                     }>
                     <option value="-1" selected>
-                        Kurs Auswählen
+                        Kein Kurs (Globale Notiz)
                     </option>
                     <MapArray
                         data={props.courses}

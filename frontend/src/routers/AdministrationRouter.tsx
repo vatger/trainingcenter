@@ -16,7 +16,6 @@ import { MentorTrainingListView } from "@/pages/administration/mentor/training-s
 import { MentorTrainingView } from "@/pages/administration/mentor/training-session/planned-view/MentorTraining.view";
 import { TrainingSessionLogsCreateView } from "@/pages/administration/mentor/training-session/session-log-create/TrainingSessionLogsCreate.view";
 import { TrainingSessionCreateView } from "@/pages/administration/mentor/training-session/session-create/TrainingSessionCreate.view";
-import { TrainingSessionCreateFromRequestView } from "@/pages/administration/mentor/training-session/session-create/TrainingSessionCreateFromRequest.view";
 import { MentorGroupListView } from "@/pages/administration/lm/mentor-group/list/MentorGroupList.view";
 import { MentorGroupCreateView } from "@/pages/administration/lm/mentor-group/create/MentorGroupCreate.view";
 import { MentorGroupViewView } from "@/pages/administration/lm/mentor-group/view/MentorGroupView.view";
@@ -86,7 +85,6 @@ export function AdministrationRouter() {
                 <Route path={"my"} element={<MyTrainingSessionListView />} />
                 <Route path={"my/:uuid"} element={<MyTrainingSessionView />} />
                 <Route path={"create"} element={<TrainingSessionCreateView />} />
-                <Route path={"create/:uuid"} element={<TrainingSessionCreateFromRequestView />} />
             </Route>
 
             <Route path={"mentor-group"}>
