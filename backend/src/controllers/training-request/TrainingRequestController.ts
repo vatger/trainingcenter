@@ -151,19 +151,11 @@ async function getPlanned(request: Request, response: Response) {
 }
 
 async function getByUUID(request: Request, response: Response) {
-    const reqData = request.params;
-
-    // const validation = ValidationHelper.validate([
-    //     {
-    //         name: "training_request_uuid",
-    //         validationObject: reqData.request_uuid,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }],
-    //     },
-    // ]);
+    const params = request.params as { uuid?: string };
 
     const trainingRequest = await TrainingRequest.findOne({
         where: {
-            uuid: reqData.request_uuid?.toString(),
+            uuid: params.uuid?.toString(),
         },
         include: [
             TrainingRequest.associations.training_type,

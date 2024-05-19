@@ -1,13 +1,11 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
-import _CourseAdministrationValidator from "./_CourseAdministration.validator";
 import { Course } from "../../models/Course";
 import { MentorGroupsBelongsToCourses } from "../../models/through/MentorGroupsBelongsToCourses";
 import { HttpStatusCode } from "axios";
 import { MentorGroup } from "../../models/MentorGroup";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { TrainingRequest } from "../../models/TrainingRequest";
-import { TrainingType } from "../../models/TrainingType";
 import { sequelize } from "../../core/Sequelize";
 import { TrainingTypesBelongsToCourses } from "../../models/through/TrainingTypesBelongsToCourses";
 import { generateUUID } from "../../utility/UUID";
@@ -48,8 +46,6 @@ async function createCourse(request: Request, response: Response, next: NextFunc
         //         toValidate: [ValidationOptions.NON_NULL]
         //     }
         // ])
-
-        _CourseAdministrationValidator.validateUpdateOrCreateRequest(body);
 
         if (!(await user.canManageCourseInMentorGroup(Number(body.mentor_group_id)))) {
             response.sendStatus(HttpStatusCode.Forbidden);
@@ -113,8 +109,6 @@ async function updateCourse(request: Request, response: Response, next: NextFunc
     try {
         const user: User = response.locals.user;
         const body: ICourseBody = request.body as ICourseBody;
-
-        _CourseAdministrationValidator.validateUpdateOrCreateRequest(body);
 
         if (!(await user.canEditCourse(body.course_uuid))) {
             response.sendStatus(HttpStatusCode.Forbidden);
@@ -210,8 +204,6 @@ async function removeCourseParticipant(request: Request, response: Response) {
     const params = request.params as { course_uuid: string };
     const body = request.body as { user_id: number };
 
-    const validation = _CourseAdministrationValidator.validateRemoveParticipantRequest(body);
-
     const courseID = await Course.getIDFromUUID(params.course_uuid);
     if (courseID == -1) {
         response.sendStatus(HttpStatusCode.BadRequest);
@@ -283,8 +275,6 @@ async function getCourseMentorGroups(request: Request, response: Response) {
 async function addMentorGroupToCourse(request: Request, response: Response) {
     const body = request.body as { course_uuid: string; mentor_group_id: number; can_edit: boolean };
 
-    const validation = _CourseAdministrationValidator.validateAddMentorGroupRequest(body);
-
     const courseID = await Course.getIDFromUUID(body.course_uuid);
     if (courseID == -1) {
         response.sendStatus(HttpStatusCode.BadRequest);
@@ -326,105 +316,6 @@ async function removeMentorGroupFromCourse(request: Request, response: Response)
     });
 
     response.sendStatus(HttpStatusCode.NoContent);
-}
-
-async function getMentorable(request: Request, response: Response) {
-    const user: User = response.locals.user;
-
-    const userWithCourses = await User.findOne({
-        where: {
-            id: user.id,
-        },
-        include: [
-            {
-                association: User.associations.mentor_groups,
-                through: { attributes: [] },
-                include: [
-                    {
-                        association: MentorGroup.associations.courses,
-                        attributes: ["id", "uuid", "name", "name_en"],
-                        through: { attributes: [] },
-                        include: [
-                            {
-                                association: Course.associations.training_types,
-                                attributes: ["id", "name", "type"],
-                                through: { attributes: [] },
-                                include: [
-                                    {
-                                        association: TrainingType.associations.training_stations,
-                                        attributes: ["id", "callsign", "frequency"],
-                                        through: { attributes: [] },
-                                    },
-                                ],
-                            },
-                        ],
-                    },
-                ],
-            },
-        ],
-    });
-
-    if (userWithCourses == null || userWithCourses.mentor_groups == null) {
-        response.sendStatus(HttpStatusCode.InternalServerError);
-        return;
-    }
-
-    let courses: Course[] = [];
-    for (const mentorGroup of userWithCourses.mentor_groups) {
-        for (const course of mentorGroup.courses ?? []) {
-            courses.push(course);
-        }
-    }
-
-    response.send(courses);
-}
-
-/**
- * Gets the courses that the user can actively edit
- * These are all courses associated to a user through their respective
- * mentor groups, where admin = true!
- */
-async function getEditable(request: Request, response: Response) {
-    const reqUser: User = response.locals.user;
-
-    const user = await User.findOne({
-        where: {
-            id: reqUser.id,
-        },
-        include: {
-            association: User.associations.mentor_groups,
-            through: {
-                where: {
-                    can_manage_course: true,
-                },
-                attributes: [],
-            },
-            include: [
-                {
-                    association: MentorGroup.associations.courses,
-                    through: {
-                        where: {
-                            can_edit_course: true,
-                        },
-                        attributes: [],
-                    },
-                },
-            ],
-        },
-    });
-    if (user == null) {
-        response.status(500).send({ message: "User not found" });
-        return;
-    }
-
-    let courses: Course[] = [];
-    for (const mentorGroup of user?.mentor_groups ?? []) {
-        for (const course of mentorGroup.courses ?? []) {
-            courses.push(course);
-        }
-    }
-
-    response.send(courses);
 }
 
 /**
@@ -522,7 +413,4 @@ export default {
     getCourseTrainingTypes,
     addCourseTrainingType,
     removeCourseTrainingType,
-
-    getMentorable,
-    getEditable,
 };

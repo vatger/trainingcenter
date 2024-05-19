@@ -3,7 +3,6 @@ import { MentorGroup } from "../../models/MentorGroup";
 import { UserBelongToMentorGroups } from "../../models/through/UserBelongToMentorGroups";
 import { User } from "../../models/User";
 import { HttpStatusCode } from "axios";
-//import _MentorGroupAdminValidator from "./_MentorGroupAdminValidator";
 import { MentorGroupsBelongToEndorsementGroups } from "../../models/through/MentorGroupsBelongToEndorsementGroups";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 

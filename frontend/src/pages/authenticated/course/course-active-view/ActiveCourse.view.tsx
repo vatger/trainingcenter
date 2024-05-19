@@ -49,7 +49,7 @@ export function ActiveCourseView() {
         loading: loadingActiveTrainingRequests,
         loadingError: loadingActiveTrainingRequestsError,
     } = useApi<TrainingRequestModel[]>({
-        url: `/user-info/training-request/${uuid}/active`,
+        url: `/user/training-request/${uuid}/active`,
         method: "get",
     });
 

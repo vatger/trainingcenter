@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
-import EndorsementGroupValidator from "../_validators/EndorsementGroupValidator";
 import { EndorsementGroupBelongsToStations } from "../../models/through/EndorsementGroupBelongsToStations";
 import { HttpStatusCode } from "axios";
 import { TrainingStation } from "../../models/TrainingStation";
@@ -83,7 +82,6 @@ async function getAllWithStations(request: Request, response: Response, next: Ne
 async function getByID(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };
-        EndorsementGroupValidator.validateGetByIDRequest(params);
 
         const endorsementGroup = await EndorsementGroup.findByPk(params.id);
 
@@ -107,7 +105,6 @@ async function getByID(request: Request, response: Response, next: NextFunction)
 async function deleteByID(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };
-        EndorsementGroupValidator.validateDeleteRequest(params);
 
         await EndorsementGroup.destroy({
             where: {
@@ -130,7 +127,6 @@ async function deleteByID(request: Request, response: Response, next: NextFuncti
 async function getStationsByID(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };
-        EndorsementGroupValidator.validateGetByIDRequest(params);
 
         const endorsementGroup = await EndorsementGroup.findOne({
             where: {
@@ -187,8 +183,6 @@ async function addStationByID(request: Request, response: Response, next: NextFu
     try {
         const params = request.params as { id: string };
         const body = request.body as { training_station_id: number };
-        EndorsementGroupValidator.validateGetByIDRequest(params);
-        EndorsementGroupValidator.validateStationRequest(body);
 
         const endorsementGroup = await EndorsementGroup.findByPk(params.id);
         const trainingStation = await TrainingStation.findByPk(body.training_station_id);
@@ -218,8 +212,6 @@ async function removeStationByID(request: Request, response: Response, next: Nex
     try {
         const params = request.params as { id: string };
         const body = request.body as { training_station_id: number };
-        EndorsementGroupValidator.validateGetByIDRequest(params);
-        EndorsementGroupValidator.validateStationRequest(body);
 
         const endorsementGroup = await EndorsementGroup.findByPk(params.id);
         const trainingStation = await TrainingStation.findByPk(body.training_station_id);
@@ -250,7 +242,6 @@ async function removeStationByID(request: Request, response: Response, next: Nex
 async function getUsersByID(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };
-        EndorsementGroupValidator.validateGetByIDRequest(params);
 
         const endorsementGroup = await EndorsementGroup.findOne({
             where: {
@@ -286,8 +277,6 @@ async function removeUserByID(request: Request, response: Response, next: NextFu
     try {
         const params = request.params as { id: string };
         const data = request.body as { user_id: number };
-        EndorsementGroupValidator.validateGetByIDRequest(params);
-        EndorsementGroupValidator.validateRemoveUserRequest(data);
 
         const endorsementGroup = await EndorsementGroup.findByPk(params.id);
         if (endorsementGroup == null) {
@@ -317,7 +306,7 @@ async function removeUserByID(request: Request, response: Response, next: NextFu
 async function createEndorsementGroup(request: Request, response: Response, next: NextFunction) {
     try {
         const body = request.body as { name: string; training_station_ids: number[] };
-        EndorsementGroupValidator.validateCreateRequest(body);
+
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
             training_station_ids: [ValidationTypeEnum.IS_ARRAY, ValidationTypeEnum.VALID_JSON],

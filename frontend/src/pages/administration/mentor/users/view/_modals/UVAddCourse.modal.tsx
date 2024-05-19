@@ -26,7 +26,7 @@ export function UVAddCourseModal({ user, show, onClose, onCourseEnrolment }: ICo
     const [coursesAvailableCount, setCoursesAvailableCount] = useState<number>(1);
 
     const { loading: loadingMentorableCourses, data: mentorableCourses } = useApi<CourseModel[]>({
-        url: "/administration/course/mentorable",
+        url: "/user/course/mentorable",
         method: "get",
         onLoad: mentorableCourses => {
             const num = mentorableCourses.filter(c => !user?.courses?.find(ci => ci.id == c.id)).length ?? 1;

@@ -101,10 +101,11 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/", CourseController.getAll);
                 r.get("/my", UserCourseController.getMyCourses);
-                r.get("/available", UserCourseController.getAvailableCourses);
                 r.get("/active", UserCourseController.getActiveCourses);
-                r.put("/enrol", UserCourseController.enrolInCourse);
+                r.get("/available", UserCourseController.getAvailableCourses);
                 r.get("/completed", UserCourseController.getCompletedCourses);
+
+                r.put("/enrol", UserCourseController.enrolInCourse);
                 r.delete("/withdraw", UserCourseController.withdrawFromCourseByUUID);
 
                 r.get("/info", CourseInformationController.getInformationByUUID);
@@ -122,7 +123,7 @@ router.use(
         );
 
         r.use(
-            "/user-info",
+            "/user",
             routerGroup((r: Router) => {
                 r.get("/training-request", UserTrainingController.getRequests);
                 r.get("/training-request/:course_uuid", UserTrainingController.getRequestsByUUID);
@@ -130,6 +131,9 @@ router.use(
 
                 r.get("/mentor-group", UserMentorGroupController.getMentorGroups);
                 r.get("/mentor-group/cm", UserMentorGroupController.getCourseManagerMentorGroups);
+
+                r.get("/course/mentorable", UserCourseController.getMentorable);
+                r.get("/course/editable", UserCourseController.getEditable);
             })
         );
 
@@ -141,9 +145,9 @@ router.use(
 
                 r.get("/open", TrainingRequestController.getOpen);
                 r.get("/planned", TrainingRequestController.getPlanned);
-                r.get("/:request_uuid", TrainingRequestController.getByUUID);
-
                 r.post("/confirm-interest", TrainingRequestController.confirmInterest);
+
+                r.get("/:uuid", TrainingRequestController.getByUUID);
             })
         );
 
@@ -152,8 +156,9 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/upcoming", TrainingSessionController.getUpcoming);
                 r.get("/completed", TrainingSessionController.getCompleted);
-                r.get("/:uuid", TrainingSessionController.getByUUID);
+
                 r.delete("/withdraw/:uuid", TrainingSessionController.withdrawFromSessionByUUID);
+                r.get("/:uuid", TrainingSessionController.getByUUID);
             })
         );
 
@@ -172,7 +177,7 @@ router.use(
         r.use(
             "/user",
             routerGroup((r: Router) => {
-                r.get("/data/", UserInformationAdminController.getUserDataByID);
+                r.get("/data", UserInformationAdminController.getUserDataByID);
                 r.get("/data/basic", UserInformationAdminController.getBasicUserDataByID);
                 r.get("/data/sensitive", UserInformationAdminController.getSensitiveUserDataByID);
 
@@ -204,20 +209,20 @@ router.use(
         r.use(
             "/training-session",
             routerGroup((r: Router) => {
+                r.get("/my", TrainingSessionAdminController.getMyTrainingSessions);
                 r.get("/planned", TrainingSessionAdminController.getPlanned);
                 r.get("/all-upcoming", TrainingSessionAdminController.getAllUpcoming);
                 r.post("/training", TrainingSessionAdminController.createTrainingSession);
-                r.get("/my", TrainingSessionAdminController.getMyTrainingSessions);
                 r.delete("/training", TrainingSessionAdminController.deleteTrainingSession);
+
+                r.get("/:uuid/mentors", TrainingSessionAdminController.getAvailableMentorsByUUID);
                 r.get("/:uuid", TrainingSessionAdminController.getByUUID);
                 r.patch("/:uuid", TrainingSessionAdminController.updateByUUID);
-                r.get("/:uuid/mentors", TrainingSessionAdminController.getAvailableMentorsByUUID);
-
-                r.get("/training-types/:uuid", TrainingSessionAdminController.getCourseTrainingTypes);
-                r.get("/log-template/:uuid", TrainingSessionAdminController.getLogTemplate);
-                r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
 
                 r.post("/log/:uuid", TrainingSessionAdminController.createTrainingLogs);
+                r.get("/log-template/:uuid", TrainingSessionAdminController.getLogTemplate);
+                r.get("/training-types/:uuid", TrainingSessionAdminController.getCourseTrainingTypes);
+                r.get("/participants/:uuid", TrainingSessionAdminController.getParticipants);
             })
         );
 
@@ -246,10 +251,6 @@ router.use(
         r.use(
             "/course",
             routerGroup((r: Router) => {
-                r.get("/mentorable", CourseAdministrationController.getMentorable);
-                r.get("/editable", CourseAdministrationController.getEditable);
-                // -----------------------
-
                 r.get("/", CourseAdministrationController.getAllCourses);
                 r.post("/", CourseAdministrationController.createCourse);
                 r.patch("/", CourseAdministrationController.updateCourse);

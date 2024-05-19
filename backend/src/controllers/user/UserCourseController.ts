@@ -4,6 +4,9 @@ import { Course } from "../../models/Course";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { MentorGroup } from "../../models/MentorGroup";
+import { TrainingType } from "../../models/TrainingType";
+import { HttpStatusCode } from "axios";
 
 /**
  * Returns courses that are available to the current user (i.e. not enrolled in course)
@@ -171,6 +174,121 @@ async function withdrawFromCourseByUUID(request: Request, response: Response) {
     response.send({ message: "OK" });
 }
 
+/**
+ * Gets all courses that the current user can mentor (i.e. is member of a mentor group, which is
+ * assigned to a course)
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getMentorable(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+
+        const userWithCourses = await User.findOne({
+            where: {
+                id: user.id,
+            },
+            include: [
+                {
+                    association: User.associations.mentor_groups,
+                    through: { attributes: [] },
+                    include: [
+                        {
+                            association: MentorGroup.associations.courses,
+                            attributes: ["id", "uuid", "name", "name_en"],
+                            through: { attributes: [] },
+                            include: [
+                                {
+                                    association: Course.associations.training_types,
+                                    attributes: ["id", "name", "type"],
+                                    through: { attributes: [] },
+                                    include: [
+                                        {
+                                            association: TrainingType.associations.training_stations,
+                                            attributes: ["id", "callsign", "frequency"],
+                                            through: { attributes: [] },
+                                        },
+                                    ],
+                                },
+                            ],
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (userWithCourses == null || userWithCourses.mentor_groups == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        let courses: Course[] = [];
+        for (const mentorGroup of userWithCourses.mentor_groups) {
+            for (const course of mentorGroup.courses ?? []) {
+                courses.push(course);
+            }
+        }
+
+        response.send(courses);
+    } catch (e) {
+        next(e);
+    }
+}
+
+/**
+ * Gets the courses that the user can actively edit
+ * These are all courses associated to a user through their respective
+ * mentor groups, where admin == true!
+ */
+async function getEditable(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+
+        const dbUser = await User.findOne({
+            where: {
+                id: user.id,
+            },
+            include: {
+                association: User.associations.mentor_groups,
+                through: {
+                    where: {
+                        can_manage_course: true,
+                    },
+                    attributes: [],
+                },
+                include: [
+                    {
+                        association: MentorGroup.associations.courses,
+                        attributes: ["id", "uuid", "name", "name_en", "is_active", "self_enrollment_enabled"],
+                        through: {
+                            where: {
+                                can_edit_course: true,
+                            },
+                            attributes: [],
+                        },
+                    },
+                ],
+            },
+        });
+        if (dbUser == null) {
+            response.status(500).send({ message: "User not found" });
+            return;
+        }
+
+        let courses: Course[] = [];
+        for (const mentorGroup of dbUser?.mentor_groups ?? []) {
+            for (const course of mentorGroup.courses ?? []) {
+                courses.push(course);
+            }
+        }
+
+        response.send(courses);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     getAvailableCourses,
     getActiveCourses,
@@ -178,4 +296,6 @@ export default {
     getMyCourses,
     enrolInCourse,
     withdrawFromCourseByUUID,
+    getMentorable,
+    getEditable,
 };

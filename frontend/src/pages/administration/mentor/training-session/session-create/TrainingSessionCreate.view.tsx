@@ -47,7 +47,7 @@ export function TrainingSessionCreateView() {
     const params = getURLParams();
 
     const { data: courses, loading: loadingCourses } = useApi<CourseModel[]>({
-        url: "/administration/course/mentorable",
+        url: "/user/course/mentorable",
         method: "get",
     });
 

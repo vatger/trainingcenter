@@ -16,7 +16,7 @@ export function AdminCourseListView() {
     const navigate = useNavigate();
 
     const { data: courseData, loading } = useApi<CourseModel[]>({
-        url: "/administration/course/editable",
+        url: "/user/course/editable",
         method: "get",
     });
 

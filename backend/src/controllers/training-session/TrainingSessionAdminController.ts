@@ -582,7 +582,14 @@ async function getAvailableMentorsByUUID(request: Request, response: Response, n
                     include: [
                         {
                             association: Course.associations.mentor_groups,
-                            include: [MentorGroup.associations.users],
+                            include: [
+                                {
+                                    association: MentorGroup.associations.users,
+                                    through: {
+                                        attributes: [],
+                                    },
+                                },
+                            ],
                         },
                     ],
                 },

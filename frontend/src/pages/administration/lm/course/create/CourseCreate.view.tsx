@@ -30,7 +30,7 @@ export function CourseCreateView() {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
     const { data: mentorGroups, loading: loadingMentorGroups } = useApi<MentorGroupModel[]>({
-        url: "/user-info/mentor-group/cm",
+        url: "/user/mentor-group/cm",
         method: "get",
     });
 
