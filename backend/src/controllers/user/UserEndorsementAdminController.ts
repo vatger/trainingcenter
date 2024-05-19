@@ -18,20 +18,16 @@ async function addEndorsement(request: Request, response: Response, next: NextFu
             },
             include: [User.associations.endorsement_groups],
         });
-        if(!user) {
-            throw new Error();
-        }
+
 
         const endorsementGroup = await EndorsementGroup.findOne({where: {
                 id: Number(body.endorsement_group_id),
             },})
-        if(!endorsementGroup) {
-            throw new Error();
-        }
+
 
         const userEndorsement = await EndorsementGroupsBelongsToUsers.create({
-            user_id: user.id,
-            endorsement_group_id: endorsementGroup.id,
+            user_id: user?.id ?? -1,
+            endorsement_group_id: endorsementGroup?.id,
             created_by: requestingUser.id,
         });
 
@@ -40,7 +36,7 @@ async function addEndorsement(request: Request, response: Response, next: NextFu
 
         if(!success){
             await userEndorsement.destroy();
-            throw new Error();
+            throw new Error("Could not create endorsement in VATEUD CORE.");
         }
 
 
