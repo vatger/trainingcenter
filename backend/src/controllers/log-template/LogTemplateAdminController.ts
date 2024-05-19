@@ -2,34 +2,56 @@ import { NextFunction, Request, Response } from "express";
 import { TrainingLogTemplate } from "../../models/TrainingLogTemplate";
 import { HttpStatusCode } from "axios";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { User } from "../../models/User";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
+import PermissionHelper from "../../utility/helper/PermissionHelper";
 
 /**
  * Gets all training log templates
- * @param request
+ * @param _request
  * @param response
+ * @param next
  */
-async function getAll(request: Request, response: Response) {
-    const logTemplates = await TrainingLogTemplate.findAll();
-    response.send(logTemplates);
+async function getAll(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "atd.log_template.view");
+
+        const logTemplates = await TrainingLogTemplate.findAll();
+        response.send(logTemplates);
+    } catch (e) {
+        next(e);
+    }
 }
 
 /**
  * Gets all training log templates with minimal data (ID, Name)
- * @param request
+ * @param _request
  * @param response
+ * @param next
  */
-async function getAllMinimalData(request: Request, response: Response) {
-    const logTemplates = await TrainingLogTemplate.findAll({
-        attributes: ["id", "name"],
-    });
-    response.send(logTemplates);
+async function getAllMinimalData(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        if (!(await user.isMentor())) {
+            throw new ForbiddenException("You are not a mentor");
+        }
+
+        const logTemplates = await TrainingLogTemplate.findAll({
+            attributes: ["id", "name"],
+        });
+        response.send(logTemplates);
+    } catch (e) {
+        next(e);
+    }
 }
 
 async function getByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
 
-        Validator.validate(params, { id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER] });
+        PermissionHelper.checkUserHasPermission(user, "atd.log_template.view");
 
         const trainingLogTemplate = await TrainingLogTemplate.findOne({
             where: {
@@ -56,7 +78,10 @@ async function getByID(request: Request, response: Response, next: NextFunction)
  */
 async function create(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const body = request.body as { name: string; content: any };
+
+        PermissionHelper.checkUserHasPermission(user, "atd.log_template.create");
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
@@ -82,8 +107,11 @@ async function create(request: Request, response: Response, next: NextFunction) 
  */
 async function update(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
         const body = request.body as { name: string; content: string };
+
+        PermissionHelper.checkUserHasPermission(user, "atd.log_template.edit");
 
         Validator.validate(params, { id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER] });
         Validator.validate(body, {
@@ -123,7 +151,10 @@ async function update(request: Request, response: Response, next: NextFunction) 
  */
 async function destroy(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
+
+        PermissionHelper.checkUserHasPermission(user, "atd.log_template.edit");
 
         Validator.validate(params, {
             id: [ValidationTypeEnum.NON_NULL],

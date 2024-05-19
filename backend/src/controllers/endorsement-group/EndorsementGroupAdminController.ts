@@ -6,17 +6,23 @@ import { TrainingStation } from "../../models/TrainingStation";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 import { User } from "../../models/User";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
+import PermissionHelper from "../../utility/helper/PermissionHelper";
 
 /**
  * Returns all Endorsement groups that are mentorable by the current user
- * @param request
+ * @param _request
  * @param response
  * @param next
  */
-async function getMentorable(request: Request, response: Response, next: NextFunction) {
+async function getMentorable(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
         const userMentorGroups = await user.getMentorGroups();
+
+        if (userMentorGroups.length == 0) {
+            throw new ForbiddenException("No mentor groups are assigned to this user.");
+        }
 
         let endorsementGroups: EndorsementGroup[] = [];
         for (const m of userMentorGroups) {
@@ -37,12 +43,15 @@ async function getMentorable(request: Request, response: Response, next: NextFun
 
 /**
  * Gets a collection of all endorsement groups
- * @param request
+ * @param _request
  * @param response
  * @param next
  */
-async function getAll(request: Request, response: Response, next: NextFunction) {
+async function getAll(_request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.view");
+
         const endorsementGroups = await EndorsementGroup.findAll();
         response.send(endorsementGroups);
     } catch (e) {
@@ -51,13 +60,16 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
 }
 
 /**
- * Returns a collection of Endorsementgroups with their respective stations
- * @param request
+ * Returns a collection of EndorsementGroups with their respective stations
+ * @param _request
  * @param response
  * @param next
  */
-async function getAllWithStations(request: Request, response: Response, next: NextFunction) {
+async function getAllWithStations(_request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.view");
+
         const endorsementGroups = await EndorsementGroup.findAll({
             include: {
                 association: EndorsementGroup.associations.stations,
@@ -81,11 +93,14 @@ async function getAllWithStations(request: Request, response: Response, next: Ne
  */
 async function getByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
+
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.view");
 
         const endorsementGroup = await EndorsementGroup.findByPk(params.id);
 
-        if (endorsementGroup == null) {
+        if (!endorsementGroup) {
             response.sendStatus(HttpStatusCode.NotFound);
             return;
         }
@@ -104,7 +119,10 @@ async function getByID(request: Request, response: Response, next: NextFunction)
  */
 async function deleteByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
+
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.edit");
 
         await EndorsementGroup.destroy({
             where: {
@@ -126,7 +144,10 @@ async function deleteByID(request: Request, response: Response, next: NextFuncti
  */
 async function getStationsByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
+
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.view");
 
         const endorsementGroup = await EndorsementGroup.findOne({
             where: {
@@ -151,10 +172,23 @@ async function getStationsByID(request: Request, response: Response, next: NextF
     }
 }
 
+/**
+ * Updates an endorsement group
+ * @param request
+ * @param response
+ * @param next
+ */
 async function updateByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
         const body = request.body as { name: string };
+
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.edit");
+
+        Validator.validate(body, {
+            name: [ValidationTypeEnum.NON_NULL],
+        });
 
         let endorsementGroup = await EndorsementGroup.findByPk(params.id);
 
@@ -181,8 +215,15 @@ async function updateByID(request: Request, response: Response, next: NextFuncti
  */
 async function addStationByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
         const body = request.body as { training_station_id: number };
+
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.edit");
+
+        Validator.validate(body, {
+            training_station_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        });
 
         const endorsementGroup = await EndorsementGroup.findByPk(params.id);
         const trainingStation = await TrainingStation.findByPk(body.training_station_id);
@@ -210,8 +251,15 @@ async function addStationByID(request: Request, response: Response, next: NextFu
  */
 async function removeStationByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
         const body = request.body as { training_station_id: number };
+
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.edit");
+
+        Validator.validate(body, {
+            training_station_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        });
 
         const endorsementGroup = await EndorsementGroup.findByPk(params.id);
         const trainingStation = await TrainingStation.findByPk(body.training_station_id);
@@ -241,7 +289,12 @@ async function removeStationByID(request: Request, response: Response, next: Nex
  */
 async function getUsersByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
+
+        if (!(await user.isMentor())) {
+            throw new ForbiddenException("You are not a mentor.");
+        }
 
         const endorsementGroup = await EndorsementGroup.findOne({
             where: {
@@ -256,12 +309,7 @@ async function getUsersByID(request: Request, response: Response, next: NextFunc
             ],
         });
 
-        if (endorsementGroup == null || endorsementGroup.users == null) {
-            response.sendStatus(HttpStatusCode.NotFound);
-            return;
-        }
-
-        response.send(endorsementGroup.users);
+        response.send(endorsementGroup?.users ?? []);
     } catch (e) {
         next(e);
     }
@@ -275,8 +323,11 @@ async function getUsersByID(request: Request, response: Response, next: NextFunc
  */
 async function removeUserByID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { id: string };
         const data = request.body as { user_id: number };
+
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.edit");
 
         const endorsementGroup = await EndorsementGroup.findByPk(params.id);
         if (endorsementGroup == null) {
@@ -305,7 +356,10 @@ async function removeUserByID(request: Request, response: Response, next: NextFu
  */
 async function createEndorsementGroup(request: Request, response: Response, next: NextFunction) {
     try {
-        const body = request.body as { name: string; tier : number; training_station_ids: number[] };
+        const user: User = response.locals.user;
+        const body = request.body as { name: string; tier: number; training_station_ids: number[] };
+
+        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.create");
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
@@ -314,7 +368,7 @@ async function createEndorsementGroup(request: Request, response: Response, next
 
         const endorsementGroup = await EndorsementGroup.create({
             name: body.name,
-            tier: body.tier
+            tier: body.tier,
         });
 
         for (const tID of body.training_station_ids) {

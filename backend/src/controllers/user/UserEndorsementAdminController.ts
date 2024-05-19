@@ -18,14 +18,16 @@ async function addEndorsement(request: Request, response: Response, next: NextFu
             },
             include: [User.associations.endorsement_groups],
         });
-        if(!user) {
+        if (!user) {
             throw new Error();
         }
 
-        const endorsementGroup = await EndorsementGroup.findOne({where: {
+        const endorsementGroup = await EndorsementGroup.findOne({
+            where: {
                 id: Number(body.endorsement_group_id),
-            },})
-        if(!endorsementGroup) {
+            },
+        });
+        if (!endorsementGroup) {
             throw new Error();
         }
 
@@ -35,14 +37,12 @@ async function addEndorsement(request: Request, response: Response, next: NextFu
             created_by: requestingUser.id,
         });
 
-
         const success = await createEndorsement(userEndorsement, endorsementGroup);
 
-        if(!success){
+        if (!success) {
             await userEndorsement.destroy();
             throw new Error();
         }
-
 
         response.status(HttpStatusCode.Created).send(user?.endorsement_groups ?? []);
     } catch (e) {

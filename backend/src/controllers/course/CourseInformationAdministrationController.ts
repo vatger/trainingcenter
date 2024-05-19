@@ -1,18 +1,21 @@
 import { NextFunction, Request, Response } from "express";
-import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { Course } from "../../models/Course";
 import { CourseInformation, ICourseInformation, ICourseInformationData, ICourseInformationDurationUnits } from "../../models/CourseInformation";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
 import { HttpStatusCode } from "axios";
+import { User } from "../../models/User";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
 
 async function getInformation(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { course_uuid: string };
-        Validator.validate(params, {
-            course_uuid: [ValidationTypeEnum.NON_NULL],
-        });
 
-        const course = await Course.findOne({
+        if (!(await user.canEditCourse(params.course_uuid))) {
+            throw new ForbiddenException("You are not allowed to edit this course");
+        }
+
+        const course: Course | null = await Course.findOne({
             where: {
                 uuid: params.course_uuid,
             },
@@ -27,12 +30,14 @@ async function getInformation(request: Request, response: Response, next: NextFu
 
 async function setInformation(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { course_uuid: string };
+        // No need for validation, since all fields are optional anyway...
         const body = request.body as { duration_value?: string; duration_unit?: ICourseInformationDurationUnits; rating?: string; endorsement_id?: string };
 
-        Validator.validate(params, {
-            course_uuid: [ValidationTypeEnum.NON_NULL],
-        });
+        if (!(await user.canEditCourse(params.course_uuid))) {
+            throw new ForbiddenException("You are not allowed to edit this course");
+        }
 
         const course_id = await Course.getIDFromUUID(params.course_uuid);
         const endorsementGroup = await EndorsementGroup.findByPk(body.endorsement_id);

@@ -51,7 +51,7 @@ export const ENDORSEMENT_GROUP_BELONGS_TO_USER_TABLE_ATTRIBUTES = {
         // The solo is only ever deleted IFF a rating change has taken place.
         // Therefore, we can just set it null to indicate that the solo is over.
     },
-    vateud_id:{
+    vateud_id: {
         type: DataType.INTEGER,
         allowNull: true,
         defaultValue: null,

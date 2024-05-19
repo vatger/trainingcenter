@@ -2,7 +2,6 @@ import { Router } from "express";
 import { authMiddleware } from "./middlewares/AuthMiddleware";
 import LoginController from "./controllers/login/LoginController";
 import GDPRController from "./controllers/user/GDPRController";
-import CourseController from "./controllers/course/CourseController";
 import UserCourseController from "./controllers/user/UserCourseController";
 import CourseInformationController from "./controllers/course/CourseInformationController";
 import UserTrainingController from "./controllers/user/UserTrainingController";
@@ -99,7 +98,6 @@ router.use(
         r.use(
             "/course",
             routerGroup((r: Router) => {
-                r.get("/", CourseController.getAll);
                 r.get("/my", UserCourseController.getMyCourses);
                 r.get("/active", UserCourseController.getActiveCourses);
                 r.get("/available", UserCourseController.getAvailableCourses);

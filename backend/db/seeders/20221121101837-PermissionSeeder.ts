@@ -10,12 +10,24 @@ const allPerms = [
     "lm.action_requirements.view",
     "lm.course.view",
 
+    "lm.mentor_group.create",
+    "lm.mentor_group.edit",
+    "lm.mentor_group.view",
+
+    "lm.endorsement_groups.view",
+    "lm.endorsement_groups.edit",
+    "lm.endorsement_groups.create",
+
     "atd.view",
     "atd.solo.delete",
     "atd.examiner.view",
     "atd.fast_track.view",
     "atd.atsim.view",
     "atd.training_stations.view",
+
+    "atd.log_template.view",
+    "atd.log_template.edit",
+    "atd.log_template.create",
 
     "tech.view",
     "tech.syslog.view",

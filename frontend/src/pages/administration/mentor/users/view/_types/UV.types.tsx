@@ -28,7 +28,7 @@ function getCoursesTableColumns(navigate: NavigateFunction, user_id: string): Ta
         },
         {
             name: "Eingeschrieben Am",
-            selector: row => dayjs.utc(row.through?.createdAt).format(Config.DATE_FORMAT),
+            selector: row => dayjs.utc(row.UsersBelongsToCourses?.createdAt).format(Config.DATE_FORMAT),
         },
         {
             name: "Aktion",

@@ -176,6 +176,11 @@ async function getCoursesWithInformation(this: User): Promise<Course[]> {
     return user?.courses ?? [];
 }
 
+async function isMentor(this: User) {
+    const mentorGroups = await this.getMentorGroups();
+    return mentorGroups.length > 0;
+}
+
 export default {
     hasRole,
     hasPermission,
@@ -187,4 +192,5 @@ export default {
     getCourses,
     getCoursesWithInformation,
     isMentorInCourse,
+    isMentor,
 };

@@ -8,6 +8,7 @@ import { HttpStatusCode } from "axios";
 import { Config } from "../../core/Config";
 import path from "path";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
 
 /**
  * Returns the fast track including target user and requesting user
@@ -24,16 +25,16 @@ async function _getFastTrackByID(id: any) {
 
 /**
  * Returns a list of all fast track requests
- * @param request
+ * @param _request
  * @param response
  * @param next
  */
-async function getAll(request: Request, response: Response, next: NextFunction) {
+async function getAll(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
         PermissionHelper.checkUserHasPermission(user, "atd.fast_track.view", true);
 
-        const fastTracks = await FastTrackRequest.findAll({
+        const fastTracks: FastTrackRequest[] = await FastTrackRequest.findAll({
             include: [FastTrackRequest.associations.user],
         });
 
@@ -45,11 +46,11 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
 
 /**
  * Returns a list of all pending fast track requests
- * @param request
+ * @param _request
  * @param response
  * @param next
  */
-async function getAllPending(request: Request, response: Response, next: NextFunction) {
+async function getAllPending(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
         PermissionHelper.checkUserHasPermission(user, "atd.fast_track.view", false);
@@ -82,27 +83,37 @@ async function getAllPending(request: Request, response: Response, next: NextFun
  * Creates a new fast track request
  * @param request
  * @param response
+ * @param next
  */
-async function create(request: Request, response: Response) {
-    const reqUser: User = response.locals.user;
-    const data = request.body;
-    const file_name = handleUpload(request);
+async function create(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const data = request.body;
 
-    if (file_name == null) {
-        response.status(500).send({ message: "Failed to create fast-track request" });
-        return;
+        if (!(await user.isMentor())) {
+            throw new ForbiddenException("You are not a mentor");
+        }
+
+        const file_name = handleUpload(request);
+
+        if (file_name == null) {
+            response.status(500).send({ message: "Failed to create fast-track request" });
+            return;
+        }
+
+        const model: FastTrackRequest = await FastTrackRequest.create({
+            user_id: Number(data.user_id ?? "-1"),
+            requested_by_user_id: user.id,
+            status: 0,
+            rating: Number(data.rating ?? "-1"),
+            file_name: file_name?.[0],
+            comment: data.description,
+        });
+
+        response.send(model);
+    } catch (e) {
+        next(e);
     }
-
-    const model = await FastTrackRequest.create({
-        user_id: Number(data.user_id ?? "-1"),
-        requested_by_user_id: reqUser.id,
-        status: 0,
-        rating: Number(data.rating ?? "-1"),
-        file_name: file_name?.[0],
-        comment: data.description,
-    });
-
-    response.send(model);
 }
 
 /**

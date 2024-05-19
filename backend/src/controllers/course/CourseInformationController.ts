@@ -52,26 +52,30 @@ async function getInformationByUUID(request: Request, response: Response) {
  * Includes the users_belong_to_courses table entry for the current user
  * @param request
  * @param response
+ * @param next
  */
-async function getUserCourseInformationByUUID(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const query = request.query as { uuid: string };
+async function getUserCourseInformationByUUID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const query = request.query as { uuid: string };
 
-    if (!(await user.isMemberOfCourse(query.uuid))) {
-        response.status(HttpStatusCode.Forbidden).send({ message: "You are not enrolled in this course" });
-        return;
-    }
+        if (!(await user.isMemberOfCourse(query.uuid))) {
+            throw new ForbiddenException("You are not enrolled in this course.");
+        }
 
-    const courses = await user.getCoursesWithInformation();
-    let course = courses.find(c => c.uuid == query.uuid);
+        const courses = await user.getCoursesWithInformation();
+        let course = courses.find(c => c.uuid == query.uuid);
 
-    const endorsementID = (course?.information?.data as any)?.endorsement_id;
-    let endorsement: EndorsementGroup | null = await EndorsementGroup.findByPk(endorsementID);
+        const endorsementID = (course?.information?.data as any)?.endorsement_id;
+        let endorsement: EndorsementGroup | null = await EndorsementGroup.findByPk(endorsementID);
 
-    if (course) {
-        response.send({ ...course.toJSON(), endorsement: endorsement });
-    } else {
-        response.sendStatus(HttpStatusCode.BadRequest);
+        if (course) {
+            response.send({ ...course.toJSON(), endorsement: endorsement });
+        } else {
+            response.sendStatus(HttpStatusCode.BadRequest);
+        }
+    } catch (e) {
+        next(e);
     }
 }
 
@@ -79,6 +83,7 @@ async function getUserCourseInformationByUUID(request: Request, response: Respon
  * Returns training information for the current user in the specified course
  * @param request
  * @param response
+ * @param next
  */
 async function getCourseTrainingInformationByUUID(request: Request, response: Response, next: NextFunction) {
     try {
@@ -145,40 +150,46 @@ async function getCourseTrainingInformationByUUID(request: Request, response: Re
     }
 }
 
-async function validateCourseRequirements(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const query = request.query as { course_uuid: string };
-    const course = await Course.findOne({
-        where: {
-            uuid: query.course_uuid,
-        },
-        include: [
-            {
-                association: Course.associations.action_requirements,
-            },
-        ],
-    });
+/**
+ * Validates the requirements for the requesting user wanting to enrol in the course
+ * @param request
+ * @param response
+ * @param next
+ */
+async function validateCourseRequirements(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const query = request.query as { course_uuid: string };
 
-    if (course == null) {
-        return null;
-    }
-
-    const actionRequirements = course.action_requirements?.filter((actionRequirement: ActionRequirement) => actionRequirement.type == "requirement");
-    let requirements: { action: string; req_id: number; passed: boolean }[] = [];
-
-    if (actionRequirements == null) {
-        response.send([]);
-        return;
-    }
-
-    for (const actionRequirement of actionRequirements) {
-        for (const requirement of actionRequirement.action) {
-            const requirementPassed = await RequirementHelper.validateRequirement(user, requirement);
-            requirements.push({ action: requirement, req_id: actionRequirement.id, passed: requirementPassed });
+        if (await user.isMemberOfCourse(query.course_uuid)) {
+            throw new ForbiddenException("You are already a member of this course.");
         }
-    }
 
-    response.send(requirements);
+        const course = await Course.findOne({
+            where: {
+                uuid: query.course_uuid,
+            },
+            include: [
+                {
+                    association: Course.associations.action_requirements,
+                },
+            ],
+        });
+
+        const actionRequirements = course?.action_requirements?.filter((actionRequirement: ActionRequirement) => actionRequirement.type == "requirement");
+        let requirements: { action: string; req_id: number; passed: boolean }[] = [];
+
+        for (const actionRequirement of actionRequirements ?? []) {
+            for (const requirement of actionRequirement.action) {
+                const requirementPassed = await RequirementHelper.validateRequirement(user, requirement);
+                requirements.push({ action: requirement, req_id: actionRequirement.id, passed: requirementPassed });
+            }
+        }
+
+        response.send(requirements);
+    } catch (e) {
+        next(e);
+    }
 }
 
 export default {
