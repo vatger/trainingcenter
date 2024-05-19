@@ -14,6 +14,11 @@ export const ENDORSEMENT_GROUPS_TABLE_ATTRIBUTES = {
         type: DataType.STRING(70),
         allowNull: false,
     },
+    tier: {
+        type: DataType.SMALLINT,
+        allowNull: false,
+        defaultValue: 0,
+    },
     createdAt: DataType.DATE,
     updatedAt: DataType.DATE,
 };

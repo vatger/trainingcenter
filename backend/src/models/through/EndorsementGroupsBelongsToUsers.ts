@@ -23,6 +23,7 @@ export class EndorsementGroupsBelongsToUsers extends Model<
     //
     declare id: CreationOptional<number>;
     declare solo_id: CreationOptional<ForeignKey<UserSolo["id"]>> | null;
+    declare vateud_id: CreationOptional<number> | null;
     declare created_by: CreationOptional<ForeignKey<User["id"]>>;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;

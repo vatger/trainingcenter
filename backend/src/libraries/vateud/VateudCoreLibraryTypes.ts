@@ -24,6 +24,7 @@ export type VateudCoreSoloCreateT = {
     };
 };
 
+
 export type VateudCoreSoloCreateResponseT = {
     success: boolean;
     data: {
@@ -32,6 +33,7 @@ export type VateudCoreSoloCreateResponseT = {
         instructor_cid: number;
         expiry: string;
         max_days: number;
+        position: string;
         facility: number;
         created_at: string;
         updated_at: string;
@@ -46,4 +48,28 @@ export type VateudCoreSoloRemoveT = {
 export type VateudCoreSoloRemoveResponseT = {
     success: boolean;
     message: string;
+};
+
+export type VateudCoreEndorsementCreateT = {
+    local_id: number;
+    post_data: {
+        user_cid: number;
+        position: string;
+        instructor_cid: number;
+    };
+};
+
+export type VateudCoreEndorsementCreateResponseT = {
+    success: boolean;
+    data: {
+        id: number;
+        user_cid: number;
+        instructor_cid: number;
+        expiry: string;
+        max_days: number;
+        position: string;
+        facility: number;
+        created_at: string;
+        updated_at: string;
+    };
 };

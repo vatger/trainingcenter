@@ -305,7 +305,7 @@ async function removeUserByID(request: Request, response: Response, next: NextFu
  */
 async function createEndorsementGroup(request: Request, response: Response, next: NextFunction) {
     try {
-        const body = request.body as { name: string; training_station_ids: number[] };
+        const body = request.body as { name: string; tier : number; training_station_ids: number[] };
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
@@ -314,6 +314,7 @@ async function createEndorsementGroup(request: Request, response: Response, next
 
         const endorsementGroup = await EndorsementGroup.create({
             name: body.name,
+            tier: body.tier
         });
 
         for (const tID of body.training_station_ids) {

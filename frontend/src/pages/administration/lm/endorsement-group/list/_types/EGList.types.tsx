@@ -14,6 +14,10 @@ function getColumns(navigate: NavigateFunction): (TableColumn<EndorsementGroupMo
             selector: row => row.name,
         },
         {
+            name: "Tier",
+            selector: row => row.tier,
+        },
+        {
             name: "Erstellt Am",
             selector: row => dayjs.utc(row.createdAt).format(Config.DATE_FORMAT),
         },

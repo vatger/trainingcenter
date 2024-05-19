@@ -1,16 +1,18 @@
 import axios, { Method } from "axios";
 import JobLibrary, { JobTypeEnum } from "../JobLibrary";
 import {
+    VateudCoreEndorsementCreateT,
     VateudCoreSoloCreateResponseT,
     VateudCoreSoloCreateT,
     VateudCoreSoloRemoveResponseT,
     VateudCoreSoloRemoveT,
-    VateudCoreTypeEnum,
+    VateudCoreTypeEnum
 } from "./VateudCoreLibraryTypes";
 import { Config } from "../../core/Config";
 import { UserSolo } from "../../models/UserSolo";
 import Logger, { LogLevels } from "../../utility/Logger";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
+import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 
 type SendT = {
     method: Method;
@@ -57,7 +59,7 @@ export async function createSolo(userSolo: UserSolo, endorsementGroup: Endorseme
         post_data: {
             user_cid: userSolo.user_id,
             position: endorsementGroup.name,
-            instructor_cid: 1439797, //userSolo.created_by,
+            instructor_cid: 1439797, //todo userSolo.created_by,
             start_at: userSolo.current_solo_start?.toISOString() ?? "",
             expire_at: userSolo.current_solo_end?.toISOString() ?? "",
         },
@@ -125,3 +127,45 @@ export async function removeSolo(userSolo: UserSolo) {
         });
     }
 }
+
+/**
+ * Creates a Tier 1 or 2 endorsement.
+ * On success, it updates the corresponding endorsement with the returned VATEUD ID
+ * On failure, it schedules a job which repeats the same request n times until it succeeds
+ * - If it fails more than n times, then it really isn't our problem anymore tbh...
+ */
+export async function createEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers, endorsementGroup: EndorsementGroup) {
+    const endorsementInfo: VateudCoreEndorsementCreateT = {
+        local_id: userEndorsement.id,
+        post_data: {
+            user_cid: userEndorsement.user_id,
+            position: endorsementGroup.name,
+            instructor_cid: 1439797,//todo userEndorsement.created_by,
+        },
+    };
+
+    const res = await _send<VateudCoreSoloCreateResponseT>({
+        endpoint: `facility/endorsements/tier${endorsementGroup.tier}`,
+        method: "post",
+        data: endorsementInfo.post_data,
+    });
+
+    if (!res) {
+        return false;
+    }
+
+    await EndorsementGroupsBelongsToUsers.update(
+        {
+            vateud_id: res.data.id,
+        },
+        {
+            where: {
+                id: userEndorsement.id,
+            },
+        }
+    );
+
+    return true;
+}
+
+

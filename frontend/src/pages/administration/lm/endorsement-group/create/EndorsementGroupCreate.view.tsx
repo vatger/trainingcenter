@@ -102,6 +102,21 @@ export function EndorsementGroupCreateView() {
                                 preIcon={<TbId size={20} />}
                             />
 
+                            <Select
+                                name={"tier"}
+                                label={"Tier festlegen"}
+                                labelSmall
+                                required
+                                className={"mt-5"}
+                                value={selectedTrainingStation}>
+                                <option value={1}>
+                                    Tier 1
+                                </option>
+                                <option value={2}>
+                                    Tier 2
+                                </option>
+                            </Select>
+
                             <Separator />
 
                             <Input

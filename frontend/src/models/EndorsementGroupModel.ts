@@ -4,6 +4,7 @@ import { UserSoloModel } from "@/models/UserModel";
 export interface EndorsementGroupModel {
     id: number;
     name: string;
+    tier: number;
     createdAt: Date;
     updatedAt?: Date;
 
