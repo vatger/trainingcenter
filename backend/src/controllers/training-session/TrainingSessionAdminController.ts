@@ -156,8 +156,15 @@ async function createTrainingSession(request: Request, response: Response) {
 async function updateByUUID(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { uuid: string };
-        const body = request.body as { date: string; mentor_id: string; training_station_id: string };
-        _TrainingSessionAdminValidator.validateUpdateRequest(body);
+        const body = request.body as { date?: string; mentor_id?: string; training_station_id?: string };
+
+        Validator.validate(params, {
+            uuid: [ValidationTypeEnum.NON_NULL],
+        });
+        Validator.validate(body, {
+            date: [ValidationTypeEnum.NON_NULL],
+            mentor_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        });
 
         const session = await TrainingSession.findOne({
             where: {
@@ -174,7 +181,7 @@ async function updateByUUID(request: Request, response: Response, next: NextFunc
         await session.update({
             mentor_id: Number(body.mentor_id),
             date: dayjs.utc(body.date).toDate(),
-            training_station_id: trainingStationIDNum == -1 ? null : trainingStationIDNum,
+            training_station_id: body.training_station_id == null || trainingStationIDNum == -1 ? null : trainingStationIDNum,
         });
 
         response.sendStatus(HttpStatusCode.Ok);

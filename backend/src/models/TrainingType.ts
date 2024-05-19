@@ -13,7 +13,7 @@ import {
 export interface ITrainingType {
     id: number;
     name: string;
-    type: (typeof TRAINING_TYPES_TABLE_NAME)[number];
+    type: (typeof TRAINING_TYPES_TABLE_TYPES)[number];
     description?: string;
     log_template_id?: number;
     createdAt?: Date;

@@ -111,7 +111,7 @@ export function MentorTrainingView() {
                                                 label={"Trainingsstation"}
                                                 labelSmall
                                                 name={"training_station_id"}
-                                                defaultValue={trainingSession?.training_station?.id}
+                                                defaultValue={trainingSession?.training_station?.id ?? "-1"}
                                                 disabled={
                                                     trainingSession?.training_type?.training_stations == null ||
                                                     trainingSession.training_type.training_stations.length == 0 ||
