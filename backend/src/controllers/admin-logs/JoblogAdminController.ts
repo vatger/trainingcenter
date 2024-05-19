@@ -4,7 +4,13 @@ import { Job } from "../../models/Job";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { HttpStatusCode } from "axios";
 
-async function getAll(request: Request, response: Response, next: NextFunction) {
+/**
+ * Returns all currently stored Job-Logs
+ * @param _request
+ * @param response
+ * @param next
+ */
+async function getAll(_request: Request, response: Response, next: NextFunction) {
     try {
         const user = response.locals.user;
         PermissionHelper.checkUserHasPermission(user, "tech.joblog.view");
@@ -16,13 +22,19 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
     }
 }
 
+/**
+ * Gets information on a single Job-Log
+ * @param request
+ * @param response
+ * @param next
+ */
 async function getInformationByID(request: Request, response: Response, next: NextFunction) {
     try {
         const user = response.locals.user;
-        const params = request.params as { id: string };
-
-        Validator.validate(params, { id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER] });
         PermissionHelper.checkUserHasPermission(user, "tech.joblog.view");
+
+        const params = request.params as { id: string };
+        Validator.validate(params, { id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER] });
 
         const job = await Job.findOne({
             where: {
@@ -36,7 +48,9 @@ async function getInformationByID(request: Request, response: Response, next: Ne
         }
 
         response.send(job);
-    } catch (e) {}
+    } catch (e) {
+        next(e);
+    }
 }
 
 export default {

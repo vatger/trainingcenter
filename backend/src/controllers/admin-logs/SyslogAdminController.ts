@@ -6,16 +6,16 @@ import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
 /**
  * Gets all system log entries
- * @param request
+ * @param _request
  * @param response
  * @param next
  */
-async function getAll(request: Request, response: Response, next: NextFunction) {
+async function getAll(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
         PermissionHelper.checkUserHasPermission(user, "tech.syslog.view");
 
-        const sysLogs = await SysLog.findAll({
+        const sysLogs: SysLog[] = await SysLog.findAll({
             order: [["id", "desc"]],
             attributes: ["id", "method", "path", "createdAt"],
         });
@@ -29,14 +29,14 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
 async function getInformationByID(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
-        const params = request.params;
         PermissionHelper.checkUserHasPermission(user, "tech.syslog.view");
 
+        const params = request.params;
         Validator.validate(params, {
             id: [ValidationTypeEnum.NON_NULL],
         });
 
-        const sysLog = await SysLog.findOne({
+        const sysLog: SysLog | null = await SysLog.findOne({
             where: {
                 id: params.id,
             },
