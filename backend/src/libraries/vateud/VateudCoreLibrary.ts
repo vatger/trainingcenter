@@ -132,8 +132,6 @@ export async function removeSolo(userSolo: UserSolo) {
 /**
  * Creates a Tier 1 or 2 endorsement.
  * On success, it updates the corresponding endorsement with the returned VATEUD ID
- * On failure, it schedules a job which repeats the same request n times until it succeeds
- * - If it fails more than n times, then it really isn't our problem anymore tbh...
  */
 export async function createEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers, endorsementGroup: EndorsementGroup | null) {
     if (!endorsementGroup) return false;
@@ -159,6 +157,35 @@ export async function createEndorsement(userEndorsement: EndorsementGroupsBelong
     await EndorsementGroupsBelongsToUsers.update(
         {
             vateud_id: res.data.id,
+        },
+        {
+            where: {
+                id: userEndorsement.id,
+            },
+        }
+    );
+
+    return true;
+}
+
+/**
+ * Removes a Tier 1 or 2 endorsement.
+ * On success, it updates the corresponding endorsement
+ */
+export async function removeEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers|null, endorsementGroup: EndorsementGroup | null) {
+    if(!endorsementGroup || !userEndorsement) return false;
+    if(!userEndorsement.vateud_id) return true;
+
+    const res = await _send<VateudCoreSoloRemoveResponseT>({
+        endpoint: `facility/endorsements/tier-${endorsementGroup.tier}/${userEndorsement.vateud_id}`,
+        method: "delete",
+    });
+
+    if (!res) return false;
+
+    await EndorsementGroupsBelongsToUsers.update(
+        {
+            vateud_id: null,
         },
         {
             where: {

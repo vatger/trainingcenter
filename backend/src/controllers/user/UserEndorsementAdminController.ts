@@ -4,7 +4,7 @@ import _UserAdminValidator from "./_UserAdmin.validator";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 import { HttpStatusCode } from "axios";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
-import { createEndorsement } from "../../libraries/vateud/VateudCoreLibrary";
+import { createEndorsement, removeEndorsement } from "../../libraries/vateud/VateudCoreLibrary";
 
 async function addEndorsement(request: Request, response: Response, next: NextFunction) {
     try {
@@ -50,6 +50,48 @@ async function addEndorsement(request: Request, response: Response, next: NextFu
     }
 }
 
+async function deleteEndorsement(request: Request, response: Response, next: NextFunction) {
+    try {
+        const requestingUser: User = response.locals.user;
+        const body = request.body as { user_endorsement_id: string };
+        _UserAdminValidator.validateCreateRequest(body);
+
+
+        const userEndorsement = await EndorsementGroupsBelongsToUsers.findOne({where: {
+                id: Number(body.user_endorsement_id),
+            },})
+
+
+        const user = await User.findOne({
+            where: {
+                id: userEndorsement?.user_id ?? -1,
+            },
+            include: [User.associations.endorsement_groups],
+        });
+
+
+        const endorsementGroup = await EndorsementGroup.findOne({where: {
+                id: userEndorsement?.endorsement_group_id ?? -1,
+            },})
+
+
+
+        const success = await removeEndorsement(userEndorsement, endorsementGroup);
+
+        if(success){
+            throw new Error("Could not delete endorsement in VATEUD CORE.");
+        }
+
+        await userEndorsement?.destroy();
+
+
+        response.status(HttpStatusCode.Ok).send(user?.endorsement_groups ?? []);
+    } catch (e) {
+        next(e);
+    }
+}
+
 export default {
     addEndorsement,
+    deleteEndorsement,
 };
