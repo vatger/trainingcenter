@@ -9,7 +9,7 @@ export class EndorsementGroup extends Model<InferAttributes<EndorsementGroup>, I
     // Attributes
     //
     declare name: string;
-    declare tier: Number;
+    declare tier: number;
 
     //
     // Optional Attributes

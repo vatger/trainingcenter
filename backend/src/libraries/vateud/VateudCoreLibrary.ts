@@ -42,6 +42,7 @@ async function _send<T>(props: SendT): Promise<T | undefined> {
 
         return res.data as T;
     } catch (e: any) {
+        console.error(e)
         Logger.log(LogLevels.LOG_WARN, e);
         return undefined;
     }
@@ -134,7 +135,8 @@ export async function removeSolo(userSolo: UserSolo) {
  * On failure, it schedules a job which repeats the same request n times until it succeeds
  * - If it fails more than n times, then it really isn't our problem anymore tbh...
  */
-export async function createEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers, endorsementGroup: EndorsementGroup) {
+export async function createEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers, endorsementGroup: EndorsementGroup | null) {
+    if(!endorsementGroup) return false;
     const endorsementInfo: VateudCoreEndorsementCreateT = {
         local_id: userEndorsement.id,
         post_data: {
@@ -145,7 +147,7 @@ export async function createEndorsement(userEndorsement: EndorsementGroupsBelong
     };
 
     const res = await _send<VateudCoreSoloCreateResponseT>({
-        endpoint: `facility/endorsements/tier${endorsementGroup.tier}`,
+        endpoint: `facility/endorsements/tier-${endorsementGroup.tier}`,
         method: "post",
         data: endorsementInfo.post_data,
     });
