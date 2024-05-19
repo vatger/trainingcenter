@@ -17,6 +17,7 @@ import { CCourseInformationSkeleton } from "@/pages/authenticated/course/_skelet
 import { ICourseInformationData } from "@models/CourseInformation";
 import { TLanguage, useSettingsSelector } from "@/app/features/settingsSlice";
 import genericTranslation from "@/assets/lang/generic.translation";
+import { CGeneralInformationPartial } from "@/pages/authenticated/course/_partials/CGeneralInformation.partial";
 
 type ActiveCourseInformationPartialProps = {
     showRequestTrainingModal: boolean;
@@ -26,21 +27,6 @@ type ActiveCourseInformationPartialProps = {
     loadingCourse: boolean;
     trainingRequests: TrainingRequestModel[];
 };
-
-function getDuration(data: ICourseInformationData, language: TLanguage) {
-    if (data == null || data.duration == null) return "Keine Angabe";
-
-    const duration = data.duration;
-    const unit = data?.duration_unit;
-
-    return `${duration} ${genericTranslation.durations[unit ?? "day"][language]}`;
-}
-
-function getEndorsement(data?: ICourseInformationData) {
-    if (data?.endorsement_id == null) return "Keine Angabe";
-
-    return `${data.endorsement_id} (TODO: Name)`;
-}
 
 export function CInformationPartial(props: ActiveCourseInformationPartialProps) {
     const language = useSettingsSelector().language;
@@ -66,37 +52,7 @@ export function CInformationPartial(props: ActiveCourseInformationPartialProps) 
                 elementTrue={<CCourseInformationSkeleton />}
                 elementFalse={
                     <Card header={"Allgemeine Informationen"} headerBorder headerExtra={<Badge color={COLOR_OPTS.PRIMARY}>Eingeschrieben</Badge>}>
-                        <div className={"grid grid-cols-1 md:grid-cols-2 gap-5"}>
-                            <Input preIcon={<TbId size={20} />} labelSmall label={"Kurs Name"} disabled value={props.course?.name} />
-                            <Input
-                                preIcon={<TbCalendar size={20} />}
-                                label={"Eingeschrieben am"}
-                                labelSmall
-                                disabled
-                                value={dayjs.utc(props.course?.UsersBelongsToCourses?.createdAt).format(Config.DATETIME_FORMAT)}
-                            />
-                            <Input
-                                labelSmall
-                                preIcon={<TbClock size={20} />}
-                                label={"Ungefähre Dauer"}
-                                disabled
-                                value={getDuration(props.course?.information?.data, language)}
-                            />
-                            <Input
-                                preIcon={<TbCertificate size={20} />}
-                                label={"Rating nach Abschluss"}
-                                labelSmall
-                                disabled
-                                value={getAtcRatingCombined(props.course?.information?.data?.rating)}
-                            />
-                            <Input
-                                labelSmall
-                                preIcon={<TbCertificate size={20} />}
-                                label={"Endorsement nach Abschluss (TODO)"}
-                                disabled
-                                value={getEndorsement(props.course?.information?.data)}
-                            />
-                        </div>
+                        <CGeneralInformationPartial loading={props.loadingCourse} course={props.course} showDuration />
 
                         <div className={"flex mt-7 lg:flex-row flex-col"}>
                             <Button

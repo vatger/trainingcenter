@@ -100,6 +100,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     getGroupAdminMentorGroups = UserExtensions.getGroupAdminMentorGroups.bind(this);
     getCourseCreatorMentorGroups = UserExtensions.getCourseCreatorMentorGroups.bind(this);
     getCourses = UserExtensions.getCourses.bind(this);
+    getCoursesWithInformation = UserExtensions.getCoursesWithInformation.bind(this);
     canManageCourseInMentorGroup = UserExtensions.canManageCourseInMentorGroup.bind(this);
     canEditCourse = UserExtensions.canEditCourse.bind(this);
 

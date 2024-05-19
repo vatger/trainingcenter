@@ -1,4 +1,5 @@
 import { TrainingTypeModel } from "./TrainingTypeModel";
+import { EndorsementGroupModel } from "@/models/EndorsementGroupModel";
 
 export type CourseModel = {
     id: number;
@@ -18,6 +19,7 @@ export type CourseModel = {
     training_types?: TrainingTypeModel[]; // All Training Types associated to this course
     action_requirements?: ActionRequirementModel;
     information?: CourseInformationModel;
+    endorsement?: EndorsementGroupModel;
 
     UsersBelongsToCourses?: {
         id: number;

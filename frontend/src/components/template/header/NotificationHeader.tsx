@@ -6,7 +6,6 @@ import NotificationHelper from "../../../utils/helper/NotificationHelper";
 import dayjs from "dayjs";
 import { Tooltip } from "../../ui/Tooltip/Tooltip";
 import { RenderIf } from "../../conditionals/RenderIf";
-import ToastHelper from "../../../utils/helper/ToastHelper";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/Button/Button";
 import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
@@ -14,7 +13,7 @@ import { axiosInstance } from "@/utils/network/AxiosInstance";
 import { useSettingsSelector } from "@/app/features/settingsSlice";
 import { useDropdown } from "@/utils/hooks/useDropdown";
 import { useAppDispatch } from "@/app/hooks";
-import { clearUnreadNotifications, loadNotifications, setNotifications, useNotificationSelector } from "@/app/features/notificationSlice";
+import { clearUnreadNotifications, loadNotifications, loadUnreadNotifications, useNotificationSelector } from "@/app/features/notificationSlice";
 
 export function NotificationHeader() {
     const { language } = useSettingsSelector();
@@ -28,7 +27,7 @@ export function NotificationHeader() {
         loadNotifications(dispatch);
 
         setInterval(() => {
-            loadNotifications(dispatch);
+            loadUnreadNotifications(dispatch);
         }, 1000 * 60 * 2);
     }, []);
 

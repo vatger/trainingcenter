@@ -6,6 +6,7 @@ import { ActionRequirement } from "../../models/ActionRequirement";
 import RequirementHelper from "../../utility/helper/RequirementHelper";
 import { HttpStatusCode } from "axios";
 import { ForbiddenException } from "../../exceptions/ForbiddenException";
+import { EndorsementGroup } from "../../models/EndorsementGroup";
 
 /**
  * Returns course information based on the provided uuid (request.query.uuid)
@@ -14,9 +15,6 @@ import { ForbiddenException } from "../../exceptions/ForbiddenException";
  */
 async function getInformationByUUID(request: Request, response: Response) {
     const uuid: string = request.query.uuid?.toString() ?? "";
-    const user: User = response.locals.user;
-
-    const userCourses: Course[] = await user.getCourses();
 
     const course: Course | null = await Course.findOne({
         where: {
@@ -43,7 +41,10 @@ async function getInformationByUUID(request: Request, response: Response) {
         return;
     }
 
-    response.send(course);
+    const endorsementID = (course?.information?.data as any)?.endorsement_id;
+    let endorsement: EndorsementGroup | null = await EndorsementGroup.findByPk(endorsementID);
+
+    response.send({ ...course.toJSON(), endorsement: endorsement });
 }
 
 /**
@@ -61,11 +62,14 @@ async function getUserCourseInformationByUUID(request: Request, response: Respon
         return;
     }
 
-    const courses = await user.getCourses();
-    const course = courses.find(c => c.uuid == query.uuid);
+    const courses = await user.getCoursesWithInformation();
+    let course = courses.find(c => c.uuid == query.uuid);
+
+    const endorsementID = (course?.information?.data as any)?.endorsement_id;
+    let endorsement: EndorsementGroup | null = await EndorsementGroup.findByPk(endorsementID);
 
     if (course) {
-        response.send(course);
+        response.send({ ...course.toJSON(), endorsement: endorsement });
     } else {
         response.sendStatus(HttpStatusCode.BadRequest);
     }

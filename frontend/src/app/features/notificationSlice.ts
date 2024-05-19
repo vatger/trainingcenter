@@ -26,6 +26,10 @@ export const notificationSlice = createSlice({
             state.unreadNotifications = action.payload.filter(n => !n.read);
             state.loadingNotifications = false;
         },
+        appendNotifications: (state, action: PayloadAction<NotificationModel[]>) => {
+            state.notifications = [...state.notifications, ...action.payload];
+            state.unreadNotifications = action.payload.filter(n => !n.read);
+        },
         clearUnreadNotifications: state => {
             state.notifications = state.notifications.map(n => ({ ...n, read: true }));
             state.unreadNotifications = [];
@@ -44,8 +48,22 @@ export function loadNotifications(dispatch: AppDispatch) {
         });
 }
 
+export function loadUnreadNotifications(dispatch: AppDispatch) {
+    axiosInstance
+        .get("/notification/unread")
+        .then((res: AxiosResponse) => {
+            const data = res.data as NotificationModel[];
+            if (data.length == 0) return;
+
+            dispatch(appendNotifications(data));
+        })
+        .catch((err: AxiosError) => {
+            console.error("Failed to update Notifications");
+        });
+}
+
 export const useNotificationSelector = () => useAppSelector(store => store.notificationReducer);
 
-export const { setNotifications, clearUnreadNotifications } = notificationSlice.actions;
+export const { setNotifications, clearUnreadNotifications, appendNotifications } = notificationSlice.actions;
 
 export default notificationSlice.reducer;

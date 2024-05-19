@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import { Config } from "@/core/Config";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { CCourseInformationSkeleton } from "@/pages/authenticated/course/_skeletons/CCourseInformation.skeleton";
+import { CGeneralInformationPartial } from "@/pages/authenticated/course/_partials/CGeneralInformation.partial";
 
 type ActiveCourseInformationPartialProps = {
     course?: CourseModel;
@@ -23,30 +24,7 @@ export function CCompletedInformationPartial(props: ActiveCourseInformationParti
             elementTrue={<CCourseInformationSkeleton />}
             elementFalse={
                 <Card header={"Allgemeine Informationen"} headerBorder headerExtra={<Badge color={COLOR_OPTS.SUCCESS}>Abgeschlossen</Badge>}>
-                    <div className={"grid grid-cols-1 md:grid-cols-2 gap-5"}>
-                        <Input preIcon={<TbId size={20} />} labelSmall label={"Kurs Name"} disabled value={props.course?.name} />
-                        <Input
-                            preIcon={<TbCalendar size={20} />}
-                            label={"Eingeschrieben am"}
-                            labelSmall
-                            disabled
-                            value={dayjs.utc(props.course?.UsersBelongsToCourses?.createdAt).format(Config.DATETIME_FORMAT)}
-                        />
-                        <Input
-                            preIcon={<TbCertificate size={20} />}
-                            label={"Rating nach Abschluss"}
-                            labelSmall
-                            disabled
-                            value={getAtcRatingCombined(props.course?.information?.data?.rating_on_complete)}
-                        />
-                        <Input
-                            preIcon={<TbCertificate size={20} />}
-                            label={"Endorsement nach Abschluss"}
-                            labelSmall
-                            disabled
-                            value={getAtcRatingCombined(props.course?.information?.data?.rating_on_complete)}
-                        />
-                    </div>
+                    <CGeneralInformationPartial course={props.course} loading={props.loadingCourse} showDescription />
                 </Card>
             }
         />

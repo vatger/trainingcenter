@@ -133,6 +133,19 @@ async function getCourses(this: User): Promise<Course[]> {
     return user?.courses ?? [];
 }
 
+async function getCoursesWithInformation(this: User): Promise<Course[]> {
+    const user: User | null = await User.findByPk(this.id, {
+        include: [
+            {
+                association: User.associations.courses,
+                include: [Course.associations.information],
+            },
+        ],
+    });
+
+    return user?.courses ?? [];
+}
+
 export default {
     hasRole,
     hasPermission,
@@ -142,4 +155,5 @@ export default {
     canManageCourseInMentorGroup,
     canEditCourse,
     getCourses,
+    getCoursesWithInformation,
 };

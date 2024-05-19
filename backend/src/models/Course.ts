@@ -6,6 +6,7 @@ import { MentorGroup } from "./MentorGroup";
 import { User } from "./User";
 import { CourseInformation } from "./CourseInformation";
 import { COURSE_TABLE_ATTRIBUTES, COURSE_TABLE_NAME } from "../../db/migrations/20221115171247-create-courses-table";
+import { EndorsementGroup } from "./EndorsementGroup";
 
 export class Course extends Model<InferAttributes<Course>, InferCreationAttributes<Course>> {
     //

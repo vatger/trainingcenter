@@ -5,6 +5,11 @@ import { CourseModel } from "@/models/CourseModel";
 import { useParams } from "react-router-dom";
 import { CTrainingHistoryPartial } from "@/pages/authenticated/course/_partials/CTrainingHistory.partial";
 import { UserTrainingSessionModel } from "@/models/TrainingSessionModel";
+import { CGeneralInformationPartial } from "@/pages/authenticated/course/_partials/CGeneralInformation.partial";
+import { Badge } from "@/components/ui/Badge/Badge";
+import { COLOR_OPTS } from "@/assets/theme.config";
+import React from "react";
+import { Card } from "@/components/ui/Card/Card";
 
 export function CourseCompletedView() {
     const { uuid } = useParams();
@@ -39,7 +44,9 @@ export function CourseCompletedView() {
         <>
             <PageHeader title={"Kurs Ansehen"} />
 
-            <CCompletedInformationPartial course={course} loadingCourse={loading} />
+            <Card header={"Allgemeine Informationen"} headerBorder headerExtra={<Badge color={COLOR_OPTS.SUCCESS}>Abgeschlossen</Badge>}>
+                <CGeneralInformationPartial course={course} loading={loading} />
+            </Card>
 
             <CTrainingHistoryPartial trainingData={trainingData ?? []} loading={loading} />
         </>

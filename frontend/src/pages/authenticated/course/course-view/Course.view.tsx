@@ -5,18 +5,15 @@ import { CourseViewSkeleton } from "@/pages/authenticated/course/course-view/_sk
 import { Badge } from "@/components/ui/Badge/Badge";
 import { COLOR_OPTS } from "@/assets/theme.config";
 import { Input } from "@/components/ui/Input/Input";
-import { TbCertificate, TbCheckbox, TbClock, TbId } from "react-icons/tb";
-import { TextArea } from "@/components/ui/Textarea/TextArea";
+import { TbCheckbox, TbId } from "react-icons/tb";
 import { Button } from "@/components/ui/Button/Button";
 import { Card } from "@/components/ui/Card/Card";
-import { getAtcRatingCombined } from "@/utils/helper/vatsim/AtcRatingHelper";
 import React from "react";
 import useApi from "@/utils/hooks/useApi";
 import { CourseModel } from "@/models/CourseModel";
-import { ICourseInformationData, ICourseInformationDurationUnits } from "@models/CourseInformation";
-import genericTranslation from "@/assets/lang/generic.translation";
 import { TLanguage, useSettingsSelector } from "@/app/features/settingsSlice";
 import { ButtonRow } from "@/components/ui/Button/ButtonRow";
+import { CGeneralInformationPartial } from "@/pages/authenticated/course/_partials/CGeneralInformation.partial";
 
 function getTypeString(type: "online" | "sim" | "cpt" | "lesson") {
     switch (type) {
@@ -32,21 +29,6 @@ function getTypeString(type: "online" | "sim" | "cpt" | "lesson") {
         case "online":
             return "Online-Session";
     }
-}
-
-function getDuration(data: ICourseInformationData, language: TLanguage) {
-    if (data == null || data.duration == null) return "Keine Angabe";
-
-    const duration = data.duration;
-    const unit = data?.duration_unit;
-
-    return `${duration} ${genericTranslation.durations[unit ?? "day"][language]}`;
-}
-
-function getEndorsement(data?: ICourseInformationData) {
-    if (data?.endorsement_id == null) return "Keine Angabe";
-
-    return `${data.endorsement_id} (TODO: Name)`;
 }
 
 export function CourseView() {
@@ -70,35 +52,7 @@ export function CourseView() {
                 elementFalse={
                     <>
                         <Card header={"Allgemeine Informationen"} headerBorder headerExtra={<Badge color={COLOR_OPTS.DANGER}>Nicht eingeschrieben</Badge>}>
-                            <div className={"grid grid-cols-1 md:grid-cols-2 gap-5 mb-5"}>
-                                <Input labelSmall preIcon={<TbId size={20} />} label={"Name"} disabled value={course?.name} />
-
-                                <Input
-                                    labelSmall
-                                    preIcon={<TbClock size={20} />}
-                                    label={"Ungefähre Dauer"}
-                                    disabled
-                                    value={getDuration(course?.information?.data, language)}
-                                />
-
-                                <Input
-                                    labelSmall
-                                    preIcon={<TbCertificate size={20} />}
-                                    label={"Rating nach Abschluss"}
-                                    disabled
-                                    value={getAtcRatingCombined(course?.information?.data?.rating)}
-                                />
-
-                                <Input
-                                    labelSmall
-                                    preIcon={<TbCertificate size={20} />}
-                                    label={"Endorsement nach Abschluss (TODO)"}
-                                    disabled
-                                    value={getEndorsement(course?.information?.data)}
-                                />
-                            </div>
-
-                            <TextArea labelSmall disabled label={"Kursbeschreibung"} value={course?.description} />
+                            <CGeneralInformationPartial course={course} loading={loading} showDescription showDuration />
 
                             <ButtonRow>
                                 <RenderIf
@@ -119,7 +73,7 @@ export function CourseView() {
                             <RenderIf
                                 truthValue={!course?.self_enrollment_enabled}
                                 elementTrue={
-                                    <p className={"mt-2"}>
+                                    <p className={"mt-2 text-danger"}>
                                         Die Selbsteinschreibung ist derzeit nicht aktiv. Kontaktiere einen Mentor um dich in den Kurs einschreiben zu lassen.
                                     </p>
                                 }
