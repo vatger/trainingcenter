@@ -143,7 +143,7 @@ async function addStation(request: Request, response: Response) {
     });
 
     if (station == null || trainingType == null) {
-        response.status(404).send({ message: "Station and/or TrainingType with ID could not be found" });
+        response.status(HttpStatusCode.NotFound).send({ message: "Station and/or TrainingType with ID could not be found" });
         return;
     }
 
@@ -156,9 +156,20 @@ async function addStation(request: Request, response: Response) {
 }
 
 async function removeStation(request: Request, response: Response) {
-    const requestData = request.body.data;
-    //TODO
-    response.send("OK");
+    const body = request.body as { training_station_id?: string; training_type_id?: string };
+    Validator.validate(body, {
+        training_station_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+        training_type_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+    });
+
+    await TrainingStationBelongsToTrainingType.destroy({
+        where: {
+            training_station_id: Number(body.training_station_id),
+            training_type_id: Number(body.training_type_id),
+        },
+    });
+
+    response.sendStatus(HttpStatusCode.NoContent);
 }
 
 export default {

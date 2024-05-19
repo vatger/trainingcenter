@@ -19,4 +19,8 @@ export default {
         de: "Wir melden Dich gerade an. Gedulde Dich bitte ein paar Momente.",
         en: "We are just signing you in. Please be patient for a few moments.",
     },
+    welcome_text: {
+        de: "Willkommen im VATSIM Germany Trainingssystem! Dieses Tool ermöglicht es den Trainees der ATC-Ausbildung, ihre Sessions zu planen, Freigaben einzusehen und Logs zu verwalten. Wir freuen uns, dich auf deinem Weg zur Luftverkehrssteuerung zu unterstützen. Viel Erfolg beim Training!",
+        en: "Welcome to the VATSIM Germany training system! This tool enables ATC trainees to plan their sessions, view approvals and manage logs. We look forward to supporting you on your way to becoming an air traffic controller. Good luck with your training!",
+    },
 };
