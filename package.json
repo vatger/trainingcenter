@@ -39,7 +39,7 @@
     "@types/sequelize": "^4.28.14",
     "@types/toastr": "^2.1.40",
     "@types/ua-parser-js": "^0.7.36",
-    "@types/uuid": "^8.3.4",
+    "@types/uuid": "^9.0.8",
     "apexcharts": "^3.37.0",
     "axios": "^1.2.1",
     "body-parser": "^1.20.1",
