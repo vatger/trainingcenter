@@ -107,7 +107,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     isMentorInCourse = UserExtensions.isMentorInCourse.bind(this);
     isMentor = UserExtensions.isMentor.bind(this);
 
-    async isMemberOfCourse(uuid: string): Promise<boolean> {
+    async isMemberOfCourse(uuid?: string): Promise<boolean> {
         const course = await Course.findOne({
             where: {
                 uuid: uuid,

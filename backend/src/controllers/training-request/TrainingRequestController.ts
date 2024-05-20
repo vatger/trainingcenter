@@ -10,6 +10,7 @@ import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { GenericException } from "../../exceptions/GenericException";
 import { ForbiddenException } from "../../exceptions/ForbiddenException";
 import { ConversionUtils } from "turbocommons-ts";
+import { Course } from "../../models/Course";
 
 /**
  * Creates a new training request
@@ -31,6 +32,11 @@ async function create(request: Request, response: Response, next: NextFunction) 
             course_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
             training_type_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
+
+        const courseUUID = await Course.getUUIDFromID(body.course_id);
+        if (!await user.isMemberOfCourse(courseUUID)) {
+            throw new ForbiddenException("You are not a member of this course");
+        }
 
         const trainingRequest = await TrainingRequest.create({
             uuid: generateUUID(),
