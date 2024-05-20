@@ -118,6 +118,10 @@ async function enrolInCourse(request: Request, response: Response, next: NextFun
             include: [Course.associations.training_type],
         });
 
+        if (!course?.self_enrollment_enabled) {
+            throw new ForbiddenException("The self enrollment is disabled");
+        }
+
         // If Course-Instance couldn't be found, throw an error (caught locally)
         if (course == null) {
             response.sendStatus(HttpStatusCode.NotFound);
