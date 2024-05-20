@@ -44,7 +44,7 @@ export function UVNotesSubpage() {
         url: "/administration/user/course/match",
         method: "get",
         params: {
-            user_id: user?.id,
+            user_id: user_id,
         },
     });
 
