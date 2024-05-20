@@ -28,7 +28,7 @@ async function getByUUID(request: Request, response: Response, next: NextFunctio
             return;
         }
 
-        if (!await trainingLog.userCanRead(user)) {
+        if (!(await trainingLog.userCanRead(user))) {
             throw new ForbiddenException("You are not permitted to view this training log.");
         }
 

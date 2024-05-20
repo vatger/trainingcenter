@@ -5,6 +5,11 @@ const allPerms = [
     "mentor.acc.manage.own",
 
     "mentor.view",
+    "users.list",
+    "users.view",
+
+    "notes.view",
+    "notes.create",
 
     "lm.view",
     "lm.action_requirements.view",
@@ -19,13 +24,16 @@ const allPerms = [
     "lm.endorsement_groups.create",
 
     "lm.training_types.view",
+    "lm.training_types.create",
+    "lm.training_types.edit",
 
     "atd.view",
+    "atd.override", // Overrides some permissions and allows user with this perm to see everything, irrespective of mentor group (for example)
     "atd.solo.delete",
     "atd.examiner.view",
     "atd.fast_track.view",
     "atd.atsim.view",
-    "atd.training_stations.view",
+    "atd.training_stations.sync",
 
     "atd.log_template.view",
     "atd.log_template.edit",

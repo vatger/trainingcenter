@@ -1,6 +1,5 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
-import _TrainingSessionAdminValidator from "./_TrainingSessionAdminValidator";
 import { Course } from "../../models/Course";
 import { TrainingSession } from "../../models/TrainingSession";
 import { generateUUID } from "../../utility/UUID";
@@ -14,18 +13,18 @@ import { TrainingType } from "../../models/TrainingType";
 import { TrainingLog } from "../../models/TrainingLog";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { sequelize } from "../../core/Sequelize";
-import { MentorGroup } from "../../models/MentorGroup";
 import JobLibrary, { JobTypeEnum } from "../../libraries/JobLibrary";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
-import Logger, { LogLevels } from "../../utility/Logger";
 import { Op } from "sequelize";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
 
 /**
  * Creates a new training session with one user and one mentor
+ * @param request
+ * @param response
+ * @param next
  */
-async function createTrainingSession(request: Request, response: Response) {
-    // TODO: Check if the mentor of the course is even allowed to create such a session!
-
+async function createTrainingSession(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user as User;
         const body = request.body as {
@@ -41,8 +40,9 @@ async function createTrainingSession(request: Request, response: Response) {
             user_ids: [ValidationTypeEnum.VALID_JSON], // Parses to number[]
         });
 
-        // TODO:
-        // user.isMentorInCourse(body.course_uuid)
+        if (!(await user.isMentorInCourse(body.course_uuid))) {
+            throw new ForbiddenException("You are not a mentor in this course.");
+        }
 
         // 1. Find out which of these users is actually enrolled in the course. To do this, query the course and it's members, and check against the array of user_ids. Create a new actual array with only those people
         // that are actually enrolled in this course.
@@ -152,12 +152,20 @@ async function createTrainingSession(request: Request, response: Response) {
             });
         }
     } catch (e: any) {
-        Logger.log(LogLevels.LOG_WARN, "createTrainingSession >> " + e.message);
+        next(e);
     }
 }
 
+/**
+ * Updates a request for a given UUID
+ * Should only be done by the mentor
+ * @param request
+ * @param response
+ * @param next
+ */
 async function updateByUUID(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const params = request.params as { uuid: string };
         const body = request.body as { date?: string; mentor_id?: string; training_station_id?: string };
 
@@ -172,6 +180,7 @@ async function updateByUUID(request: Request, response: Response, next: NextFunc
         const session = await TrainingSession.findOne({
             where: {
                 uuid: params.uuid,
+                mentor_id: user.id,
             },
         });
 
@@ -196,28 +205,15 @@ async function updateByUUID(request: Request, response: Response, next: NextFunc
 /**
  * Deletes a training session by a mentor
  * All users that are participants of this course are placed back in the queue
+ * @param request
+ * @param response
+ * @param next
  */
-async function deleteTrainingSession(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const data = request.body as { training_session_id: number };
-
-    const session = await TrainingSession.findOne({
-        where: {
-            id: data.training_session_id,
-            mentor_id: user.id,
-        },
-        include: [TrainingSession.associations.users, TrainingSession.associations.course],
-    });
-
-    if (session == null) {
-        response.sendStatus(HttpStatusCode.BadRequest);
-        return;
-    }
-
-    for (const participant of session?.users ?? []) {
+async function deleteTrainingSession(request: Request, response: Response, next: NextFunction) {
+    async function notifyUser(mentor: User, participant: User, session: TrainingSession) {
         await NotificationLibrary.sendUserNotification({
             user_id: participant.id,
-            author_id: user.id,
+            author_id: mentor.id,
             message_de: `Deine Session im Kurs ${session.course?.name} am ${dayjs
                 .utc(session.date)
                 .format(Config.DATE_FORMAT)} wurde gelöscht. Dein Request wurde wieder in der Warteliste plaziert.`,
@@ -229,198 +225,280 @@ async function deleteTrainingSession(request: Request, response: Response) {
         });
     }
 
-    // Update training requests to reflect the now non-existent session
-    await TrainingRequest.update(
-        {
-            status: "requested",
-            training_session_id: null,
-            expires: dayjs.utc().add(2, "months"),
-        },
-        {
+    try {
+        const user: User = response.locals.user;
+        const data = request.body as { training_session_id: number };
+
+        const session = await TrainingSession.findOne({
             where: {
-                training_session_id: session.id,
+                id: data.training_session_id,
+                mentor_id: user.id,
             },
+            include: [TrainingSession.associations.users, TrainingSession.associations.course],
+        });
+
+        if (session == null) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
         }
-    );
 
-    // Destroying the session also destroys the related training_session_belongs_to_users
-    // entries with this course, due to their foreign relationships
-    await session.destroy();
+        for (const participant of session?.users ?? []) {
+            await notifyUser(user, participant, session);
+        }
 
-    response.sendStatus(HttpStatusCode.NoContent);
+        // Update training requests to reflect the now non-existent session
+        await TrainingRequest.update(
+            {
+                status: "requested",
+                training_session_id: null,
+                expires: dayjs.utc().add(2, "months"),
+            },
+            {
+                where: {
+                    training_session_id: session.id,
+                },
+            }
+        );
+
+        // Destroying the session also destroys the related training_session_belongs_to_users
+        // entries with this course, due to their foreign relationships
+        await session.destroy();
+
+        response.sendStatus(HttpStatusCode.NoContent);
+    } catch (e) {
+        next(e);
+    }
 }
 
-async function getByUUID(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const params = request.params as { uuid: string };
+/**
+ * Returns the session by UUID
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getByUUID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const params = request.params as { uuid: string };
 
-    const id = await TrainingSession.getIDFromUUID(params.uuid);
+        const id = await TrainingSession.getIDFromUUID(params.uuid);
 
-    const trainingSession = await TrainingSession.findOne({
-        where: {
-            id: id,
-        },
-        include: [
-            TrainingSession.associations.course,
-            TrainingSession.associations.cpt,
-            {
-                association: TrainingSession.associations.users,
-                through: {
-                    attributes: [],
-                },
-                include: [
-                    {
-                        association: User.associations.training_logs,
-                        through: {
-                            where: {
-                                training_session_id: id,
+        const trainingSession = await TrainingSession.findOne({
+            where: {
+                id: id,
+            },
+            include: [
+                TrainingSession.associations.course,
+                TrainingSession.associations.cpt,
+                {
+                    association: TrainingSession.associations.users,
+                    through: {
+                        attributes: [],
+                    },
+                    include: [
+                        {
+                            association: User.associations.training_logs,
+                            through: {
+                                where: {
+                                    training_session_id: id,
+                                },
+                                attributes: ["passed"],
                             },
-                            attributes: ["passed"],
+                            attributes: ["uuid"],
                         },
-                        attributes: ["uuid"],
-                    },
-                ],
-            },
-            {
-                association: TrainingSession.associations.training_type,
-                include: [
-                    {
-                        association: TrainingType.associations.training_stations,
-                        through: {
-                            attributes: [],
+                    ],
+                },
+                {
+                    association: TrainingSession.associations.training_type,
+                    include: [
+                        {
+                            association: TrainingType.associations.training_stations,
+                            through: {
+                                attributes: [],
+                            },
                         },
-                    },
-                ],
-            },
-            TrainingSession.associations.training_station,
-        ],
-    });
+                    ],
+                },
+                TrainingSession.associations.training_station,
+            ],
+        });
 
-    if (trainingSession == null) {
-        response.sendStatus(HttpStatusCode.BadRequest);
-        return;
+        if (trainingSession == null) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        if (!trainingSession.userCanRead(user)) {
+            throw new ForbiddenException("You are not allowed to view this training session");
+        }
+
+        response.send(trainingSession);
+    } catch (e) {
+        next(e);
     }
-
-    response.send(trainingSession);
 }
 
 /**
  * Returns all the planned sessions of the current user as either mentor or CPT examiner
  * The differentiation between mentor & examiner must be done in the frontend
- * @param request
+ * @param _request
  * @param response
+ * @param next
  */
-async function getPlanned(request: Request, response: Response) {
-    const user: User = response.locals.user;
+async function getPlanned(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
 
-    let trainingSession = await TrainingSession.findAll({
-        where: {
-            mentor_id: user.id,
-            completed: false,
-        },
-        order: [["date", "asc"]],
-        include: [
-            TrainingSession.associations.course,
-            TrainingSession.associations.training_type,
-            {
-                association: TrainingSession.associations.training_session_belongs_to_users,
-                attributes: ["log_id"],
+        let trainingSession = await TrainingSession.findAll({
+            where: {
+                mentor_id: user.id,
+                completed: false,
             },
-        ],
-    });
-
-    response.send(trainingSession);
-}
-
-async function getParticipants(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const params = request.params as { uuid: string };
-
-    const session = await TrainingSession.findOne({
-        where: {
-            uuid: params.uuid,
-            mentor_id: user.id,
-        },
-        include: [
-            {
-                association: TrainingSession.associations.users,
-                through: {
-                    attributes: [],
-                },
-            },
-        ],
-    });
-
-    if (session == null) {
-        response.sendStatus(HttpStatusCode.BadRequest);
-        return;
-    }
-
-    response.send(session.users ?? []);
-}
-
-async function getLogTemplate(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const params = request.params as { uuid: string };
-
-    const session = await TrainingSession.findOne({
-        where: {
-            uuid: params.uuid,
-            mentor_id: user.id,
-        },
-        include: {
-            association: TrainingSession.associations.training_type,
+            order: [["date", "asc"]],
             include: [
+                TrainingSession.associations.course,
+                TrainingSession.associations.training_type,
                 {
-                    association: TrainingType.associations.log_template,
+                    association: TrainingSession.associations.training_session_belongs_to_users,
+                    attributes: ["log_id"],
                 },
             ],
-        },
-    });
+        });
 
-    if (session == null || session.training_type?.log_template == null) {
-        response.sendStatus(HttpStatusCode.NotFound);
-        return;
+        response.send(trainingSession);
+    } catch (e) {
+        next(e);
     }
-
-    response.send(session.training_type?.log_template);
 }
 
-async function getCourseTrainingTypes(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const params = request.params as { uuid: string };
+/**
+ * Gets all participants of a training session by UUID.
+ * Can only be viewed by the mentor
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getParticipants(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const params = request.params as { uuid: string };
 
-    const session = await TrainingSession.findOne({
-        where: {
-            uuid: params.uuid,
-        },
-        include: [
-            {
-                association: TrainingSession.associations.course,
+        const trainingSession = await TrainingSession.findOne({
+            where: {
+                uuid: params.uuid,
+            },
+            include: [
+                {
+                    association: TrainingSession.associations.users,
+                    through: {
+                        attributes: [],
+                    },
+                },
+            ],
+        });
+
+        if (trainingSession == null) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
+
+        if (!trainingSession.userCanRead(user)) {
+            throw new ForbiddenException("You are not allowed to view this training session");
+        }
+
+        response.send(trainingSession.users ?? []);
+    } catch (e) {
+        next(e);
+    }
+}
+
+/**
+ * Gets the log template for a specific training session. Used for creating log entries
+ * Can be viewed by all mentors
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getLogTemplate(request: Request, response: Response, next: NextFunction) {
+    try {
+        const params = request.params as { uuid: string };
+
+        const session = await TrainingSession.findOne({
+            where: {
+                uuid: params.uuid,
+            },
+            include: {
+                association: TrainingSession.associations.training_type,
                 include: [
                     {
-                        association: Course.associations.training_types,
-                        attributes: ["id", "name", "type"],
-                        through: {
-                            attributes: [],
-                        },
+                        association: TrainingType.associations.log_template,
                     },
                 ],
             },
-        ],
-    });
+        });
 
-    if (session == null || session.course?.training_types == null) {
-        response.sendStatus(HttpStatusCode.NotFound);
-        return;
+        if (session?.training_type?.log_template == null) {
+            response.sendStatus(HttpStatusCode.NotFound);
+            return;
+        }
+
+        response.send(session.training_type.log_template);
+    } catch (e) {
+        next(e);
     }
-
-    response.send(session.course?.training_types);
 }
 
+/**
+ * Gets a list of training types associated with a course. Used for creating log entries (selecting next training type)
+ * Can be viewed by all mentors
+ * @param request
+ * @param response
+ * @param next
+ */
+async function getCourseTrainingTypes(request: Request, response: Response, next: NextFunction) {
+    try {
+        const params = request.params as { uuid: string };
+
+        const session = await TrainingSession.findOne({
+            where: {
+                uuid: params.uuid,
+            },
+            include: [
+                {
+                    association: TrainingSession.associations.course,
+                    include: [
+                        {
+                            association: Course.associations.training_types,
+                            attributes: ["id", "name", "type"],
+                            through: {
+                                attributes: [],
+                            },
+                        },
+                    ],
+                },
+            ],
+        });
+
+        if (session?.course?.training_types == null) {
+            response.sendStatus(HttpStatusCode.NotFound);
+            return;
+        }
+
+        response.send(session.course.training_types);
+    } catch (e) {
+        next(e);
+    }
+}
+
+/**
+ * Creates the log entries for all participants of the session
+ * @param request
+ * @param response
+ * @param next
+ */
 async function createTrainingLogs(request: Request, response: Response, next: NextFunction) {
     // All of these steps MUST complete, else we are left in an undefined state
-    const t = await sequelize.transaction();
+    const transaction = await sequelize.transaction();
 
     try {
         const user: User = response.locals.user;
@@ -433,17 +511,21 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
             user_log: any[];
         }[];
 
+        ////////////////
+        // VALIDATION //
+        ////////////////
+
         if (body == null || body.length == 0) {
             response.sendStatus(HttpStatusCode.BadRequest);
             return;
         }
 
-        // Validate body
         for (const entry of body) {
             Validator.validate(entry, {
                 user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
                 passed: [ValidationTypeEnum.NON_NULL],
                 user_log: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
+                course_completed: [ValidationTypeEnum.NON_NULL],
             });
 
             for (const logEntry of entry.user_log) {
@@ -455,6 +537,10 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
             }
         }
 
+        ///////////////
+        // APP LOGIC //
+        ///////////////
+
         const session = await TrainingSession.findOne({
             where: {
                 uuid: params.uuid,
@@ -464,37 +550,43 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
 
         if (session == null) {
             response.sendStatus(HttpStatusCode.InternalServerError);
-            return;
+        }
+        if (!session?.userCanCreateLogs(user)) {
+            throw new ForbiddenException("You are not allowed to create logs for this session");
         }
 
-        for (let i = 0; i < body.length; i++) {
-            const user_id = body[i].user_id;
+        // Loop through all log entries
+        for (const logEntry of body) {
+            const user_id = logEntry.user_id;
 
+            // Create the training log with the respective content
             const trainingLog = await TrainingLog.create(
                 {
                     uuid: generateUUID(),
-                    content: body[i].user_log,
+                    content: logEntry.user_log,
                     author_id: user.id,
                 },
                 {
-                    transaction: t,
+                    transaction: transaction,
                 }
             );
 
+            // Add the training log to the user (this could be done automatically with sequelize, but is a little finicky)
             await TrainingSessionBelongsToUsers.update(
                 {
                     log_id: trainingLog.id,
-                    passed: body[i].passed,
+                    passed: logEntry.passed,
                 },
                 {
                     where: {
-                        user_id: body[i].user_id,
+                        user_id: logEntry.user_id,
                         training_session_id: session?.id,
                     },
-                    transaction: t,
+                    transaction: transaction,
                 }
             );
 
+            // Mark the request as completed
             await TrainingRequest.update(
                 {
                     status: "completed",
@@ -504,27 +596,28 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
                         user_id: user_id,
                         training_session_id: session.id,
                     },
-                    transaction: t,
+                    transaction: transaction,
                 }
             );
 
-            // If the course is marked as completed, we need to update accordingly
-            if (body[i].course_completed) {
-                await UsersBelongsToCourses.update(
-                    {
-                        completed: true,
-                        next_training_type: null,
+            // Set the course as completed (or not) depending on the course_completion flag
+            await UsersBelongsToCourses.update(
+                {
+                    completed: logEntry.course_completed,
+                    next_training_type: logEntry.course_completed ? null : logEntry.next_training_id,
+                },
+                {
+                    where: {
+                        user_id: logEntry.user_id,
+                        course_id: session.course?.id ?? -1,
+                        completed: false,
                     },
-                    {
-                        where: {
-                            user_id: body[i].user_id,
-                            course_id: session.course?.id ?? -1,
-                            completed: false,
-                        },
-                        transaction: t,
-                    }
-                );
+                    transaction: transaction,
+                }
+            );
 
+            // If the course is marked as completed, let the user know!
+            if (logEntry.course_completed) {
                 await NotificationLibrary.sendUserNotification({
                     user_id: user_id,
                     author_id: user.id,
@@ -533,20 +626,6 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
                     icon: "check",
                     severity: "success",
                 });
-            } else {
-                await UsersBelongsToCourses.update(
-                    {
-                        next_training_type: body[i].next_training_id,
-                    },
-                    {
-                        where: {
-                            user_id: body[i].user_id,
-                            course_id: session.course?.id ?? -1,
-                            completed: false,
-                        },
-                        transaction: t,
-                    }
-                );
             }
         }
 
@@ -558,21 +637,20 @@ async function createTrainingLogs(request: Request, response: Response, next: Ne
                 where: {
                     id: session.id,
                 },
-                transaction: t,
+                transaction: transaction,
             }
         );
 
-        await t.commit();
-
-        response.sendStatus(HttpStatusCode.Ok);
+        await transaction.commit();
+        response.sendStatus(HttpStatusCode.NoContent);
     } catch (e) {
-        await t.rollback();
+        await transaction.rollback();
         next(e);
     }
 }
 
 /**
- * Returns all the available
+ * Returns all the available mentors within a course from a training session
  * @param request
  * @param response
  * @param next
@@ -586,34 +664,18 @@ async function getAvailableMentorsByUUID(request: Request, response: Response, n
             where: {
                 uuid: params.uuid,
             },
-            include: [
-                {
-                    association: TrainingSession.associations.course,
-                    include: [
-                        {
-                            association: Course.associations.mentor_groups,
-                            include: [
-                                {
-                                    association: MentorGroup.associations.users,
-                                    through: {
-                                        attributes: [],
-                                    },
-                                },
-                            ],
-                        },
-                    ],
-                },
-            ],
         });
 
-        if (trainingSession == null || trainingSession.course == null) {
+        if (trainingSession == null) {
             response.sendStatus(HttpStatusCode.NotFound);
             return;
         }
 
+        const mentorGroups = await trainingSession.getAvailableMentorGroups();
+
         let mentors: any[] = [];
 
-        for (const mentorGroup of trainingSession.course.mentor_groups ?? []) {
+        for (const mentorGroup of mentorGroups) {
             for (const user of mentorGroup.users ?? []) {
                 if (mentors.find(u => u.id == user.id) == null) {
                     mentors.push(user);
@@ -627,7 +689,13 @@ async function getAvailableMentorsByUUID(request: Request, response: Response, n
     }
 }
 
-async function getMyTrainingSessions(request: Request, response: Response, next: NextFunction) {
+/**
+ * Returns all training sessions in which the current user is marked as the mentor
+ * @param _request
+ * @param response
+ * @param next
+ */
+async function getMyTrainingSessions(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
 
@@ -644,23 +712,40 @@ async function getMyTrainingSessions(request: Request, response: Response, next:
     }
 }
 
-async function getAllUpcoming(request: Request, response: Response, next: NextFunction) {
+/**
+ * Gets all upcoming training sessions (even those from other mentors)
+ * Useful to check for date conflicts
+ * Accessible by all mentors
+ * @param _request
+ * @param response
+ * @param next
+ */
+async function getAllUpcoming(_request: Request, response: Response, next: NextFunction) {
     try {
-        const user: User = response.locals.user;
-
-        let sessions = await TrainingSession.findAll({
+        let sessions: TrainingSession[] = await TrainingSession.findAll({
             where: {
                 date: {
                     [Op.gt]: dayjs.utc().toDate(),
                 },
             },
-            include: [TrainingSession.associations.training_type, TrainingSession.associations.course],
+            attributes: ["uuid", "mentor_id", "date"],
+            include: [
+                {
+                    association: TrainingSession.associations.training_type,
+                    attributes: ["id", "name", "type"],
+                    through: {
+                        attributes: [],
+                    },
+                },
+                {
+                    association: TrainingSession.associations.course,
+                    attributes: ["uuid", "name"],
+                    through: {
+                        attributes: [],
+                    },
+                },
+            ],
         });
-
-        if (sessions == null || sessions.length == 0) {
-            response.sendStatus(HttpStatusCode.InternalServerError);
-            return;
-        }
 
         const res = sessions.map(session => ({
             date: session.date,

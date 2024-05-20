@@ -99,7 +99,6 @@ router.use(
         r.use(
             "/course",
             routerGroup((r: Router) => {
-                r.get("/my", UserCourseController.getMyCourses);
                 r.get("/active", UserCourseController.getActiveCourses);
                 r.get("/available", UserCourseController.getAvailableCourses);
                 r.get("/completed", UserCourseController.getCompletedCourses);
@@ -181,7 +180,6 @@ router.use(
             routerGroup((r: Router) => {
                 r.get("/data", UserInformationAdminController.getUserDataByID);
                 r.get("/data/basic", UserInformationAdminController.getBasicUserDataByID);
-                r.get("/data/sensitive", UserInformationAdminController.getSensitiveUserDataByID);
 
                 r.post("/note", UserNoteAdminController.createUserNote);
                 r.get("/notes", UserNoteAdminController.getGeneralUserNotes);
@@ -189,7 +187,6 @@ router.use(
 
                 r.get("/", UserAdminController.getAll);
                 r.get("/min", UserAdminController.getAllUsersMinimalData);
-                r.get("/sensitive", UserAdminController.getAllSensitive);
 
                 r.post("/enrol", UserCourseAdminController.enrolUser);
 
@@ -366,8 +363,6 @@ router.use(
             "/training-station",
             routerGroup((r: Router) => {
                 r.get("/", TrainingStationAdminController.getAll);
-                r.get("/:id", TrainingStationAdminController.getByID);
-
                 r.post("/sync", TrainingStationAdminController.syncStations);
             })
         );

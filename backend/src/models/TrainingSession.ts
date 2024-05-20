@@ -1,5 +1,4 @@
 import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonAttribute, Association, ForeignKey } from "sequelize";
-import { DataType } from "sequelize-typescript";
 import { sequelize } from "../core/Sequelize";
 import { User } from "./User";
 import { TrainingType } from "./TrainingType";
@@ -9,6 +8,7 @@ import { TrainingStation } from "./TrainingStation";
 import { TrainingSessionBelongsToUsers } from "./through/TrainingSessionBelongsToUsers";
 import { TRAINING_SESSION_TABLE_ATTRIBUTES, TRAINING_SESSION_TABLE_NAME } from "../../db/migrations/20221115171253-create-training-sessions-table";
 import { CptSession } from "./CptSession";
+import TrainingSessionExtensions from "./extensions/TrainingSessionExtensions";
 
 export class TrainingSession extends Model<InferAttributes<TrainingSession>, InferCreationAttributes<TrainingSession>> {
     //
@@ -53,6 +53,11 @@ export class TrainingSession extends Model<InferAttributes<TrainingSession>, Inf
         course: Association<TrainingSession, Course>;
         cpt: Association<TrainingSession, CptSession>;
     };
+
+    userCanRead = TrainingSessionExtensions.userCanRead.bind(this);
+    userCanCreateLogs = TrainingSessionExtensions.userCanCreateLogs.bind(this);
+    getAvailableMentorGroups = TrainingSessionExtensions.getAvailableMentorGroups.bind(this);
+    isUserParticipant = TrainingSessionExtensions.isUserParticipant.bind(this);
 
     static async getIDFromUUID(uuid: string) {
         const trainingSession = await TrainingSession.findOne({

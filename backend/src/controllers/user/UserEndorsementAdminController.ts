@@ -1,91 +1,103 @@
 import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
-import _UserAdminValidator from "./_UserAdmin.validator";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 import { HttpStatusCode } from "axios";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
 import { createEndorsement, removeEndorsement } from "../../libraries/vateud/VateudCoreLibrary";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
 
+/**
+ * Adds an endorsement to a user
+ * @param request
+ * @param response
+ * @param next
+ */
 async function addEndorsement(request: Request, response: Response, next: NextFunction) {
     try {
         const requestingUser: User = response.locals.user;
         const body = request.body as { user_id: string; endorsement_group_id: string };
-        _UserAdminValidator.validateCreateRequest(body);
 
-        const user = await User.findOne({
-            where: {
-                id: Number(body.user_id),
-            },
-            include: [User.associations.endorsement_groups],
+        Validator.validate(body, {
+            user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+            endorsement_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
-        if (!user) {
-            throw new Error();
-        }
 
         const endorsementGroup = await EndorsementGroup.findOne({
             where: {
                 id: Number(body.endorsement_group_id),
             },
         });
-        if (!endorsementGroup) {
-            throw new Error();
+
+        if (endorsementGroup == null) {
+            response.sendStatus(HttpStatusCode.NotFound);
+            return;
+        }
+
+        if (!(await endorsementGroup.userCanEndorse(requestingUser))) {
+            throw new ForbiddenException("You are not allowed to endorse this group");
         }
 
         const userEndorsement = await EndorsementGroupsBelongsToUsers.create({
-            user_id: user.id,
+            user_id: Number(body.user_id),
             endorsement_group_id: endorsementGroup.id,
             created_by: requestingUser.id,
         });
 
-        const success = await createEndorsement(userEndorsement, endorsementGroup);
-
-        if (!success) {
+        if (!(await createEndorsement(userEndorsement, endorsementGroup))) {
             await userEndorsement.destroy();
             throw new Error();
         }
 
-        response.status(HttpStatusCode.Created).send(user?.endorsement_groups ?? []);
+        response.status(HttpStatusCode.Created).send(endorsementGroup);
     } catch (e) {
         next(e);
     }
 }
 
+// TODO: Paul (keine Ahnung, was du hier probierst :D)
 async function deleteEndorsement(request: Request, response: Response, next: NextFunction) {
     try {
         const requestingUser: User = response.locals.user;
-        const body = request.body as { user_endorsement_id: string };
-        _UserAdminValidator.validateCreateRequest(body);
+        const body = request.body as { user_id: string; endorsement_group_id: string };
 
-
-        const userEndorsement = await EndorsementGroupsBelongsToUsers.findOne({where: {
-                id: Number(body.user_endorsement_id),
-            },})
-
-
-        const user = await User.findOne({
-            where: {
-                id: userEndorsement?.user_id ?? -1,
-            },
-            include: [User.associations.endorsement_groups],
+        Validator.validate(body, {
+            user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+            endorsement_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
+        const userEndorsement = await EndorsementGroupsBelongsToUsers.findOne({
+            where: {
+                user_id: body.user_id,
+                endorsement_group_id: body.endorsement_group_id,
+            },
+        });
 
-        const endorsementGroup = await EndorsementGroup.findOne({where: {
+        const endorsementGroup = await EndorsementGroup.findOne({
+            where: {
                 id: userEndorsement?.endorsement_group_id ?? -1,
-            },})
+            },
+        });
 
+        if (endorsementGroup == null) {
+            response.sendStatus(HttpStatusCode.BadRequest);
+            return;
+        }
 
+        if (!(await endorsementGroup.userCanEndorse(requestingUser))) {
+            throw new ForbiddenException("You are not allowed to endorse this group");
+        }
 
         const success = await removeEndorsement(userEndorsement, endorsementGroup);
 
-        if(success){
+        if (success) {
             throw new Error("Could not delete endorsement in VATEUD CORE.");
         }
 
         await userEndorsement?.destroy();
 
-
-        response.status(HttpStatusCode.Ok).send(user?.endorsement_groups ?? []);
+        // Don't send anything back, we'll just remove it from the frontend
+        response.sendStatus(HttpStatusCode.Ok);
     } catch (e) {
         next(e);
     }

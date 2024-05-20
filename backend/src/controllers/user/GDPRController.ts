@@ -2,11 +2,16 @@ import { NextFunction, Request, Response } from "express";
 import { User } from "../../models/User";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
 
-async function getData(request: Request, response: Response, next: NextFunction) {
+/**
+ * Returns all data that we store on a user and returns it as JSON
+ * @param _request
+ * @param response
+ * @param next
+ */
+async function getData(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
 
-        // TODO: Add some includes here
         const foundUser = await User.scope("sensitive").findOne({
             where: {
                 id: user.id,

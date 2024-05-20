@@ -104,7 +104,9 @@ export function EndorsementGroupCreateView() {
                                 name={"name_vateud"}
                                 type={"text"}
                                 maxLength={70}
-                                description={"Dies ist der Name, welcher bei VATEUD angezeigt wird, sobald einem Benutzer die Freigabegruppe zugewiesen wurde. Dieser Name kann NICHT mehr geändert werden!"}
+                                description={
+                                    "Dies ist der Name, welcher bei VATEUD angezeigt wird, sobald einem Benutzer die Freigabegruppe zugewiesen wurde. Dieser Name kann NICHT mehr geändert werden!"
+                                }
                                 labelSmall
                                 className={"mt-5"}
                                 placeholder={"EDDF_GNDDEL"}
@@ -123,9 +125,8 @@ export function EndorsementGroupCreateView() {
                                 required
                                 className={"mt-5"}
                                 value={selectedTrainingStation}
-                                preIcon={<TbListNumbers size={ICON_SIZE_OPTS.MD}/>}
-                                description={"Dieser Wert kann NICHT mehr geändert werden."}
-                            >
+                                preIcon={<TbListNumbers size={ICON_SIZE_OPTS.MD} />}
+                                description={"Dieser Wert kann NICHT mehr geändert werden."}>
                                 <option value={"1"}>Tier 1</option>
                                 <option value={"2"}>Tier 2</option>
                             </Select>

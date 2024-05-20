@@ -5,9 +5,12 @@ import { TrainingStationBelongsToTrainingType } from "../../models/through/Train
 import { HttpStatusCode } from "axios";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { TRAINING_TYPES_TABLE_TYPES } from "../../../db/migrations/20221115171246-create-training-types-table";
+import { User } from "../../models/User";
+import PermissionHelper from "../../utility/helper/PermissionHelper";
 
 /**
  * Gets all training types
+ * Useful for all mentors when creating courses, etc.
  * @param _request
  * @param response
  * @param next
@@ -70,6 +73,9 @@ async function getByID(request: Request, response: Response, next: NextFunction)
  */
 async function create(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "lm.training_types.create");
+
         const body = request.body as {
             name: string;
             type: (typeof TRAINING_TYPES_TABLE_TYPES)[number];
@@ -109,6 +115,9 @@ async function create(request: Request, response: Response, next: NextFunction) 
  */
 async function update(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "lm.training_types.edit");
+
         const training_type_id = request.params.id;
         const body = request.body as {
             name: string;
@@ -152,10 +161,18 @@ async function update(request: Request, response: Response, next: NextFunction) 
     }
 }
 
+/**
+ * Adds a station to a training type
+ * @param request
+ * @param response
+ * @param next
+ */
 async function addStation(request: Request, response: Response, next: NextFunction) {
     try {
-        const body = request.body as { training_station_id: string; training_type_id: string };
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "lm.training_types.edit");
 
+        const body = request.body as { training_station_id: string; training_type_id: string };
         Validator.validate(body, {
             training_station_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
             training_type_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
@@ -189,8 +206,17 @@ async function addStation(request: Request, response: Response, next: NextFuncti
     }
 }
 
+/**
+ * Removes a station from a training type
+ * @param request
+ * @param response
+ * @param next
+ */
 async function removeStation(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "lm.training_types.edit");
+
         const body = request.body as { training_station_id?: string; training_type_id?: string };
         Validator.validate(body, {
             training_station_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],

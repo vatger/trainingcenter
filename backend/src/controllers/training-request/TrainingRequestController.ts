@@ -72,7 +72,7 @@ async function destroy(request: Request, response: Response, next: NextFunction)
         const body = request.body as { uuid: string };
 
         Validator.validate(body, {
-            uuid: [ValidationTypeEnum.NON_NULL]
+            uuid: [ValidationTypeEnum.NON_NULL],
         });
 
         const trainingRequest: TrainingRequest | null = await TrainingRequest.findOne({
@@ -187,7 +187,7 @@ async function getByUUID(request: Request, response: Response, next: NextFunctio
             ],
         });
 
-        if (!await trainingRequest?.canUserView(user)) {
+        if (!(await trainingRequest?.canUserView(user))) {
             throw new ForbiddenException("You are not allowed to view this training request");
         }
 
@@ -220,7 +220,7 @@ async function confirmInterest(request: Request, response: Response, next: NextF
         const trainingRequest = await TrainingRequest.findOne({
             where: {
                 uuid: trainingRequestUUID,
-                user_id: user.id
+                user_id: user.id,
             },
         });
 

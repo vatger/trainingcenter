@@ -98,7 +98,7 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
             method: request.method,
             code: HttpStatusCode.BadRequest,
             error_code: error.getCode(),
-            message: error.getMessage()
+            message: error.getMessage(),
         });
         return;
     }

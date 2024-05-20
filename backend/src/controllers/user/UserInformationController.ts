@@ -5,7 +5,13 @@ import { EndorsementGroup } from "../../models/EndorsementGroup";
 import { TrainingSession } from "../../models/TrainingSession";
 import dayjs from "dayjs";
 
-async function getOverviewStatistics(request: Request, response: Response, next: NextFunction) {
+/**
+ * Returns an overview of all statistics (such as endorsement groups, next trainings, etc.)
+ * @param _request
+ * @param response
+ * @param next
+ */
+async function getOverviewStatistics(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
 

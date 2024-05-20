@@ -11,12 +11,14 @@ async function userCanRead(this: TrainingLog, user: User) {
         return true;
     }
 
-    if (await TrainingSessionBelongsToUsers.count({
-        where: {
-            log_id: this.id,
-            user_id: user.id
-        }
-    }) == 0) {
+    if (
+        (await TrainingSessionBelongsToUsers.count({
+            where: {
+                log_id: this.id,
+                user_id: user.id,
+            },
+        })) == 0
+    ) {
         return false;
     }
 
@@ -24,5 +26,5 @@ async function userCanRead(this: TrainingLog, user: User) {
 }
 
 export default {
-    userCanRead
-}
+    userCanRead,
+};

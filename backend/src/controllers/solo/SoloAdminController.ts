@@ -6,10 +6,7 @@ import { User } from "../../models/User";
 import { EndorsementGroupsBelongsToUsers } from "../../models/through/EndorsementGroupsBelongsToUsers";
 import { TrainingSession } from "../../models/TrainingSession";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
-import {
-    createSolo as vateudCreateSolo,
-    removeSolo as vateudRemoveSolo
-} from "../../libraries/vateud/VateudCoreLibrary";
+import { createSolo as vateudCreateSolo, removeSolo as vateudRemoveSolo } from "../../libraries/vateud/VateudCoreLibrary";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { sequelize } from "../../core/Sequelize";
@@ -43,31 +40,37 @@ async function createSolo(request: Request, response: Response, next: NextFuncti
             solo_duration: [ValidationTypeEnum.NON_NULL],
             solo_start: [ValidationTypeEnum.NON_NULL],
             trainee_id: [ValidationTypeEnum.NON_NULL],
-            endorsement_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER]
+            endorsement_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
         const startDate = dayjs.utc(body.solo_start);
         const endDate = startDate.add(Number(body.solo_duration), "days");
 
-        const solo = await UserSolo.create({
-            user_id: body.trainee_id,
-            created_by: user.id,
-            solo_used: Number(body.solo_duration),
-            extension_count: 0,
-            current_solo_start: startDate.toDate(),
-            current_solo_end: endDate.toDate(),
-        }, {
-            transaction: transaction
-        });
+        const solo = await UserSolo.create(
+            {
+                user_id: body.trainee_id,
+                created_by: user.id,
+                solo_used: Number(body.solo_duration),
+                extension_count: 0,
+                current_solo_start: startDate.toDate(),
+                current_solo_end: endDate.toDate(),
+            },
+            {
+                transaction: transaction,
+            }
+        );
 
-        await EndorsementGroupsBelongsToUsers.create({
-            user_id: body.trainee_id,
-            created_by: user.id,
-            endorsement_group_id: Number(body.endorsement_group_id),
-            solo_id: solo.id,
-        }, {
-            transaction: transaction
-        });
+        await EndorsementGroupsBelongsToUsers.create(
+            {
+                user_id: body.trainee_id,
+                created_by: user.id,
+                endorsement_group_id: Number(body.endorsement_group_id),
+                solo_id: solo.id,
+            },
+            {
+                transaction: transaction,
+            }
+        );
 
         const endorsementGroup = await EndorsementGroup.findOne({
             where: {
@@ -109,7 +112,7 @@ async function updateSolo(request: Request, response: Response, next: NextFuncti
     try {
         const body = request.body as UpdateSoloRequestBody & { endorsement_group_id?: string };
         Validator.validate(body, {
-            endorsement_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER]
+            endorsement_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
         const currentSolo = await UserSolo.findOne({
@@ -129,40 +132,49 @@ async function updateSolo(request: Request, response: Response, next: NextFuncti
                 user_id: body.trainee_id,
                 solo_id: currentSolo.id,
             },
-            transaction: transaction
+            transaction: transaction,
         });
 
-        await EndorsementGroupsBelongsToUsers.create({
-            user_id: body.trainee_id,
-            endorsement_group_id: Number(body.endorsement_group_id),
-            solo_id: currentSolo.id,
-            created_by: response.locals.user.id,
-        }, {
-            transaction: transaction
-        });
+        await EndorsementGroupsBelongsToUsers.create(
+            {
+                user_id: body.trainee_id,
+                endorsement_group_id: Number(body.endorsement_group_id),
+                solo_id: currentSolo.id,
+                created_by: response.locals.user.id,
+            },
+            {
+                transaction: transaction,
+            }
+        );
 
         const newDuration = currentSolo.solo_used + Number(body.solo_duration);
 
         // If solo_start == NULL, then the solo is still active
         if (body.solo_start == null) {
-            await currentSolo.update({
-                created_by: response.locals.user.id,
-                solo_used: newDuration,
-                current_solo_end: dayjs.utc(currentSolo.current_solo_start).add(newDuration, "days").toDate(),
-            }, {
-                transaction: transaction
-            });
+            await currentSolo.update(
+                {
+                    created_by: response.locals.user.id,
+                    solo_used: newDuration,
+                    current_solo_end: dayjs.utc(currentSolo.current_solo_start).add(newDuration, "days").toDate(),
+                },
+                {
+                    transaction: transaction,
+                }
+            );
         } else {
             // If solo_start != NULL, then the solo is inactive and the new days have to be calculated (newDuration, for example, isn't correct! It's start_date + Number(body.solo_duration)
             // Else we'll add the entire solo duration to the length again :).
-            await currentSolo.update({
-                created_by: response.locals.user.id,
-                solo_used: newDuration,
-                current_solo_start: dayjs.utc(body.solo_start).toDate(),
-                current_solo_end: dayjs.utc(body.solo_start).add(Number(body.solo_duration), "days").toDate(),
-            }, {
-                transaction: transaction
-            });
+            await currentSolo.update(
+                {
+                    created_by: response.locals.user.id,
+                    solo_used: newDuration,
+                    current_solo_start: dayjs.utc(body.solo_start).toDate(),
+                    current_solo_end: dayjs.utc(body.solo_start).add(Number(body.solo_duration), "days").toDate(),
+                },
+                {
+                    transaction: transaction,
+                }
+            );
         }
 
         const returnUser = await User.findOne({
@@ -196,7 +208,7 @@ async function extendSolo(request: Request, response: Response, next: NextFuncti
     try {
         const body = request.body as { trainee_id: string };
         Validator.validate(body, {
-            trainee_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER]
+            trainee_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
         // Check the user has had a training in the last 20 days.
@@ -214,7 +226,7 @@ async function extendSolo(request: Request, response: Response, next: NextFuncti
 
         let cpt_planned = false;
         let training_last_20_days = false;
-        for (const trainingSession of (user?.training_sessions ?? [])) {
+        for (const trainingSession of user?.training_sessions ?? []) {
             if (
                 trainingSession.date != null &&
                 trainingSession.date > dayjs.utc().subtract(20, "days").startOf("day").toDate() &&
@@ -268,14 +280,14 @@ async function deleteSolo(request: Request, response: Response, next: NextFuncti
         const body = request.body as { trainee_id: string; solo_id: string };
         Validator.validate(body, {
             trainee_id: [ValidationTypeEnum.NON_NULL],
-            solo_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER]
+            solo_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
         const solo = await UserSolo.findOne({
             where: {
                 id: body.solo_id,
             },
-            transaction: transaction
+            transaction: transaction,
         });
 
         // 1. Delete all endorsements that are linked to the solo.
@@ -283,7 +295,7 @@ async function deleteSolo(request: Request, response: Response, next: NextFuncti
             where: {
                 solo_id: body.solo_id,
             },
-            transaction: transaction
+            transaction: transaction,
         });
 
         // 2. Delete the VATEUD Core Solo
@@ -293,7 +305,7 @@ async function deleteSolo(request: Request, response: Response, next: NextFuncti
             where: {
                 id: body.solo_id,
             },
-            transaction: transaction
+            transaction: transaction,
         });
 
         const returnUser = await User.findOne({

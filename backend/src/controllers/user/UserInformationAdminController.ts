@@ -16,6 +16,7 @@ async function getUserDataByID(request: Request, response: Response, next: NextF
         const query = request.query as { user_id: string };
 
         Validator.validate(query, { user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER] });
+        PermissionHelper.checkUserHasPermission(user, "users.view");
 
         if (Number(query.user_id) == user.id) {
             PermissionHelper.checkUserHasPermission(user, "mentor.acc.manage.own");
@@ -43,69 +44,37 @@ async function getUserDataByID(request: Request, response: Response, next: NextF
     }
 }
 
-async function getBasicUserDataByID(request: Request, response: Response) {
-    const query = request.query as { user_id: string };
-
-    const user = await User.findOne({
-        where: {
-            id: query.user_id,
-        },
-        attributes: {
-            exclude: ["createdAt", "updatedAt"],
-        },
-    });
-
-    if (user == null) {
-        response.status(404).send();
-        return;
-    }
-
-    response.send(user);
-}
-
 /**
- * Returns the user data for a user with id request.query.user_id
+ * Returns basic user data by the id of the user (not entirely sure what the difference is to the above function)
  * @param request
  * @param response
+ * @param next
  */
-async function getSensitiveUserDataByID(request: Request, response: Response) {
-    const user_id: string | undefined = request.query.user_id?.toString();
-    const user: User = response.locals.user;
+async function getBasicUserDataByID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const query = request.query as { user_id: string };
 
-    if (user_id == null) {
-        response.status(404).send({ error: 'Parameter "user_id" is required' });
-        return;
+        const user = await User.findOne({
+            where: {
+                id: query.user_id,
+            },
+            attributes: {
+                exclude: ["createdAt", "updatedAt"],
+            },
+        });
+
+        if (user == null) {
+            response.status(404).send();
+            return;
+        }
+
+        response.send(user);
+    } catch (e) {
+        next(e);
     }
-    //TODO: Change this to proper permission to access sensitive data
-    //Potentially wrong, should user id be equal or not equal? (using logical or instead)
-    PermissionHelper.checkUserHasPermission(user, "mentor.acc.manage.own");
-    if (user_id == user.id.toString()) return;
-
-    const data = await User.scope("sensitive").findOne({
-        where: {
-            id: user_id,
-        },
-        include: [
-            {
-                association: User.associations.user_data,
-            },
-            {
-                association: User.associations.mentor_groups,
-            },
-            {
-                association: User.associations.courses,
-                through: {
-                    as: "through",
-                },
-            },
-        ],
-    });
-
-    response.send(data);
 }
 
 export default {
     getUserDataByID,
     getBasicUserDataByID,
-    getSensitiveUserDataByID,
 };

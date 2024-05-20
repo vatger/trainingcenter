@@ -20,7 +20,7 @@ async function getAll(_request: Request, response: Response, next: NextFunction)
 
         const roles = await Role.findAll();
         response.send(roles);
-    } catch(e) {
+    } catch (e) {
         next(e);
     }
 }
@@ -207,12 +207,12 @@ async function addPermission(request: Request, response: Response, next: NextFun
     try {
         const user: User = response.locals.user;
         const params = request.params;
-        const body = request.body as {permission_id?: string};
+        const body = request.body as { permission_id?: string };
 
         PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit", true);
 
         Validator.validate(body, {
-            permission_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER]
+            permission_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
         const res = await RoleHasPermissions.create({

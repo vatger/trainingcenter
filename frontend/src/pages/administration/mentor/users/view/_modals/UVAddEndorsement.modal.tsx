@@ -8,8 +8,6 @@ import React, { Dispatch, FormEvent, useState } from "react";
 import { TableColumn } from "react-data-table-component";
 import { TrainingStationModel } from "@/models/TrainingStationModel";
 import { UserModel } from "@/models/UserModel";
-import { Separator } from "@/components/ui/Separator/Separator";
-import { Checkbox } from "@/components/ui/Checkbox/Checkbox";
 import { Button } from "@/components/ui/Button/Button";
 import { TbPlus } from "react-icons/tb";
 import { COLOR_OPTS } from "@/assets/theme.config";
@@ -63,8 +61,8 @@ export function UVAddEndorsementModal({
             .post("/administration/endorsement", FormHelper.toJSON(formData))
             .then((res: AxiosResponse) => {
                 ToastHelper.success("Freigabe erfolgreich erstellt");
-                const endorsements = res.data as EndorsementGroupModel[];
-                setUser({ ...user, endorsement_groups: endorsements });
+                const endorsements = res.data as EndorsementGroupModel;
+                setUser({ ...user, endorsement_groups: [...(userEndorsementGroups ?? []), endorsements] });
 
                 onClose();
             })

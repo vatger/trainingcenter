@@ -37,7 +37,7 @@ async function create(request: Request, response: Response, next: NextFunction) 
 
         const body = request.body as { name: string };
         Validator.validate(body, {
-            name: [ValidationTypeEnum.NON_NULL]
+            name: [ValidationTypeEnum.NON_NULL],
         });
 
         const [perm, created] = await Permission.findOrCreate({
@@ -68,12 +68,12 @@ async function destroy(request: Request, response: Response, next: NextFunction)
         const user: User = response.locals.user;
         PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit");
 
-        const body = request.body as {perm_id: string};
+        const body = request.body as { perm_id: string };
         Validator.validate(body, {
-            perm_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER]
+            perm_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
-        const res = await Permission.destroy({
+        await Permission.destroy({
             where: {
                 id: body.perm_id,
             },

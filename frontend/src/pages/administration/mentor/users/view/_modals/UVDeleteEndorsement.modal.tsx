@@ -1,21 +1,12 @@
 import { Modal } from "@/components/ui/Modal/Modal";
-import { UserModel, UserSoloModel } from "@/models/UserModel";
-import { Input } from "@/components/ui/Input/Input";
-import { getAtcRatingCombined } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { UserModel } from "@/models/UserModel";
 import { Separator } from "@/components/ui/Separator/Separator";
-import { Select } from "@/components/ui/Select/Select";
-import dayjs from "dayjs";
 import React, { Dispatch, FormEvent, useState } from "react";
 import { Button } from "@/components/ui/Button/Button";
-import { TbPlaylistAdd, TbTrack, TbTrash } from "react-icons/tb";
+import { TbTrash } from "react-icons/tb";
 import { COLOR_OPTS } from "@/assets/theme.config";
-import FormHelper from "@/utils/helper/FormHelper";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
 import ToastHelper from "@/utils/helper/ToastHelper";
-import { AxiosResponse } from "axios";
-import { EndorsementGroupModel } from "@/models/EndorsementGroupModel";
-import useApi from "@/utils/hooks/useApi";
-import { MapArray } from "@/components/conditionals/MapArray";
 
 export function UVDeleteSoloModal({ show, onClose, user, setUser }: { show: boolean; onClose: () => any; user?: UserModel; setUser: Dispatch<UserModel> }) {
     const [deletingSolo, setDeletingSolo] = useState<boolean>(false);
@@ -63,7 +54,6 @@ export function UVDeleteSoloModal({ show, onClose, user, setUser }: { show: bool
                         Löschen
                     </Button>
                 }>
-
                 <Separator />
 
                 <p>

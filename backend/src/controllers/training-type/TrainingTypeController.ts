@@ -2,6 +2,12 @@ import { NextFunction, Request, Response } from "express";
 import { TrainingType } from "../../models/TrainingType";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 
+/**
+ * Returns a training type by its ID
+ * @param request
+ * @param response
+ * @param next
+ */
 async function getByID(request: Request, response: Response, next: NextFunction) {
     try {
         const params = request.params as { id: string };

@@ -1,5 +1,4 @@
 import { NextFunction, Request, Response } from "express";
-import _UserCourseProgressAdministrationValidator from "./_UserCourseProgressAdministration.validator";
 import { User } from "../../models/User";
 import { HttpStatusCode } from "axios";
 import { Course } from "../../models/Course";
@@ -7,6 +6,7 @@ import { TrainingRequest } from "../../models/TrainingRequest";
 import { TrainingSession } from "../../models/TrainingSession";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
 
 /**
  * Returns information about the progress of a user within the specified course.
@@ -21,21 +21,19 @@ import Validator, { ValidationTypeEnum } from "../../utility/Validator";
  */
 async function getInformation(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const query = request.query as { course_uuid: string; user_id: string };
         Validator.validate(query, {
             course_uuid: [ValidationTypeEnum.NON_NULL],
             user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
-        // TODO: Return the relevant information for this course ONLY!
-        // TODO(2): Limit the amount of data in the return (attribute: [...])
-        // Currently, the controller returns ALL Requests and Histories for the user with this ID, not only those in the specified course!
-
+        if (!(await user.isMentorInCourse(query.course_uuid))) {
+            throw new ForbiddenException("You are not a mentor in this course");
+        }
         const course_id = await Course.getIDFromUUID(query.course_uuid);
 
-        console.log("Course id: " + course_id);
-
-        const user = await User.findOne({
+        const dbUser = await User.findOne({
             where: {
                 id: query.user_id,
             },
@@ -109,7 +107,7 @@ async function getInformation(request: Request, response: Response, next: NextFu
             ],
         });
 
-        if (user == null || user.courses == null || user.courses.length == 0) {
+        if (dbUser == null || dbUser.courses == null || dbUser.courses.length == 0) {
             response.sendStatus(HttpStatusCode.NotFound);
             return;
         }
@@ -128,12 +126,21 @@ async function getInformation(request: Request, response: Response, next: NextFu
  */
 async function updateInformation(request: Request, response: Response, next: NextFunction) {
     try {
+        const user: User = response.locals.user;
         const body = request.body as { course_completed: "0" | "1"; user_id: string; course_uuid: string; next_training_type_id?: string };
-        _UserCourseProgressAdministrationValidator.validateUpdateRequest(body);
+        Validator.validate(body, {
+            course_completed: [ValidationTypeEnum.NON_NULL],
+            user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
+            course_uuid: [ValidationTypeEnum.NON_NULL],
+        });
 
-        const course = await Course.findOne({ where: { uuid: body.course_uuid } });
+        if (!(await user.isMentorInCourse(body.course_uuid))) {
+            throw new ForbiddenException("You are not a mentor in this course");
+        }
 
-        if (course == null) {
+        const courseId = await Course.getIDFromUUID(body.course_uuid);
+
+        if (courseId == -1) {
             response.sendStatus(HttpStatusCode.NotFound);
             return;
         }
@@ -144,7 +151,7 @@ async function updateInformation(request: Request, response: Response, next: Nex
                 completed: body.course_completed == "1",
             },
             {
-                where: { course_id: course.id, user_id: body.user_id },
+                where: { course_id: courseId, user_id: body.user_id },
             }
         );
 

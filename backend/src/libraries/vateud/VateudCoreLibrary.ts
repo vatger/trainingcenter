@@ -5,7 +5,6 @@ import {
     VateudCoreSoloCreateResponseT,
     VateudCoreSoloCreateT,
     VateudCoreSoloRemoveResponseT,
-    VateudCoreSoloRemoveT,
     VateudCoreTypeEnum,
 } from "./VateudCoreLibraryTypes";
 import { Config } from "../../core/Config";
@@ -172,9 +171,9 @@ export async function createEndorsement(userEndorsement: EndorsementGroupsBelong
  * Removes a Tier 1 or 2 endorsement.
  * On success, it updates the corresponding endorsement
  */
-export async function removeEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers|null, endorsementGroup: EndorsementGroup | null) {
-    if(!endorsementGroup || !userEndorsement) return false;
-    if(!userEndorsement.vateud_id) return true;
+export async function removeEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers | null, endorsementGroup: EndorsementGroup | null) {
+    if (!endorsementGroup || !userEndorsement) return false;
+    if (!userEndorsement.vateud_id) return true;
 
     const res = await _send<VateudCoreSoloRemoveResponseT>({
         endpoint: `facility/endorsements/tier-${endorsementGroup.tier}/${userEndorsement.vateud_id}`,

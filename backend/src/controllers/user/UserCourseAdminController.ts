@@ -4,51 +4,53 @@ import { MentorGroup } from "../../models/MentorGroup";
 import { Course } from "../../models/Course";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
+import { HttpStatusCode } from "axios";
+import { ForbiddenException } from "../../exceptions/ForbiddenException";
 
 /**
  * Returns all the user's courses that the requesting user is also a mentor of
  * Courses that the user is not a mentor of will be filtered out
  * @param request
  * @param response
+ * @param next
  */
-async function getUserCourseMatch(request: Request, response: Response) {
-    const reqUser: User = response.locals.user;
-    const userID = request.query.user_id;
-    const mentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
+async function getUserCourseMatch(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const query = request.query as { user_id: string };
+        const mentorGroups: MentorGroup[] = await user.getMentorGroupsAndCourses();
 
-    if (userID == null) {
-        response.status(404).send({ message: "No User ID supplied" });
-        return;
-    }
+        const dbUser: User | null = await User.findOne({
+            where: {
+                id: query.user_id.toString(),
+            },
+            include: [User.associations.courses],
+        });
 
-    const user: User | null = await User.findOne({
-        where: {
-            id: userID.toString(),
-        },
-        include: [User.associations.courses],
-    });
-
-    if (user == null) {
-        response.status(404).send({ message: "User with this ID not found" });
-        return;
-    }
-
-    let courses: Course[] | undefined = user.courses?.filter((course: Course) => {
-        for (const mG of mentorGroups) {
-            if (mG.courses?.find((c: Course) => c.id == course.id) != null) {
-                return true;
-            }
+        if (dbUser == null) {
+            response.status(404).send({ message: "User with this ID not found" });
+            return;
         }
 
-        return false;
-    });
+        let courses: Course[] | undefined = dbUser.courses?.filter((course: Course) => {
+            for (const mentorGroup of mentorGroups) {
+                if (mentorGroup.courses?.find((c: Course) => c.id == course.id) != null) {
+                    return true;
+                }
+            }
 
-    if (courses == null) {
-        response.status(500).send();
-        return;
+            return false;
+        });
+
+        if (courses == null) {
+            response.sendStatus(HttpStatusCode.InternalServerError);
+            return;
+        }
+
+        response.send(courses);
+    } catch (e) {
+        next(e);
     }
-
-    response.send(courses);
 }
 
 /**
@@ -60,18 +62,22 @@ async function getUserCourseMatch(request: Request, response: Response) {
 async function enrolUser(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
+
         const body = request.body as { user_id: string; course_id: string };
-
-        // TODO: Check Permissions
-
         Validator.validate(body, {
             user_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
             course_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER, { option: ValidationTypeEnum.NOT_EQUAL, value: -1 }],
         });
 
+        const courseUUID = await Course.getUUIDFromID(body.course_id);
+        if (!(await user.isMentorInCourse(courseUUID))) {
+            throw new ForbiddenException("You are not a mentor of this course");
+        }
+
         const course = await Course.findByPk(body.course_id);
         if (course == null) {
-            throw new Error("Course with specified id couldn't be found");
+            response.sendStatus(HttpStatusCode.NotFound);
+            return;
         }
 
         await UsersBelongsToCourses.findOrCreate({

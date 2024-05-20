@@ -5,28 +5,24 @@ import PermissionHelper from "../../utility/helper/PermissionHelper";
 
 /**
  * Gets all users including their user data (VATSIM Data)
- * @param request
+ * Can be accessed by all mentors (privileged access!)
+ * @param _request
  * @param response
+ * @param next
  */
-async function getAll(request: Request, response: Response) {
-    const users = await User.findAll({
-        include: [User.associations.user_data],
-    });
+async function getAll(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "users.list");
 
-    response.send(users);
-}
+        const users = await User.findAll({
+            include: [User.associations.user_data],
+        });
 
-/**
- * Gets all users including their sensitive data (email, etc.)
- * @param request
- * @param response
- */
-async function getAllSensitive(request: Request, response: Response) {
-    const users = await User.findAll({
-        include: [User.associations.user_data],
-    });
-
-    response.send(users);
+        response.send(users);
+    } catch (e) {
+        next(e);
+    }
 }
 
 /**
@@ -40,12 +36,11 @@ async function getAllSensitive(request: Request, response: Response) {
 async function getAllUsersMinimalData(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "users.list");
+
         const query = request.query as { users?: string };
 
-        PermissionHelper.checkUserHasPermission(user, "mentor.view");
-
         let users: User[];
-
         if (query.users == null) {
             users = await User.findAll({
                 attributes: ["id", "first_name", "last_name"],
@@ -68,6 +63,5 @@ async function getAllUsersMinimalData(request: Request, response: Response, next
 
 export default {
     getAll,
-    getAllSensitive,
     getAllUsersMinimalData,
 };

@@ -8,5 +8,5 @@ async function canUserView(this: TrainingRequest, user: User): Promise<boolean> 
 }
 
 export default {
-    canUserView
-}
+    canUserView,
+};

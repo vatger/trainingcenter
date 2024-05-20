@@ -3,7 +3,6 @@ import { MentorGroup } from "../MentorGroup";
 import { Role } from "../Role";
 import { Permission } from "../Permission";
 import { Course } from "../Course";
-import { TrainingSessionBelongsToUsers } from "../through/TrainingSessionBelongsToUsers";
 
 /**
  * Checks if the user as the specified role
@@ -50,6 +49,34 @@ async function getMentorGroups(this: User): Promise<MentorGroup[]> {
     return user?.mentor_groups ?? [];
 }
 
+async function getMentorGroupsAndEndorsementGroups(this: User): Promise<MentorGroup[]> {
+    const user = await User.findOne({
+        where: {
+            id: this.id,
+        },
+        include: [
+            {
+                association: User.associations.mentor_groups,
+                attributes: ["id", "name"],
+                through: {
+                    attributes: [],
+                },
+                include: [
+                    {
+                        association: MentorGroup.associations.endorsement_groups,
+                        attributes: ["id", "name"],
+                        through: {
+                            attributes: [],
+                        },
+                    },
+                ],
+            },
+        ],
+    });
+
+    return user?.mentor_groups ?? [];
+}
+
 /**
  * Returns a list of mentor groups this user is a group admin in
  */
@@ -76,7 +103,9 @@ async function getGroupAdminMentorGroups(this: User): Promise<MentorGroup[]> {
  * course and is, by extension, allowed to mentor it.
  * @param uuid
  */
-async function isMentorInCourse(this: User, uuid: string): Promise<boolean> {
+async function isMentorInCourse(this: User, uuid?: string): Promise<boolean> {
+    if (uuid == null) return false;
+
     const mentorGroups = await this.getMentorGroupsAndCourses();
 
     for (const mentorGroup of mentorGroups) {
@@ -189,6 +218,7 @@ export default {
     hasRole,
     hasPermission,
     getMentorGroups,
+    getMentorGroupsAndEndorsementGroups,
     getGroupAdminMentorGroups,
     getCourseCreatorMentorGroups,
     canManageCourseInMentorGroup,
@@ -196,5 +226,5 @@ export default {
     getCourses,
     getCoursesWithInformation,
     isMentorInCourse,
-    isMentor
+    isMentor,
 };

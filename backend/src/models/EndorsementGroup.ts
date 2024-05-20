@@ -3,6 +3,7 @@ import { sequelize } from "../core/Sequelize";
 import { User } from "./User";
 import { TrainingStation } from "./TrainingStation";
 import { ENDORSEMENT_GROUPS_TABLE_ATTRIBUTES, ENDORSEMENT_GROUPS_TABLE_NAME } from "../../db/migrations/20221115171254-create-endorsement-groups-table";
+import EndorsementGroupExtensions from "./extensions/EndorsementGroupExtensions";
 
 export interface IEndorsementGroup {
     id: number;
@@ -38,6 +39,8 @@ export class EndorsementGroup extends Model<InferAttributes<EndorsementGroup>, I
         users: Association<EndorsementGroup, User>;
         stations: Association<EndorsementGroup, TrainingStation>;
     };
+
+    userCanEndorse = EndorsementGroupExtensions.userCanEndorse.bind(this);
 }
 
 EndorsementGroup.init(ENDORSEMENT_GROUPS_TABLE_ATTRIBUTES, {

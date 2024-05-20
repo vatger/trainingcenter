@@ -1,7 +1,7 @@
 import vaccLogo from "../../assets/img/vacc_logo.png";
 import vaccLogoDark from "../../assets/img/vacc_logo_dark.png";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { MenuItem } from "../ui/MenuItem/MenuItem";
 import {
     TbAdjustments,
@@ -220,7 +220,10 @@ export function SideNav() {
                                                 Fast-Tracks
                                             </MenuItem>
 
-                                            <MenuItem href={"administration/training-station"} icon={<TbRss size={20} />}>
+                                            <MenuItem
+                                                requiredPerm={"atd.training_stations.sync"}
+                                                href={"administration/training-station"}
+                                                icon={<TbRss size={20} />}>
                                                 Trainingsstationen
                                             </MenuItem>
                                         </>

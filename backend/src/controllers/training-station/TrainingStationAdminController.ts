@@ -1,12 +1,17 @@
 import { NextFunction, Response, Request } from "express";
-import axios, { HttpStatusCode } from "axios";
-import { sequelize } from "../../core/Sequelize";
 import { TrainingStation } from "../../models/TrainingStation";
-import _TrainingStationAdminValidator from "./_TrainingStationAdmin.validator";
-import { Config } from "../../core/Config";
 import { updateTrainingStations } from "../../libraries/vatger/GithubLibrary";
+import { User } from "../../models/User";
+import PermissionHelper from "../../utility/helper/PermissionHelper";
 
-async function getAll(request: Request, response: Response, next: NextFunction) {
+/**
+ * Returns a list of all training stations (from the DataHub)
+ * Required by all mentors that can create courses, endorsement groups, etc.
+ * @param _request
+ * @param response
+ * @param next
+ */
+async function getAll(_request: Request, response: Response, next: NextFunction) {
     try {
         const trainingStations = await TrainingStation.findAll();
         response.send(trainingStations);
@@ -15,29 +20,17 @@ async function getAll(request: Request, response: Response, next: NextFunction) 
     }
 }
 
-async function getByID(request: Request, response: Response, next: NextFunction) {
+/**
+ * Syncs the training stations with the DataHub
+ * @param _request
+ * @param response
+ * @param next
+ */
+async function syncStations(_request: Request, response: Response, next: NextFunction) {
     try {
-        const params = request.params as { id: string };
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "atd.training_stations.sync");
 
-        const trainingStation = await TrainingStation.findOne({
-            where: {
-                id: params.id,
-            },
-        });
-
-        if (trainingStation == null) {
-            response.sendStatus(HttpStatusCode.NotFound);
-            return;
-        }
-
-        response.send(trainingStation);
-    } catch (e) {
-        next(e);
-    }
-}
-
-async function syncStations(request: Request, response: Response, next: NextFunction) {
-    try {
         await updateTrainingStations();
         const newStations = await TrainingStation.findAll();
         response.send(newStations);
@@ -48,6 +41,5 @@ async function syncStations(request: Request, response: Response, next: NextFunc
 
 export default {
     getAll,
-    getByID,
     syncStations,
 };

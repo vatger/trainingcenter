@@ -97,6 +97,7 @@ export class User extends Model<InferAttributes<User>, InferCreationAttributes<U
     hasRole = UserExtensions.hasRole.bind(this);
     hasPermission = UserExtensions.hasPermission.bind(this);
     getMentorGroups = UserExtensions.getMentorGroups.bind(this);
+    getMentorGroupsAndEndorsementGroups = UserExtensions.getMentorGroupsAndEndorsementGroups.bind(this);
     getGroupAdminMentorGroups = UserExtensions.getGroupAdminMentorGroups.bind(this);
     getCourseCreatorMentorGroups = UserExtensions.getCourseCreatorMentorGroups.bind(this);
     getCourses = UserExtensions.getCourses.bind(this);

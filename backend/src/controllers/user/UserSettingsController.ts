@@ -3,6 +3,12 @@ import { User } from "../../models/User";
 import { UserSettings } from "../../models/UserSettings";
 import { HttpStatusCode } from "axios";
 
+/**
+ * Updates the settings for the requesting user
+ * @param request
+ * @param response
+ * @param next
+ */
 async function updateSettings(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
