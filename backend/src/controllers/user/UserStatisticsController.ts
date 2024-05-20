@@ -1,7 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import axios from "axios";
 import { User } from "../../models/User";
-import { Config } from "../../core/Config";
 import { localCache } from "../../core/Cache";
 
 // TODO: The entire statistics controller should ideally cache the data for at least a day (the hours really don't change that much).
@@ -11,10 +10,6 @@ async function getUserRatingTimes(request: Request, response: Response, next: Ne
     try {
         const user: User = response.locals.user;
         let userID = user.id;
-
-        if (Config.APP_DEBUG) {
-            userID = 1373921;
-        }
 
         if (localCache.has(userID)) {
             response.send(localCache.get(userID));
