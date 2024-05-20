@@ -32,6 +32,8 @@ function userCanCreateLogs(this: TrainingSession, user: User): boolean {
  * (for passing the training on)
  */
 async function getAvailableMentorGroups(this: TrainingSession): Promise<MentorGroup[]> {
+    // TODO: Test if we can limit the attributes, without breaking the includes.
+
     const trainingSession = await TrainingSession.findOne({
         where: {
             uuid: this.uuid,
@@ -39,21 +41,12 @@ async function getAvailableMentorGroups(this: TrainingSession): Promise<MentorGr
         include: [
             {
                 association: TrainingSession.associations.course,
-                through: {
-                    attributes: [],
-                },
                 include: [
                     {
                         association: Course.associations.mentor_groups,
-                        through: {
-                            attributes: [],
-                        },
                         include: [
                             {
                                 association: MentorGroup.associations.users,
-                                through: {
-                                    attributes: [],
-                                },
                             },
                         ],
                     },

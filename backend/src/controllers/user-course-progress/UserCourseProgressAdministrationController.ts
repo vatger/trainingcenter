@@ -79,7 +79,7 @@ async function getInformation(request: Request, response: Response, next: NextFu
                 },
                 {
                     association: User.associations.training_sessions,
-                    attributes: ["uuid", "completed", "date"],
+                    attributes: ["id", "uuid", "completed", "date"],
                     where: {
                         course_id: course_id,
                     },
@@ -101,7 +101,7 @@ async function getInformation(request: Request, response: Response, next: NextFu
                     association: User.associations.training_logs,
                     attributes: ["uuid"],
                     through: {
-                        attributes: ["id", "user_id", "passed"],
+                        attributes: ["id", "training_session_id", "user_id", "passed"],
                     },
                 },
             ],
