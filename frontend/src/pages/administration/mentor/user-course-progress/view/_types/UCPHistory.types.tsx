@@ -20,7 +20,7 @@ export function getColumns(training_logs: TrainingLogModel[]): TableColumn<UserT
         },
         {
             name: "Mentor",
-            selector: row => (row.mentor_id ? `${row.mentor?.first_name} ${row.mentor?.last_name} (${row.mentor_id})` : "N/A"),
+            selector: row => (row.mentor ? `${row.mentor?.first_name} ${row.mentor?.last_name} (${row.mentor_id})` : "N/A"),
         },
         {
             name: "Datum",
