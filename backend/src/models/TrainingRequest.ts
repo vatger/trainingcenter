@@ -10,6 +10,7 @@ import {
     TRAINING_REQUEST_TABLE_NAME,
     TRAINING_REQUEST_TABLE_STATUS_TYPES,
 } from "../../db/migrations/20221115171256-create-training-request-table";
+import TrainingRequestExtensions from "./extensions/TrainingRequestExtensions";
 
 export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, InferCreationAttributes<TrainingRequest>> {
     //
@@ -49,6 +50,8 @@ export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, Inf
         training_session: Association<TrainingRequest, TrainingSession>;
         training_station: Association<TrainingRequest, TrainingStation>;
     };
+
+    canUserView = TrainingRequestExtensions.canUserView.bind(this);
 
     async getTrainingType(): Promise<TrainingType | null> {
         return await TrainingType.findOne({

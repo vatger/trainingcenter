@@ -352,17 +352,19 @@ async function removeUserByID(request: Request, response: Response, next: NextFu
 async function createEndorsementGroup(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
-        const body = request.body as { name: string; tier: number; training_station_ids: number[] };
+        const body = request.body as { name: string; name_vateud: string; tier: number; training_station_ids: number[] };
 
         PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.create");
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
+            name_vateud: [ValidationTypeEnum.NON_NULL],
             training_station_ids: [ValidationTypeEnum.IS_ARRAY, ValidationTypeEnum.VALID_JSON],
         });
 
         const endorsementGroup = await EndorsementGroup.create({
             name: body.name,
+            name_vateud: body.name_vateud,
             tier: body.tier,
         });
 

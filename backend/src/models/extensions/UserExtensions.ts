@@ -3,6 +3,7 @@ import { MentorGroup } from "../MentorGroup";
 import { Role } from "../Role";
 import { Permission } from "../Permission";
 import { Course } from "../Course";
+import { TrainingSessionBelongsToUsers } from "../through/TrainingSessionBelongsToUsers";
 
 /**
  * Checks if the user as the specified role
@@ -176,7 +177,10 @@ async function getCoursesWithInformation(this: User): Promise<Course[]> {
     return user?.courses ?? [];
 }
 
-async function isMentor(this: User) {
+/**
+ * Checks if the user is a mentor (i.e. is a member of any mentor group)
+ */
+async function isMentor(this: User): Promise<boolean> {
     const mentorGroups = await this.getMentorGroups();
     return mentorGroups.length > 0;
 }
@@ -192,5 +196,5 @@ export default {
     getCourses,
     getCoursesWithInformation,
     isMentorInCourse,
-    isMentor,
+    isMentor
 };

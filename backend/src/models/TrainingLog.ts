@@ -2,6 +2,7 @@ import { Model, InferAttributes, CreationOptional, InferCreationAttributes, NonA
 import { User } from "./User";
 import { sequelize } from "../core/Sequelize";
 import { TRAINING_LOG_TABLE_ATTRIBUTES, TRAINING_LOG_TABLE_NAME } from "../../db/migrations/20221115171257-create-training-log-table";
+import TrainingLogExtensions from "./extensions/TrainingLogExtensions";
 
 export class TrainingLog extends Model<InferAttributes<TrainingLog>, InferCreationAttributes<TrainingLog>> {
     //
@@ -26,6 +27,8 @@ export class TrainingLog extends Model<InferAttributes<TrainingLog>, InferCreati
     declare static associations: {
         author: Association<TrainingLog, User>;
     };
+
+    userCanRead = TrainingLogExtensions.userCanRead.bind(this);
 }
 
 TrainingLog.init(TRAINING_LOG_TABLE_ATTRIBUTES, {

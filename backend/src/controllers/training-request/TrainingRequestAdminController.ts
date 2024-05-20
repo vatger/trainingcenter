@@ -5,8 +5,6 @@ import { TrainingRequest } from "../../models/TrainingRequest";
 import { Op } from "sequelize";
 import NotificationLibrary from "../../libraries/notification/NotificationLibrary";
 import { TrainingType } from "../../models/TrainingType";
-import { TrainingSession } from "../../models/TrainingSession";
-import { Course } from "../../models/Course";
 import { HttpStatusCode } from "axios";
 
 /**
@@ -30,125 +28,145 @@ async function _getOpenTrainingRequests(): Promise<TrainingRequest[]> {
 /**
  * Returns all training requests that the current user is able to mentor based on his mentor groups
  * DOESN'T RETURN CPT REQUESTS!
- * @param request
+ * @param _request
  * @param response
+ * @param next
  */
-async function getOpen(request: Request, response: Response) {
-    const reqUser: User = response.locals.user;
-    const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
-    let trainingRequests: TrainingRequest[] = await _getOpenTrainingRequests();
+async function getOpen(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const reqUserMentorGroups: MentorGroup[] = await user.getMentorGroupsAndCourses();
+        let trainingRequests: TrainingRequest[] = await _getOpenTrainingRequests();
 
-    // Store course IDs that a user can mentor in
-    const courseIDs: number[] = [];
+        // Store course IDs that a user can mentor in
+        const courseIDs: number[] = [];
 
-    for (const mentorGroup of reqUserMentorGroups) {
-        for (const course of mentorGroup.courses ?? []) {
-            if (!courseIDs.includes(course.id)) courseIDs.push(course.id);
+        for (const mentorGroup of reqUserMentorGroups) {
+            for (const course of mentorGroup.courses ?? []) {
+                if (!courseIDs.includes(course.id)) courseIDs.push(course.id);
+            }
         }
+
+        trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
+            return courseIDs.includes(req.course_id) && req.training_type?.type != "cpt";
+        });
+
+        response.send(trainingRequests);
+    } catch (e) {
+        next(e);
     }
-
-    trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
-        return courseIDs.includes(req.course_id) && req.training_type?.type != "cpt";
-    });
-
-    response.send(trainingRequests);
 }
 
 /**
  * Returns all training requests that the current user is able to mentor based on his mentor groups
  * Only returns Trainings (not lessons)
- * @param request
+ * @param _request
  * @param response
+ * @param next
  */
-async function getOpenTrainingRequests(request: Request, response: Response) {
-    const reqUser: User = response.locals.user;
-    const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
-    let trainingRequests: TrainingRequest[] = (await _getOpenTrainingRequests()).filter((trainingRequest: TrainingRequest) => {
-        return trainingRequest.training_type?.type != "lesson";
-    });
+async function getOpenTrainingRequests(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const reqUserMentorGroups: MentorGroup[] = await user.getMentorGroupsAndCourses();
+        let trainingRequests: TrainingRequest[] = (await _getOpenTrainingRequests()).filter((trainingRequest: TrainingRequest) => {
+            return trainingRequest.training_type?.type != "lesson";
+        });
 
-    // Store course IDs that a user can mentor in
-    const courseIDs: number[] = [];
+        // Store course IDs that a user can mentor in
+        const courseIDs: number[] = [];
 
-    for (const mentorGroup of reqUserMentorGroups) {
-        for (const course of mentorGroup.courses ?? []) {
-            if (!courseIDs.includes(course.id)) courseIDs.push(course.id);
+        for (const mentorGroup of reqUserMentorGroups) {
+            for (const course of mentorGroup.courses ?? []) {
+                if (!courseIDs.includes(course.id)) courseIDs.push(course.id);
+            }
         }
+
+        trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
+            return courseIDs.includes(req.course_id);
+        });
+
+        response.send(trainingRequests);
+    } catch (e) {
+        next(e);
     }
-
-    trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
-        return courseIDs.includes(req.course_id);
-    });
-
-    response.send(trainingRequests);
 }
 
 /**
  * Returns all training requests that the current user is able to mentor based on his mentor groups
  * Only returns Lessons (not anything else)
- * @param request
+ * @param _request
  * @param response
+ * @param next
  */
-async function getOpenLessonRequests(request: Request, response: Response) {
-    const reqUser: User = response.locals.user;
-    const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
-    let trainingRequests: TrainingRequest[] = (await _getOpenTrainingRequests()).filter((trainingRequest: TrainingRequest) => {
-        return trainingRequest.training_type?.type == "lesson";
-    });
+async function getOpenLessonRequests(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const reqUser: User = response.locals.user;
+        const reqUserMentorGroups: MentorGroup[] = await reqUser.getMentorGroupsAndCourses();
+        let trainingRequests: TrainingRequest[] = (await _getOpenTrainingRequests()).filter((trainingRequest: TrainingRequest) => {
+            return trainingRequest.training_type?.type == "lesson";
+        });
 
-    // Store course IDs that a user can mentor in
-    const courseIDs: number[] = [];
+        // Store course IDs that a user can mentor in
+        const courseIDs: number[] = [];
 
-    for (const mentorGroup of reqUserMentorGroups) {
-        for (const course of mentorGroup.courses ?? []) {
-            if (!courseIDs.includes(course.id)) courseIDs.push(course.id);
+        for (const mentorGroup of reqUserMentorGroups) {
+            for (const course of mentorGroup.courses ?? []) {
+                if (!courseIDs.includes(course.id)) courseIDs.push(course.id);
+            }
         }
+
+        trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
+            return courseIDs.includes(req.course_id);
+        });
+
+        response.send(trainingRequests);
+    } catch (e) {
+        next(e);
     }
-
-    trainingRequests = trainingRequests.filter((req: TrainingRequest) => {
-        return courseIDs.includes(req.course_id);
-    });
-
-    response.send(trainingRequests);
 }
 
 /**
  * Returns training request information by its UUID
  * @param request
  * @param response
+ * @param next
  */
-async function getByUUID(request: Request, response: Response) {
-    const trainingRequestUUID = request.params.uuid;
+async function getByUUID(request: Request, response: Response, next: NextFunction) {
+    try {
+        const trainingRequestUUID = request.params.uuid;
 
-    const trainingRequest: TrainingRequest | null = await TrainingRequest.findOne({
-        where: {
-            uuid: trainingRequestUUID,
-        },
-        include: [
-            TrainingRequest.associations.user,
-            TrainingRequest.associations.training_station,
-            TrainingRequest.associations.course,
-            {
-                association: TrainingRequest.associations.training_type,
-                include: [
-                    {
-                        association: TrainingType.associations.training_stations,
-                        attributes: ["id", "callsign"],
-                        through: {
-                            attributes: [],
-                        },
-                    },
-                ],
+        const trainingRequest: TrainingRequest | null = await TrainingRequest.findOne({
+            where: {
+                uuid: trainingRequestUUID,
             },
-        ],
-    });
+            include: [
+                TrainingRequest.associations.user,
+                TrainingRequest.associations.training_station,
+                TrainingRequest.associations.course,
+                {
+                    association: TrainingRequest.associations.training_type,
+                    include: [
+                        {
+                            association: TrainingType.associations.training_stations,
+                            attributes: ["id", "callsign"],
+                            through: {
+                                attributes: [],
+                            },
+                        },
+                    ],
+                },
+            ],
+        });
 
-    if (trainingRequest == null) {
-        response.status(404).send({ message: "Training request with this UUID not found" });
-        return;
+        if (trainingRequest == null) {
+            response.status(404).send({ message: "Training request with this UUID not found" });
+            return;
+        }
+
+        response.send(trainingRequest);
+    } catch (e) {
+        next(e);
     }
-
-    response.send(trainingRequest);
 }
 
 /**

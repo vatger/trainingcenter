@@ -238,7 +238,7 @@ export function SideNav() {
                                             <MenuItem requiredPerm={"tech.joblog.view"} href={"administration/joblog"} icon={<TbClipboardText size={20} />}>
                                                 Joblogs
                                             </MenuItem>
-                                            <MenuItem requiredPerm={"tech.permissions.view"} href={"administration/permission"} icon={<TbLock size={20} />}>
+                                            <MenuItem requiredPerm={"tech.role_management.view"} href={"administration/permission"} icon={<TbLock size={20} />}>
                                                 Rechteverwaltung
                                             </MenuItem>
                                             <MenuItem requiredPerm={"tech.appsettings.view"} icon={<TbSettings size={20} />}>

@@ -23,7 +23,6 @@ export type ParticipantStatus = {
     user_id: number;
     user_log: LogTemplateElement[];
     passed: boolean;
-    log_public: boolean;
     next_training_id?: number;
     course_completed: boolean;
     _uuid: string; // This is used internally only!
@@ -50,7 +49,6 @@ export function TrainingSessionLogsCreateView() {
                     user_id: participant.id,
                     user_log: [],
                     passed: true,
-                    log_public: true,
                     next_training_id: undefined,
                     course_completed: false,
                     _uuid: generateUUID(),
@@ -144,17 +142,6 @@ export function TrainingSessionLogsCreateView() {
                                                 setParticipantValues(p);
                                             }}>
                                             Bestanden
-                                        </Checkbox>
-
-                                        <Checkbox
-                                            className={"mt-3"}
-                                            checked
-                                            onChange={e => {
-                                                const p = [...participantValues];
-                                                p[index].log_public = e;
-                                                setParticipantValues(p);
-                                            }}>
-                                            Log Öffentlich - Für den Trainee sichtbar
                                         </Checkbox>
 
                                         <Checkbox

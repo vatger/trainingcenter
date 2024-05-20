@@ -7,6 +7,7 @@ import { VatsimConnectException } from "../exceptions/VatsimConnectException";
 import { MissingPermissionException } from "../exceptions/MissingPermissionException";
 import { SysLog } from "../models/SysLog";
 import { User } from "../models/User";
+import { GenericException } from "../exceptions/GenericException";
 
 const sequelizeErrors = ["SequelizeValidationError", "SequelizeForeignKeyConstraintError", "SequelizeUniqueConstraintError"];
 
@@ -87,6 +88,17 @@ export async function exceptionInterceptorMiddleware(error: any, request: Reques
             method: request.method,
             code: HttpStatusCode.InternalServerError,
             message: "An error occurred trying to validate your data. Check all fields are present and correctly formatted (if applicable)",
+        });
+        return;
+    }
+
+    if (error instanceof GenericException) {
+        response.status(HttpStatusCode.BadRequest).send({
+            path: request.url,
+            method: request.method,
+            code: HttpStatusCode.BadRequest,
+            error_code: error.getCode(),
+            message: error.getMessage()
         });
         return;
     }

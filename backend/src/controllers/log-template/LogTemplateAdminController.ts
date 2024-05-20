@@ -3,7 +3,6 @@ import { TrainingLogTemplate } from "../../models/TrainingLogTemplate";
 import { HttpStatusCode } from "axios";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { User } from "../../models/User";
-import { ForbiddenException } from "../../exceptions/ForbiddenException";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
 
 /**

@@ -34,11 +34,8 @@ const allPerms = [
     "tech.view",
     "tech.syslog.view",
 
-    "tech.permissions.view",
-    "tech.permissions.role.edit",
-    "tech.permissions.role.view",
-    "tech.permissions.perm.edit",
-    "tech.permissions.perm.view",
+    "tech.role_management.view",
+    "tech.role_management.edit",
     "tech.appsettings.view",
     "tech.joblog.view",
 ];

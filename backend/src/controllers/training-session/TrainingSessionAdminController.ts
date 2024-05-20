@@ -41,6 +41,9 @@ async function createTrainingSession(request: Request, response: Response) {
             user_ids: [ValidationTypeEnum.VALID_JSON], // Parses to number[]
         });
 
+        // TODO:
+        // user.isMentorInCourse(body.course_uuid)
+
         // 1. Find out which of these users is actually enrolled in the course. To do this, query the course and it's members, and check against the array of user_ids. Create a new actual array with only those people
         // that are actually enrolled in this course.
         let courseParticipants: number[] = [];

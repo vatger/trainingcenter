@@ -1,64 +1,88 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { Permission } from "../../models/Permission";
+import { User } from "../../models/User";
+import PermissionHelper from "../../utility/helper/PermissionHelper";
+import Validator, { ValidationTypeEnum } from "../../utility/Validator";
+import { GenericException } from "../../exceptions/GenericException";
+import { HttpStatusCode } from "axios";
 
 /**
  * Gets all permissions
- * @param request
+ * @param _request
  * @param response
+ * @param next
  */
-async function getAll(request: Request, response: Response) {
-    const permissions = await Permission.findAll();
-    response.send(permissions);
+async function getAll(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.view");
+
+        const permissions = await Permission.findAll();
+        response.send(permissions);
+    } catch (e) {
+        next(e);
+    }
 }
 
 /**
  * Creates a new permission. If the name of this permission exists, returns a 400 error
  * @param request
  * @param response
+ * @param next
  */
-async function create(request: Request, response: Response) {
-    const name = request.body.name;
+async function create(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit");
 
-    if (name == null || name.length == 0) {
-        response.status(400).send({ code: "VAL_ERR", error: "No name supplied" });
-        return;
+        const body = request.body as { name: string };
+        Validator.validate(body, {
+            name: [ValidationTypeEnum.NON_NULL]
+        });
+
+        const [perm, created] = await Permission.findOrCreate({
+            where: { name: body.name },
+            defaults: {
+                name: body.name,
+            },
+        });
+
+        if (!created) {
+            throw new GenericException("DUP_ENTRY", "Permission with this name already exists");
+        }
+
+        response.send(perm);
+    } catch (e) {
+        next(e);
     }
-
-    const [perm, created] = await Permission.findOrCreate({
-        where: { name: name },
-        defaults: {
-            name: name,
-        },
-    });
-
-    if (!created) {
-        response.status(400).send({ code: "DUP_ENTRY", error: "Duplicate entry for column name" });
-        return;
-    }
-
-    response.send(perm);
 }
 
 /**
  * Deletes a permission specified by request.body.perm_id
  * @param request
  * @param response
+ * @param next
  */
-async function destroy(request: Request, response: Response) {
-    const perm_id = request.body.perm_id;
+async function destroy(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit");
 
-    if (perm_id == null || perm_id == -1) {
-        response.status(400).send({ code: "VAL_ERR", error: "No permission supplied" });
-        return;
+        const body = request.body as {perm_id: string};
+        Validator.validate(body, {
+            perm_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER]
+        });
+
+        const res = await Permission.destroy({
+            where: {
+                id: body.perm_id,
+            },
+        });
+
+        response.sendStatus(HttpStatusCode.NoContent);
+    } catch (e) {
+        next(e);
     }
-
-    const res = await Permission.destroy({
-        where: {
-            id: perm_id,
-        },
-    });
-
-    response.send({ message: "OK", rows: res });
 }
 
 export default {

@@ -18,7 +18,6 @@ export type TrainingLogModel = {
     id: number;
     uuid: string;
     content: object;
-    log_public: boolean;
     author_id: number;
     createdAt?: Date;
     updatedAt?: Date;

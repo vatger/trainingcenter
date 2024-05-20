@@ -9,19 +9,27 @@ import { RoleBelongsToUsers } from "../../models/through/RoleBelongsToUsers";
 
 /**
  * Gets all roles
- * @param request
+ * @param _request
  * @param response
+ * @param next
  */
-async function getAll(request: Request, response: Response) {
-    const roles = await Role.findAll();
-    response.send(roles);
+async function getAll(_request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.view");
+
+        const roles = await Role.findAll();
+        response.send(roles);
+    } catch(e) {
+        next(e);
+    }
 }
 
 async function create(request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
         const body = request.body as { name: string };
-        PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit");
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.role.edit");
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
@@ -41,7 +49,7 @@ async function addUser(request: Request, response: Response, next: NextFunction)
     try {
         const user: User = response.locals.user;
         const body = request.body as { role_id: string; user_id: string };
-        PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit");
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit");
 
         Validator.validate(body, {
             role_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
@@ -65,7 +73,7 @@ async function removeUser(request: Request, response: Response, next: NextFuncti
     try {
         const user: User = response.locals.user;
         const body = request.body as { role_id: string; user_id: string };
-        PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit");
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit");
 
         Validator.validate(body, {
             role_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
@@ -158,7 +166,7 @@ async function removePermission(request: Request, response: Response) {
     const params = request.params;
     const body = request.body;
 
-    PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit", true);
+    PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit", true);
 
     // const validation = ValidationHelper.validate([
     //     {
@@ -193,33 +201,29 @@ async function removePermission(request: Request, response: Response) {
  * Adds a permission to a role
  * @param request
  * @param response
+ * @param next
  */
-async function addPermission(request: Request, response: Response) {
-    const user: User = response.locals.user;
-    const params = request.params;
-    const body = request.body;
+async function addPermission(request: Request, response: Response, next: NextFunction) {
+    try {
+        const user: User = response.locals.user;
+        const params = request.params;
+        const body = request.body as {permission_id?: string};
 
-    PermissionHelper.checkUserHasPermission(user, "tech.permissions.role.edit", true);
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit", true);
 
-    // const validate = ValidationHelper.validate([
-    //     {
-    //         name: "role_id",
-    //         validationObject: role_id,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-    //     },
-    //     {
-    //         name: "permission_id",
-    //         validationObject: permission_id,
-    //         toValidate: [{ val: ValidationOptions.NON_NULL }, { val: ValidationOptions.NUMBER }],
-    //     },
-    // ]);
+        Validator.validate(body, {
+            permission_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER]
+        });
 
-    const res = await RoleHasPermissions.create({
-        role_id: Number(params.role_id),
-        permission_id: Number(body.permission_id),
-    });
+        const res = await RoleHasPermissions.create({
+            role_id: Number(params.role_id),
+            permission_id: Number(body.permission_id),
+        });
 
-    response.send(res);
+        response.send(res);
+    } catch (e) {
+        next(e);
+    }
 }
 
 export default {

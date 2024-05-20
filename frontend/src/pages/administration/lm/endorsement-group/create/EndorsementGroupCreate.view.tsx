@@ -2,11 +2,11 @@ import { PageHeader } from "@/components/ui/PageHeader/PageHeader";
 import { Card } from "@/components/ui/Card/Card";
 import React, { FormEvent, useState } from "react";
 import { Input } from "@/components/ui/Input/Input";
-import { TbFilePlus, TbId, TbPlus } from "react-icons/tb";
+import { TbFilePlus, TbId, TbListNumbers, TbPlus } from "react-icons/tb";
 import { Separator } from "@/components/ui/Separator/Separator";
 import { CommonRegexp } from "@/core/Config";
 import { Select } from "@/components/ui/Select/Select";
-import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
+import { COLOR_OPTS, ICON_SIZE_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 import useApi from "@/utils/hooks/useApi";
 import { TrainingStationModel } from "@/models/TrainingStationModel";
 import { MapArray } from "@/components/conditionals/MapArray";
@@ -22,8 +22,6 @@ import { AxiosResponse } from "axios";
 import { useNavigate } from "react-router-dom";
 import { useDebounce } from "@/utils/hooks/useDebounce";
 import { useFilter } from "@/utils/hooks/useFilter";
-import FuzzySearch from "fuzzy-search";
-import { fuzzySearch } from "@/utils/helper/fuzzysearch/FuzzySearchHelper";
 
 function filterStations(element: TrainingStationModel, searchValue: string) {
     return element.callsign.startsWith(searchValue.toUpperCase());
@@ -102,9 +100,34 @@ export function EndorsementGroupCreateView() {
                                 preIcon={<TbId size={20} />}
                             />
 
-                            <Select name={"tier"} label={"Tier festlegen"} labelSmall required className={"mt-5"} value={selectedTrainingStation}>
-                                <option value={1}>Tier 1</option>
-                                <option value={2}>Tier 2</option>
+                            <Input
+                                name={"name_vateud"}
+                                type={"text"}
+                                maxLength={70}
+                                description={"Dies ist der Name, welcher bei VATEUD angezeigt wird, sobald einem Benutzer die Freigabegruppe zugewiesen wurde. Dieser Name kann NICHT mehr geändert werden!"}
+                                labelSmall
+                                className={"mt-5"}
+                                placeholder={"EDDF_GNDDEL"}
+                                label={"Name (VATEUD)"}
+                                required
+                                regex={CommonRegexp.NOT_EMPTY}
+                                regexMatchEmpty
+                                regexCheckInitial
+                                preIcon={<TbId size={20} />}
+                            />
+
+                            <Select
+                                name={"tier"}
+                                label={"Tier festlegen"}
+                                labelSmall
+                                required
+                                className={"mt-5"}
+                                value={selectedTrainingStation}
+                                preIcon={<TbListNumbers size={ICON_SIZE_OPTS.MD}/>}
+                                description={"Dieser Wert kann NICHT mehr geändert werden."}
+                            >
+                                <option value={"1"}>Tier 1</option>
+                                <option value={"2"}>Tier 2</option>
                             </Select>
 
                             <Separator />

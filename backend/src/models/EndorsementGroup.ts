@@ -4,11 +4,21 @@ import { User } from "./User";
 import { TrainingStation } from "./TrainingStation";
 import { ENDORSEMENT_GROUPS_TABLE_ATTRIBUTES, ENDORSEMENT_GROUPS_TABLE_NAME } from "../../db/migrations/20221115171254-create-endorsement-groups-table";
 
+export interface IEndorsementGroup {
+    id: number;
+    name: string;
+    name_vateud: string;
+    tier: number;
+    createdAt: Date;
+    updatedAt?: Date;
+}
+
 export class EndorsementGroup extends Model<InferAttributes<EndorsementGroup>, InferCreationAttributes<EndorsementGroup>> {
     //
     // Attributes
     //
     declare name: string;
+    declare name_vateud: string;
     declare tier: number;
 
     //

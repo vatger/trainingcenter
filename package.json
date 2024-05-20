@@ -16,7 +16,8 @@
     "backend:build": "cd backend && tsc",
     "all:build": "npm run frontend:build && npm run backend:build",
     "prettier:check": "npx prettier --check **/*.{ts,js}",
-    "prettier:write": "npx prettier --write ."
+    "prettier:write": "npx prettier --write .",
+    "seq": "echo RUN THIS IN MAIN DIRECTORY! && npm run backend:build && cd backend && npx sequelize-cli --options-path=../_build/backend/db/config/options.js"
   },
   "overrides": {
     "react-data-table-component": {
@@ -94,8 +95,5 @@
     "typescript": "^4.6.4",
     "vite": "^3.2.3",
     "vite-plugin-compression2": "^1.0.0"
-  },
-  "_moduleAliases": {
-    "@shared": "_build/backend/shared"
   }
 }
