@@ -112,7 +112,7 @@ async function getInformation(request: Request, response: Response, next: NextFu
             return;
         }
 
-        response.send(user);
+        response.send(dbUser);
     } catch (e) {
         next(e);
     }
