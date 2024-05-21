@@ -16,7 +16,10 @@ async function getAll(_request: Request, response: Response, next: NextFunction)
         PermissionHelper.checkUserHasPermission(user, "users.list");
 
         const users = await User.findAll({
-            include: [User.associations.user_data],
+            include: [{
+                association: User.associations.user_data,
+                attributes: ["rating_atc"],
+            }],
         });
 
         response.send(users);
