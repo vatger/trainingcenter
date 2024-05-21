@@ -29,7 +29,7 @@ async function create(request: Request, response: Response, next: NextFunction) 
     try {
         const user: User = response.locals.user;
         const body = request.body as { name: string };
-        PermissionHelper.checkUserHasPermission(user, "tech.role_management.role.edit");
+        PermissionHelper.checkUserHasPermission(user, "tech.role_management.edit");
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],

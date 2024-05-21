@@ -19,7 +19,7 @@ async function create(request: Request, response: Response, next: NextFunction) 
         const user: User = response.locals.user;
         const body = request.body as { name: string; users: any; fir: "edww" | "edgg" | "edmm" | "none" };
 
-        PermissionHelper.checkUserHasPermission(user, "ln.mentor_group.create");
+        PermissionHelper.checkUserHasPermission(user, "lm.mentor_group.create");
 
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
