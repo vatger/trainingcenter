@@ -68,7 +68,6 @@ async function getAll(_request: Request, response: Response, next: NextFunction)
 async function getAllWithStations(_request: Request, response: Response, next: NextFunction) {
     try {
         const user: User = response.locals.user;
-        PermissionHelper.checkUserHasPermission(user, "lm.endorsement_groups.view");
 
         const endorsementGroups = await EndorsementGroup.findAll({
             include: {
