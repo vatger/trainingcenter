@@ -210,8 +210,7 @@ async function getCoursesWithInformation(this: User): Promise<Course[]> {
  * Checks if the user is a mentor (i.e. is a member of any mentor group)
  */
 async function isMentor(this: User): Promise<boolean> {
-    const mentorGroups = await this.getMentorGroups();
-    return mentorGroups.length > 0;
+    return this.hasPermission('mentor.view');
 }
 
 export default {
