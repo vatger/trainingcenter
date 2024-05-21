@@ -78,7 +78,7 @@ async function createSolo(request: Request, response: Response, next: NextFuncti
             },
         });
 
-        if (endorsementGroup) await vateudCreateSolo(solo, endorsementGroup);
+        //if (endorsementGroup) await vateudCreateSolo(solo, endorsementGroup);
 
         const returnUser = await User.findOne({
             where: {
