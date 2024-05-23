@@ -26,11 +26,13 @@ export function CGeneralInformationPartial({
     course,
     showDescription = false,
     showDuration = false,
+    showEnrolDate = true
 }: {
     loading: boolean;
     course?: CourseModel;
     showDescription?: boolean;
     showDuration?: boolean;
+    showEnrolDate?: boolean;
 }) {
     return (
         <RenderIf
@@ -40,12 +42,17 @@ export function CGeneralInformationPartial({
                 <>
                     <div className={"grid grid-cols-1 md:grid-cols-2 gap-5"}>
                         <Input preIcon={<TbId size={20} />} labelSmall label={"Kurs Name"} disabled value={course?.name} />
-                        <Input
-                            preIcon={<TbCalendar size={20} />}
-                            label={"Eingeschrieben am"}
-                            labelSmall
-                            disabled
-                            value={dayjs.utc(course?.UsersBelongsToCourses?.createdAt).format(Config.DATETIME_FORMAT)}
+                        <RenderIf
+                            truthValue={showEnrolDate}
+                            elementTrue={
+                                <Input
+                                    preIcon={<TbCalendar size={20} />}
+                                    label={"Eingeschrieben am"}
+                                    labelSmall
+                                    disabled
+                                    value={dayjs.utc(course?.UsersBelongsToCourses?.createdAt).format(Config.DATETIME_FORMAT)}
+                                />
+                            }
                         />
                         <Input
                             preIcon={<TbCertificate size={20} />}

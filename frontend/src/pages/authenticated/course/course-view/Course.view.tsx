@@ -11,7 +11,7 @@ import { Card } from "@/components/ui/Card/Card";
 import React from "react";
 import useApi from "@/utils/hooks/useApi";
 import { CourseModel } from "@/models/CourseModel";
-import { TLanguage, useSettingsSelector } from "@/app/features/settingsSlice";
+import { useSettingsSelector } from "@/app/features/settingsSlice";
 import { ButtonRow } from "@/components/ui/Button/ButtonRow";
 import { CGeneralInformationPartial } from "@/pages/authenticated/course/_partials/CGeneralInformation.partial";
 
@@ -52,12 +52,12 @@ export function CourseView() {
                 elementFalse={
                     <>
                         <Card header={"Allgemeine Informationen"} headerBorder headerExtra={<Badge color={COLOR_OPTS.DANGER}>Nicht eingeschrieben</Badge>}>
-                            <CGeneralInformationPartial course={course} loading={loading} showDescription showDuration />
+                            <CGeneralInformationPartial course={course} loading={loading} showDescription showDuration showEnrolDate={false}/>
 
-                            <ButtonRow>
-                                <RenderIf
-                                    truthValue={course?.self_enrollment_enabled == true}
-                                    elementTrue={
+                            <RenderIf
+                                truthValue={course?.self_enrollment_enabled == true}
+                                elementTrue={
+                                    <ButtonRow>
                                         <Button
                                             icon={<TbCheckbox size={20} />}
                                             className={"mt-7"}
@@ -66,15 +66,12 @@ export function CourseView() {
                                             onClick={() => navigate("enrol")}>
                                             Jetzt Einschreiben
                                         </Button>
-                                    }
-                                />
-                            </ButtonRow>
-
-                            <RenderIf
-                                truthValue={!course?.self_enrollment_enabled}
-                                elementTrue={
+                                    </ButtonRow>
+                                }
+                                elementFalse={
                                     <p className={"mt-2 text-danger"}>
-                                        Die Selbsteinschreibung ist derzeit nicht aktiv. Kontaktiere einen Mentor um dich in den Kurs einschreiben zu lassen.
+                                        Die Selbsteinschreibung ist derzeit nicht aktiv.
+                                        Kontaktiere einen Mentor um dich in den Kurs einschreiben zu lassen.
                                     </p>
                                 }
                             />
