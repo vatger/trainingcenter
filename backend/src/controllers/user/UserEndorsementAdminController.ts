@@ -45,12 +45,12 @@ async function addEndorsement(request: Request, response: Response, next: NextFu
         });
 
 
-        /*
+
         if (!(await createEndorsement(userEndorsement, endorsementGroup))) {
             await userEndorsement.destroy();
-            throw new Error();
+            throw new Error("Could not create endorsement in VATEUD CORE.");
         }
-        */
+
 
         response.status(HttpStatusCode.Created).send(endorsementGroup);
     } catch (e) {
@@ -58,7 +58,12 @@ async function addEndorsement(request: Request, response: Response, next: NextFu
     }
 }
 
-// TODO: Paul (keine Ahnung, was du hier probierst :D)
+/**
+ * Deletes an endorsement to a user
+ * @param request
+ * @param response
+ * @param next
+ */
 async function deleteEndorsement(request: Request, response: Response, next: NextFunction) {
     try {
         const requestingUser: User = response.locals.user;

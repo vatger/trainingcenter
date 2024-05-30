@@ -67,7 +67,7 @@ export function UVAddEndorsementModal({
                 onClose();
             })
             .catch(() => {
-                ToastHelper.error("Fehler beim erstellen der Freigabe");
+                ToastHelper.error("Fehler beim Erstellen der Freigabe");
             })
             .finally(() => setSubmitting(false));
     }

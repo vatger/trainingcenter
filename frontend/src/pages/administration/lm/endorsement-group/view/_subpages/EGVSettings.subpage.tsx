@@ -75,7 +75,7 @@ export function EGVSettingsSubpage() {
                         className={"mt-5"}
                         disabled
                         preIcon={<TbListNumbers size={ICON_SIZE_OPTS.MD} />}
-                        value={endorsementGroup?.tier.toString()}
+                        value={Number(endorsementGroup?.tier) > 0 ? `Tier ${endorsementGroup?.tier}` : 'Solo only'}
                     />
 
                     <Separator />

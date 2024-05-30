@@ -133,6 +133,11 @@ export async function removeSolo(userSolo: UserSolo) {
  * On success, it updates the corresponding endorsement with the returned VATEUD ID
  */
 export async function createEndorsement(userEndorsement: EndorsementGroupsBelongsToUsers, endorsementGroup: EndorsementGroup | null) {
+
+    if(!Config.VATEUD_CORE_CONFIG.USE) {
+        return true;
+    }
+
     if (!endorsementGroup) return false;
     const endorsementInfo: VateudCoreEndorsementCreateT = {
         local_id: userEndorsement.id,

@@ -129,6 +129,7 @@ export function EndorsementGroupCreateView() {
                                 description={"Dieser Wert kann NICHT mehr geändert werden."}>
                                 <option value={"1"}>Tier 1</option>
                                 <option value={"2"}>Tier 2</option>
+                                <option value={"0"}>nur Solo</option>
                             </Select>
 
                             <Separator />

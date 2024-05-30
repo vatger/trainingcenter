@@ -324,6 +324,7 @@ router.use(
             "/endorsement",
             routerGroup((r: Router) => {
                 r.post("/", UserEndorsementAdminController.addEndorsement);
+                r.delete("/", UserEndorsementAdminController.deleteEndorsement);
             })
         );
 
