@@ -167,7 +167,7 @@ async function canEditCourse(this: User, courseUUID: string): Promise<boolean> {
     const mentorGroups: MentorGroup[] = await this.getMentorGroupsAndCourses();
 
     for (const mentorGroup of mentorGroups) {
-        if (!mentorGroup.UserBelongToMentorGroups?.can_manage_course) break;
+        if (!mentorGroup.UserBelongToMentorGroups?.can_manage_course) continue;
 
         for (const course of mentorGroup.courses ?? []) {
             if (course.uuid == courseUUID) {
