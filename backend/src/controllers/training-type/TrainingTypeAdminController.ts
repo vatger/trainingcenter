@@ -4,7 +4,7 @@ import { TrainingStation } from "../../models/TrainingStation";
 import { TrainingStationBelongsToTrainingType } from "../../models/through/TrainingStationBelongsToTrainingType";
 import { HttpStatusCode } from "axios";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
-import { TRAINING_TYPES_TABLE_TYPES } from "../../../db/migrations/20221115171246-create-training-types-table";
+import { TRAINING_TYPES_TABLE_TYPES } from "../../../db/migrations/20221115171248-create-training-types-table";
 import { User } from "../../models/User";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
 import { Course } from "../../models/Course";

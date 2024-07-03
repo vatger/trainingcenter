@@ -8,7 +8,7 @@ import {
     TRAINING_TYPES_TABLE_ATTRIBUTES,
     TRAINING_TYPES_TABLE_NAME,
     TRAINING_TYPES_TABLE_TYPES,
-} from "../../db/migrations/20221115171246-create-training-types-table";
+} from "../../db/migrations/20221115171248-create-training-types-table";
 
 export interface ITrainingType {
     id: number;

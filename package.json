@@ -17,7 +17,7 @@
     "all:build": "npm run frontend:build && npm run backend:build",
     "prettier:check": "npx prettier --check **/*.{ts,js}",
     "prettier:write": "npx prettier --write .",
-    "seq": "echo RUN THIS IN MAIN DIRECTORY! && npm run backend:build && cd backend && npx sequelize-cli --options-path=../_build/backend/db/config/options.js"
+    "seq": "echo RUN THIS IN MAIN DIRECTORY! && npm run backend:build && cd backend && npx sequelize-cli --options-path=../_build/backend/backend/db/config/options.js"
   },
   "overrides": {
     "react-data-table-component": {
