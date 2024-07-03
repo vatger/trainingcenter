@@ -48,12 +48,6 @@ export const COURSE_TABLE_ATTRIBUTES = {
         type: DataType.INTEGER,
         comment: "Training Type ID",
         allowNull: true,
-        references: {
-            model: "training_types",
-            key: "id",
-        },
-        onUpdate: "cascade",
-        onDelete: "set null",
     },
     enrol_requirements: {
         type: DataType.JSON,

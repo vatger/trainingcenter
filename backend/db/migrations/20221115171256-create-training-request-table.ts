@@ -1,5 +1,5 @@
 import { DataType } from "sequelize-typescript";
-import { NonAttribute, QueryInterface, VIRTUAL } from "sequelize";
+import { QueryInterface } from "sequelize";
 import { TrainingRequest } from "../../src/models/TrainingRequest";
 import { TrainingStation } from "../../src/models/TrainingStation";
 
