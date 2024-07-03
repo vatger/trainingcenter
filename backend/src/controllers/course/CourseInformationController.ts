@@ -7,6 +7,7 @@ import RequirementHelper from "../../utility/helper/RequirementHelper";
 import { HttpStatusCode } from "axios";
 import { ForbiddenException } from "../../exceptions/ForbiddenException";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
+import { ICourseEnrolRequirement } from "../../../../common/Course.model";
 
 /**
  * Returns course information based on the provided uuid (request.query.uuid)
@@ -165,28 +166,32 @@ async function validateCourseRequirements(request: Request, response: Response, 
             throw new ForbiddenException("You are already a member of this course.");
         }
 
+        const fullUser = await User.findOne({
+            where: {
+                id: user.id,
+            },
+            include: [User.associations.user_data],
+        });
+
         const course = await Course.findOne({
             where: {
                 uuid: query.course_uuid,
             },
-            include: [
-                {
-                    association: Course.associations.action_requirements,
-                },
-            ],
         });
 
-        const actionRequirements = course?.action_requirements?.filter((actionRequirement: ActionRequirement) => actionRequirement.type == "requirement");
-        let requirements: { action: string; req_id: number; passed: boolean }[] = [];
-
-        for (const actionRequirement of actionRequirements ?? []) {
-            for (const requirement of actionRequirement.action) {
-                const requirementPassed = await RequirementHelper.validateRequirement(user, requirement);
-                requirements.push({ action: requirement, req_id: actionRequirement.id, passed: requirementPassed });
-            }
+        if (course == null || fullUser == null) {
+            throw new Error("Internal server error");
         }
 
-        response.send(requirements);
+        const requirements = course?.enrol_requirements ?? [];
+        let requirementResults: { action: ICourseEnrolRequirement; passed: boolean }[] = [];
+
+        for (const requirement of requirements ?? []) {
+            const requirementPassed = await RequirementHelper.validateRequirement(fullUser, requirement);
+            requirementResults.push({ action: requirement, passed: requirementPassed });
+        }
+
+        response.send(requirementResults);
     } catch (e) {
         next(e);
     }

@@ -1,6 +1,6 @@
 import { TableColumn } from "react-data-table-component";
 import { FastTrackRequestModel } from "@/models/FastTrackRequestModel";
-import { getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingShort } from "@common/AtcRatingHelper";
 import { Badge } from "@/components/ui/Badge/Badge";
 import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 import React from "react";

@@ -11,6 +11,7 @@ import {
     TRAINING_REQUEST_TABLE_STATUS_TYPES,
 } from "../../db/migrations/20221115171256-create-training-request-table";
 import TrainingRequestExtensions from "./extensions/TrainingRequestExtensions";
+import { DataType } from "sequelize-typescript";
 
 export class TrainingRequest extends Model<InferAttributes<TrainingRequest>, InferCreationAttributes<TrainingRequest>> {
     //

@@ -44,13 +44,10 @@ async function addEndorsement(request: Request, response: Response, next: NextFu
             created_by: requestingUser.id,
         });
 
-
-
         if (!(await createEndorsement(userEndorsement, endorsementGroup))) {
             await userEndorsement.destroy();
             throw new Error("Could not create endorsement in VATEUD CORE.");
         }
-
 
         response.status(HttpStatusCode.Created).send(endorsementGroup);
     } catch (e) {

@@ -26,6 +26,21 @@ export const TRAINING_TYPES_TABLE_ATTRIBUTES = {
         defaultValue: "Online",
         allowNull: false,
     },
+    is_initial_training: {
+        type: DataType.BOOLEAN,
+        defaultValue: false,
+        allowNull: false,
+    },
+    course_id: {
+        type: DataType.INTEGER,
+        allowNull: false,
+        references: {
+            model: "courses",
+            key: "id",
+        },
+        onUpdate: "cascade",
+        onDelete: "cascade",
+    },
     log_template_id: {
         type: DataType.INTEGER,
         allowNull: true,

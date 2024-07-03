@@ -19,7 +19,7 @@ import { Alert } from "@/components/ui/Alert/Alert";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
 import useApi from "@/utils/hooks/useApi";
 import ToastHelper from "@/utils/helper/ToastHelper";
-import { E_VATSIM_RATING } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { E_VATSIM_RATING } from "@common/AtcRatingHelper";
 import { useUploadHook } from "@/utils/hooks/useUploadHook";
 import { Button } from "@/components/ui/Button/Button";
 import FormHelper from "@/utils/helper/FormHelper";

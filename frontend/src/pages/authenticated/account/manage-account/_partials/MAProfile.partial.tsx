@@ -1,9 +1,9 @@
 import { Input } from "@/components/ui/Input/Input";
 import { ManageAccountElement } from "@/components/ui/Account/ManageAccountElement";
 import { TbMail, TbMapPin, TbNumbers, TbPlaneDeparture, TbRss, TbUserCircle, TbWorld } from "react-icons/tb";
-import { getAtcRatingLong, getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingLong, getAtcRatingShort } from "@common/AtcRatingHelper";
 import { COLOR_OPTS } from "@/assets/theme.config";
-import { getPilotRatingLong, getPilotRatingShort } from "@/utils/helper/vatsim/PilotRatingHelper";
+import { getPilotRatingLong, getPilotRatingShort } from "@common/PilotRatingHelper";
 import { Badge } from "@/components/ui/Badge/Badge";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { useUserSelector } from "@/app/features/authSlice";

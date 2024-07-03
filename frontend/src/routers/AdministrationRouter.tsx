@@ -19,9 +19,6 @@ import { TrainingSessionCreateView } from "@/pages/administration/mentor/trainin
 import { MentorGroupListView } from "@/pages/administration/lm/mentor-group/list/MentorGroupList.view";
 import { MentorGroupCreateView } from "@/pages/administration/lm/mentor-group/create/MentorGroupCreate.view";
 import { MentorGroupViewView } from "@/pages/administration/lm/mentor-group/view/MentorGroupView.view";
-import { TrainingTypeListView } from "@/pages/administration/lm/training-type/list/TrainingTypeList.view";
-import { TrainingTypeCreateView } from "@/pages/administration/lm/training-type/create/TrainingTypeCreate.view";
-import { TrainingTypeViewView } from "@/pages/administration/lm/training-type/view/TrainingTypeView.view";
 import { LogTemplateListView } from "@/pages/administration/atd/log-template/log-template-list/LogTemplateList.view";
 import { LogTemplateViewView } from "@/pages/administration/atd/log-template/log-template-view/LogTemplateView.view";
 import { LogTemplateCreateView } from "@/pages/administration/atd/log-template/log-template-create/LogTemplateCreate.view";
@@ -91,12 +88,6 @@ export function AdministrationRouter() {
                 <Route path={""} element={<MentorGroupListView />} />
                 <Route path={"create"} element={<MentorGroupCreateView />} />
                 <Route path={":id"} element={<MentorGroupViewView />} />
-            </Route>
-
-            <Route path={"training-type"}>
-                <Route path={""} element={<TrainingTypeListView />} />
-                <Route path={"create"} element={<TrainingTypeCreateView />} />
-                <Route path={":id"} element={<TrainingTypeViewView />} />
             </Route>
 
             <Route path={"log-template"}>

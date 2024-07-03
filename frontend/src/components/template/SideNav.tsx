@@ -188,12 +188,6 @@ export function SideNav() {
                                                 Kurse
                                             </MenuItem>
                                             <MenuItem
-                                                requiredPerm={"lm.training_types.view"}
-                                                href={"administration/training-type"}
-                                                icon={<TbTemplate size={20} />}>
-                                                Trainingstypen
-                                            </MenuItem>
-                                            <MenuItem
                                                 requiredPerm={"lm.action_requirements.view"}
                                                 icon={<TbAdjustments size={20} />}
                                                 href={"administration/action-requirement"}>

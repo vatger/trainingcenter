@@ -7,6 +7,7 @@ import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import { TRAINING_TYPES_TABLE_TYPES } from "../../../db/migrations/20221115171246-create-training-types-table";
 import { User } from "../../models/User";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
+import { Course } from "../../models/Course";
 
 /**
  * Gets all training types
@@ -78,12 +79,14 @@ async function create(request: Request, response: Response, next: NextFunction) 
 
         const body = request.body as {
             name: string;
+            course_uuid: string;
             type: (typeof TRAINING_TYPES_TABLE_TYPES)[number];
             log_template_id?: string;
             description?: string;
         };
         Validator.validate(body, {
             name: [ValidationTypeEnum.NON_NULL],
+            course_uuid: [ValidationTypeEnum.NON_NULL],
             type: [
                 ValidationTypeEnum.NON_NULL,
                 {
@@ -93,10 +96,14 @@ async function create(request: Request, response: Response, next: NextFunction) 
             ],
         });
 
+        const courseID = await Course.getIDFromUUID(body.course_uuid);
+
         const log_template_id = Number(body.log_template_id);
         const trainingType = await TrainingType.create({
             name: body.name,
             type: body.type,
+            course_id: courseID,
+            is_initial_training: false,
             description: !body.description || body.description == "" ? null : body.description,
             log_template_id: isNaN(log_template_id) || log_template_id == -1 ? null : log_template_id,
         });

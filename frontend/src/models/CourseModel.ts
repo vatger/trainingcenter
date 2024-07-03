@@ -1,5 +1,6 @@
 import { TrainingTypeModel } from "./TrainingTypeModel";
 import { EndorsementGroupModel } from "@/models/EndorsementGroupModel";
+import { ICourseEnrolRequirement } from "@common/Course.model";
 
 export type CourseModel = {
     id: number;
@@ -10,6 +11,7 @@ export type CourseModel = {
     description_en: string;
     is_active: boolean;
     self_enrollment_enabled: boolean;
+    enrol_requirements?: ICourseEnrolRequirement[];
     initial_training_type?: number;
     skill_template_id?: number;
     createdAt?: Date;

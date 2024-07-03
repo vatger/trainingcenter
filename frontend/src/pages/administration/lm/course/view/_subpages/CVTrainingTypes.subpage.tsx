@@ -13,8 +13,12 @@ import ToastHelper from "@/utils/helper/ToastHelper";
 import { TrainingTypeModel } from "@/models/TrainingTypeModel";
 import { CVTrainingTypesSkeleton } from "@/pages/administration/lm/course/view/_skeletons/CVTrainingTypes.skeleton";
 import CVTrainingTypeListTypes from "@/pages/administration/lm/course/view/_types/CVTrainingTypeList.types";
+import { useNavigate } from "react-router-dom";
+import { CVCreateTrainingTypeModal } from "@/pages/administration/lm/course/view/_modals/CVCreateTrainingType.modal";
 
 export function CVTrainingTypesSubpage({ courseUUID }: { courseUUID: string | undefined }) {
+    const navigate = useNavigate();
+
     const {
         loading: loadingCourseTrainingTypes,
         data: courseTrainingTypes,
@@ -29,32 +33,9 @@ export function CVTrainingTypesSubpage({ courseUUID }: { courseUUID: string | un
         method: "get",
     });
 
-    const [selectedTrainingType, setSelectedTrainingType] = useState<string | undefined>(undefined);
+    const [showCreateTrainingTypeModal, setShowCreateTrainingTypeModal] = useState<boolean>(false);
+    const [setSelectedTrainingType] = useState<string | undefined>(undefined);
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-
-    function addTrainingType() {
-        setIsSubmitting(true);
-        const selectedTrainingTypeID = Number(selectedTrainingType);
-        const newTrainingType = trainingTypes?.find(t => t.id == selectedTrainingTypeID);
-        if (isNaN(selectedTrainingTypeID) || newTrainingType == null) {
-            setIsSubmitting(false);
-            return;
-        }
-
-        axiosInstance
-            .post(`/administration/course/training-type/${courseUUID}`, {
-                training_type_id: selectedTrainingTypeID,
-            })
-            .then(() => {
-                ToastHelper.success("Trainingstyp erfolgreich hinzugefügt");
-                setCourseTrainingTypes([...courseTrainingTypes!, newTrainingType]);
-                setSelectedTrainingType(undefined);
-            })
-            .catch(() => {
-                ToastHelper.error("Fehler beim Hinzufügen des Trainingstypen");
-            })
-            .finally(() => setIsSubmitting(false));
-    }
 
     function removeTrainingType(trainingTypeID: number) {
         setIsSubmitting(true);
@@ -68,64 +49,36 @@ export function CVTrainingTypesSubpage({ courseUUID }: { courseUUID: string | un
             .then(() => {
                 ToastHelper.success("Trainingstyp erfolgreich entfernt");
                 setCourseTrainingTypes(courseTrainingTypes?.filter(t => t.id != trainingTypeID));
-                setSelectedTrainingType(undefined);
             })
             .catch(() => {
                 ToastHelper.error("Fehler beim Löschen des Trainingstypen");
             })
-            .finally(() => setIsSubmitting(false));
+            .finally(() => setIsSubmitting(showCreateTrainingTypeModal));
     }
 
     return (
         <>
+            <CVCreateTrainingTypeModal
+                show={showCreateTrainingTypeModal}
+                onClose={() => setShowCreateTrainingTypeModal(false)}
+                onTrainingTypeCreated={t => {
+                    setCourseTrainingTypes([...(courseTrainingTypes ?? []), t]);
+                }}
+            />
+
             <RenderIf
                 truthValue={loadingTrainingTypes}
                 elementTrue={<CVTrainingTypesSkeleton />}
                 elementFalse={
                     <>
-                        <div className={"flex flex-col"}>
-                            <Select
-                                label={"Trainingstypen Hinzufügen"}
-                                labelSmall
-                                disabled={isSubmitting}
-                                onChange={v => {
-                                    if (v == "-1") {
-                                        setSelectedTrainingType(undefined);
-                                    }
-
-                                    setSelectedTrainingType(v);
-                                }}
-                                value={selectedTrainingType ?? "-1"}>
-                                <option value={"-1"} disabled>
-                                    Trainingstypen Auswählen
-                                </option>
-
-                                <MapArray
-                                    data={
-                                        trainingTypes?.filter(t => {
-                                            return !courseTrainingTypes?.find(cT => cT.id == t.id);
-                                        }) ?? []
-                                    }
-                                    mapFunction={(trainingType: TrainingTypeModel, index) => {
-                                        return (
-                                            <option key={index} value={trainingType.id}>
-                                                {trainingType.name}
-                                            </option>
-                                        );
-                                    }}
-                                />
-                            </Select>
-                        </div>
-
                         <Button
                             variant={"twoTone"}
                             color={COLOR_OPTS.PRIMARY}
-                            className={"mt-5"}
                             icon={<TbPlus size={20} />}
                             loading={isSubmitting}
                             size={SIZE_OPTS.SM}
-                            onClick={addTrainingType}>
-                            Hinzufügen
+                            onClick={() => setShowCreateTrainingTypeModal(true)}>
+                            Trainingstyp Erstellen
                         </Button>
                     </>
                 }

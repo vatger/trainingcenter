@@ -266,7 +266,6 @@ router.use(
                 r.delete("/mentor-group/:course_uuid", CourseAdministrationController.removeMentorGroupFromCourse);
 
                 r.get("/training-type/:course_uuid", CourseAdministrationController.getCourseTrainingTypes);
-                r.post("/training-type/:course_uuid", CourseAdministrationController.addCourseTrainingType);
                 r.delete("/training-type/:course_uuid", CourseAdministrationController.removeCourseTrainingType);
             })
         );

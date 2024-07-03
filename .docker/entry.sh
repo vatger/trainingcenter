@@ -1,4 +1,4 @@
 #!/bin/sh
 
 # Run Node
-cd /opt && node src/Application.js
+cd /opt && node backend/src/Application.js

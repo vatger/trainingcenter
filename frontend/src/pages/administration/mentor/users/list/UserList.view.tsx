@@ -10,7 +10,7 @@ import { getUserSearchTableColumns } from "./_types/US.types";
 import { useNavigate } from "react-router-dom";
 import { useFilter } from "@/utils/hooks/useFilter";
 import { fuzzySearch } from "@/utils/helper/fuzzysearch/FuzzySearchHelper";
-import { getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingShort } from "@common/AtcRatingHelper";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { NetworkError } from "@/components/errors/NetworkError";
 import { useAuthSelector, useUserSelector } from "@/app/features/authSlice";

@@ -4,7 +4,7 @@ import React from "react";
 import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 import { Button } from "@/components/ui/Button/Button";
 import { TbEye } from "react-icons/tb";
-import { getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingShort } from "@common/AtcRatingHelper";
 import FastTrackHelper from "@/utils/helper/FastTrackHelper";
 import dayjs from "dayjs";
 import { Config } from "@/core/Config";

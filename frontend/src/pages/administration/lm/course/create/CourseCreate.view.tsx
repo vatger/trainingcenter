@@ -139,60 +139,19 @@ export function CourseCreateView() {
                                         </div>
                                     </div>
 
-                                    <div className={"grid grid-cols-1 md:grid-cols-2 md:gap-5"}>
-                                        <Select
-                                            description={
-                                                "Wenn der Kurs aktiv ist, wird dieser in der Kurssuche angezeigt. Mentoren sind nur im aktiven Zustand in der Lage Mitglieder in Kursen hinzuzufügen - sofern dies nicht durch die Selbsteinschreibung geregelt ist."
-                                            }
-                                            label={"Kurs Aktiv"}
-                                            className={"mt-5 flex flex-col"}
-                                            labelSmall
-                                            required
-                                            name={"active"}
-                                            preIcon={<TbActivity size={20} />}>
-                                            <option value={1}>Ja</option>
-                                            <option value={0}>Nein</option>
-                                        </Select>
-
-                                        <Select
-                                            description={
-                                                "Wenn die Selbsteinschreibung aktiviert ist, können sich Mitglieder selber in diesen Kurs einschreiben. Falls nicht, geschieht dies über Mentoren oder das ATD."
-                                            }
-                                            label={"Selbsteinschreibung Aktiv"}
-                                            className={"mt-5 flex flex-col"}
-                                            selectClassName={"mt-auto"}
-                                            labelSmall
-                                            required
-                                            name={"self_enrol_enabled"}
-                                            preIcon={<TbLock size={20} />}>
-                                            <option value={1}>Ja</option>
-                                            <option value={0}>Nein</option>
-                                        </Select>
-                                    </div>
-
-                                    <Separator />
-
                                     <Select
-                                        label={"Initiales Training"}
+                                        description={
+                                            "Wenn die Selbsteinschreibung aktiviert ist, können sich Mitglieder selber in diesen Kurs einschreiben. Falls nicht, geschieht dies über Mentoren oder das ATD."
+                                        }
+                                        label={"Selbsteinschreibung Aktiv"}
+                                        className={"mt-5 flex flex-col"}
+                                        selectClassName={"mt-auto"}
                                         labelSmall
-                                        name={"training_type_id"}
-                                        description={"Dies ist das erste Training, welches jedem Mitglied des Kurses zugewiesen wird."}
                                         required
-                                        preIcon={<TbTemplate size={20} />}
-                                        defaultValue={"-1"}>
-                                        <option value={"-1"} disabled>
-                                            Initiales Training Auswählen
-                                        </option>
-                                        <MapArray
-                                            data={trainingTypes ?? []}
-                                            mapFunction={(trainingType: TrainingTypeModel, index: number) => {
-                                                return (
-                                                    <option key={index} value={trainingType.id.toString()}>
-                                                        {trainingType.name} ({StringHelper.capitalize(trainingType.type)})
-                                                    </option>
-                                                );
-                                            }}
-                                        />
+                                        name={"self_enrol_enabled"}
+                                        preIcon={<TbLock size={20} />}>
+                                        <option value={1}>Ja</option>
+                                        <option value={0}>Nein</option>
                                     </Select>
 
                                     <Separator />

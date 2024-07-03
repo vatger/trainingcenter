@@ -9,6 +9,7 @@ import { CVDangerSubpage } from "@/pages/administration/lm/course/view/_subpages
 import React from "react";
 import { CVTrainingTypesSubpage } from "@/pages/administration/lm/course/view/_subpages/CVTrainingTypes.subpage";
 import CVInformationSubpage from "@/pages/administration/lm/course/view/_subpages/CVInformation.subpage";
+import { CVEnrolOptionsPartial } from "@/pages/administration/lm/course/view/_partials/CVEnrolOptions.partial";
 
 // "Aktionen & Bedingungen",
 const tabHeaders = ["Einstellungen", "Informationen", "Mentorgruppen", "Trainingstypen", "Teilnehmer", "Gefahrenbereich"];

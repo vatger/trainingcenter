@@ -52,7 +52,7 @@ export function CourseView() {
                 elementFalse={
                     <>
                         <Card header={"Allgemeine Informationen"} headerBorder headerExtra={<Badge color={COLOR_OPTS.DANGER}>Nicht eingeschrieben</Badge>}>
-                            <CGeneralInformationPartial course={course} loading={loading} showDescription showDuration showEnrolDate={false}/>
+                            <CGeneralInformationPartial course={course} loading={loading} showDescription showDuration showEnrolDate={false} />
 
                             <RenderIf
                                 truthValue={course?.self_enrollment_enabled == true}
@@ -70,8 +70,7 @@ export function CourseView() {
                                 }
                                 elementFalse={
                                     <p className={"mt-2 text-danger"}>
-                                        Die Selbsteinschreibung ist derzeit nicht aktiv.
-                                        Kontaktiere einen Mentor um dich in den Kurs einschreiben zu lassen.
+                                        Die Selbsteinschreibung ist derzeit nicht aktiv. Kontaktiere einen Mentor um dich in den Kurs einschreiben zu lassen.
                                     </p>
                                 }
                             />

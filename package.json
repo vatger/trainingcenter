@@ -12,7 +12,7 @@
     "frontend:dev": "cd frontend && vite",
     "frontend:build": "cd frontend && vite build --emptyOutDir",
     "frontend:build:dev": "cd frontend && vite build --emptyOutDir --mode development",
-    "backend:dev": "cd backend && tsc && node ../_build/backend/src/Application.js",
+    "backend:dev": "cd backend && tsc && node ../_build/backend/backend/src/Application.js",
     "backend:build": "cd backend && tsc",
     "all:build": "npm run frontend:build && npm run backend:build",
     "prettier:check": "npx prettier --check **/*.{ts,js}",

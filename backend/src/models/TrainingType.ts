@@ -14,6 +14,8 @@ export interface ITrainingType {
     id: number;
     name: string;
     type: (typeof TRAINING_TYPES_TABLE_TYPES)[number];
+    course_id: number;
+    is_initial_training: boolean;
     description?: string;
     log_template_id?: number;
     createdAt?: Date;
@@ -28,6 +30,8 @@ export class TrainingType extends Model<InferAttributes<TrainingType>, InferCrea
     //
     declare name: string;
     declare type: (typeof TRAINING_TYPES_TABLE_TYPES)[number];
+    declare course_id: ForeignKey<Course["id"]>;
+    declare is_initial_training: boolean;
 
     //
     // Optional Attributes
@@ -44,13 +48,13 @@ export class TrainingType extends Model<InferAttributes<TrainingType>, InferCrea
     declare training_stations?: NonAttribute<TrainingStation[]>;
     declare action_requirements?: NonAttribute<ActionRequirement[]>;
     declare log_template?: NonAttribute<TrainingLogTemplate>;
-    declare courses?: NonAttribute<Course[]>;
+    declare course?: NonAttribute<Course>;
 
     declare static associations: {
         training_stations: Association<TrainingType, TrainingStation>;
         action_requirements: Association<TrainingType, ActionRequirement>;
         log_template: Association<TrainingType, TrainingLogTemplate>;
-        courses: Association<TrainingType, Course>;
+        course: Association<TrainingType, Course>;
     };
 }
 

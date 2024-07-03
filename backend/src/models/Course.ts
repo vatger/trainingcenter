@@ -6,7 +6,7 @@ import { MentorGroup } from "./MentorGroup";
 import { User } from "./User";
 import { CourseInformation } from "./CourseInformation";
 import { COURSE_TABLE_ATTRIBUTES, COURSE_TABLE_NAME } from "../../db/migrations/20221115171247-create-courses-table";
-import { EndorsementGroup } from "./EndorsementGroup";
+import { ICourseEnrolRequirement } from "../../../common/Course.model";
 
 export class Course extends Model<InferAttributes<Course>, InferCreationAttributes<Course>> {
     //
@@ -19,12 +19,13 @@ export class Course extends Model<InferAttributes<Course>, InferCreationAttribut
     declare description_en: string;
     declare is_active: boolean;
     declare self_enrollment_enabled: boolean;
-    declare initial_training_type: ForeignKey<TrainingType["id"]>;
 
     //
     // Optional Attributes
     //
     declare id: CreationOptional<number>;
+    declare initial_training_type: CreationOptional<ForeignKey<TrainingType["id"]> | null>;
+    declare enrol_requirements: CreationOptional<ICourseEnrolRequirement[] | null>;
     declare createdAt: CreationOptional<Date> | null;
     declare updatedAt: CreationOptional<Date> | null;
     declare deletedAt: CreationOptional<Date> | null;

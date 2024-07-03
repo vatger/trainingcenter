@@ -18,6 +18,7 @@
     "jsx": "react-jsx",
     "paths": {
       "@/*": ["./src/*"],
+      "@common/*": ["../common/*"],
       "@models/*": ["../backend/src/models/*"]
     }
   },

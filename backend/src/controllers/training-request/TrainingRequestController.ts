@@ -34,7 +34,7 @@ async function create(request: Request, response: Response, next: NextFunction) 
         });
 
         const courseUUID = await Course.getUUIDFromID(body.course_id);
-        if (!await user.isMemberOfCourse(courseUUID)) {
+        if (!(await user.isMemberOfCourse(courseUUID))) {
             throw new ForbiddenException("You are not a member of this course");
         }
 

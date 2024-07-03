@@ -7,12 +7,13 @@ import { MentorGroup } from "../../models/MentorGroup";
 import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
 import { TrainingRequest } from "../../models/TrainingRequest";
 import { sequelize } from "../../core/Sequelize";
-import { TrainingTypesBelongsToCourses } from "../../models/through/TrainingTypesBelongsToCourses";
 import { generateUUID } from "../../utility/UUID";
 import Validator, { ValidationTypeEnum } from "../../utility/Validator";
 import PermissionHelper from "../../utility/helper/PermissionHelper";
 import { Transaction } from "sequelize";
 import { ForbiddenException } from "../../exceptions/ForbiddenException";
+import { TrainingType } from "../../models/TrainingType";
+import { ICourseEnrolRequirement } from "../../../../common/Course.model";
 
 /**
  * The ICourseBody Interface is the type which all requests that wish to create or update a course must satisfy
@@ -46,9 +47,7 @@ async function createCourse(request: Request, response: Response, next: NextFunc
             name_en: [ValidationTypeEnum.NON_NULL],
             description_de: [ValidationTypeEnum.NON_NULL],
             description_en: [ValidationTypeEnum.NON_NULL],
-            active: [ValidationTypeEnum.NON_NULL],
             self_enrol_enabled: [ValidationTypeEnum.NON_NULL],
-            training_type_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
             mentor_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
@@ -67,9 +66,8 @@ async function createCourse(request: Request, response: Response, next: NextFunc
                 name_en: body.name_en,
                 description: body.description_de,
                 description_en: body.description_en,
-                is_active: body.active,
+                is_active: false,
                 self_enrollment_enabled: body.self_enrol_enabled,
-                initial_training_type: Number(body.training_type_id),
             },
             {
                 transaction: transaction,
@@ -81,16 +79,6 @@ async function createCourse(request: Request, response: Response, next: NextFunc
                 mentor_group_id: mentorGroupID,
                 course_id: course.id,
                 can_edit_course: true,
-            },
-            {
-                transaction: transaction,
-            }
-        );
-
-        await TrainingTypesBelongsToCourses.create(
-            {
-                course_id: course.id,
-                training_type_id: Number(body.training_type_id),
             },
             {
                 transaction: transaction,
@@ -112,15 +100,28 @@ async function createCourse(request: Request, response: Response, next: NextFunc
  * @param next
  */
 async function updateCourse(request: Request, response: Response, next: NextFunction) {
-    type ICourseBodyWithUUID = ICourseBody & { course_uuid: string };
+    type ICourseBodyWithUUID = ICourseBody & { course_uuid: string; enrol_requirements: ICourseEnrolRequirement[] };
+
+    const t = await sequelize.transaction();
 
     try {
         const user: User = response.locals.user;
         const body: ICourseBodyWithUUID = request.body as ICourseBodyWithUUID;
 
+        Validator.validate(body, {
+            name_de: [ValidationTypeEnum.NON_NULL],
+            name_en: [ValidationTypeEnum.NON_NULL],
+            description_de: [ValidationTypeEnum.NON_NULL],
+            description_en: [ValidationTypeEnum.NON_NULL],
+            enrol_requirements: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
+            self_enrol_enabled: [ValidationTypeEnum.NON_NULL],
+        });
+
         if (!(await user.canEditCourse(body.course_uuid))) {
             throw new ForbiddenException("You don't have the required permission to edit this course", false);
         }
+
+        const courseID = await Course.getIDFromUUID(body.course_uuid);
 
         await Course.update(
             {
@@ -128,19 +129,48 @@ async function updateCourse(request: Request, response: Response, next: NextFunc
                 name_en: body.name_en,
                 description: body.description_de,
                 description_en: body.description_en,
-                is_active: body.active,
+                is_active: (body.training_type_id != null && body.training_type_id != "-1" && body.active) ?? false,
+                enrol_requirements: body.enrol_requirements,
                 self_enrollment_enabled: body.self_enrol_enabled,
-                initial_training_type: Number(body.training_type_id),
+                initial_training_type: body.training_type_id != null && body.training_type_id != "-1" ? Number(body.training_type_id) : null,
             },
             {
                 where: {
-                    uuid: body.course_uuid,
+                    id: courseID,
                 },
+                transaction: t,
             }
         );
 
+        await TrainingType.update(
+            {
+                is_initial_training: false,
+            },
+            {
+                where: {
+                    course_id: courseID,
+                },
+                transaction: t,
+            }
+        );
+
+        await TrainingType.update(
+            {
+                is_initial_training: true,
+            },
+            {
+                where: {
+                    id: body.training_type_id,
+                },
+                transaction: t,
+            }
+        );
+
+        await t.commit();
+
         response.sendStatus(HttpStatusCode.NoContent);
     } catch (e) {
+        await t.rollback();
         next(e);
     }
 }
@@ -437,39 +467,6 @@ async function getCourseTrainingTypes(request: Request, response: Response, next
 }
 
 /**
- * Adds a single training type to a course
- * @param request
- * @param response
- * @param next
- */
-async function addCourseTrainingType(request: Request, response: Response, next: NextFunction) {
-    try {
-        const user: User = response.locals.user;
-        const params = request.params as { course_uuid: string };
-        const body = request.body as { training_type_id: string };
-
-        Validator.validate(body, {
-            training_type_id: [ValidationTypeEnum.NON_NULL],
-        });
-
-        if (!(await user.canEditCourse(params.course_uuid))) {
-            throw new ForbiddenException("You are not allowed to edit this course.");
-        }
-
-        const course_id = await Course.getIDFromUUID(params.course_uuid);
-
-        await TrainingTypesBelongsToCourses.create({
-            course_id: course_id,
-            training_type_id: Number(body.training_type_id),
-        });
-
-        response.sendStatus(HttpStatusCode.Created);
-    } catch (e) {
-        next(e);
-    }
-}
-
-/**
  * Removes a single training type from a course
  * @param request
  * @param response
@@ -479,24 +476,38 @@ async function removeCourseTrainingType(request: Request, response: Response, ne
     try {
         const user: User = response.locals.user;
         const params = request.params as { course_uuid: string };
-        const body = request.body as { training_type_id: string };
+        const body = request.body as { training_type_id: number };
 
         Validator.validate(body, {
-            training_type_id: [ValidationTypeEnum.NON_NULL],
+            training_type_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
         if (!(await user.canEditCourse(params.course_uuid))) {
             throw new ForbiddenException("You are not allowed to edit this course.");
         }
 
-        const course_id = await Course.getIDFromUUID(params.course_uuid);
-
-        await TrainingTypesBelongsToCourses.destroy({
+        const trainingType = await TrainingType.findOne({
             where: {
-                course_id: course_id,
-                training_type_id: Number(body.training_type_id),
+                id: body.training_type_id,
             },
         });
+
+        if (trainingType?.is_initial_training) {
+            // Set the course to inactive!
+            const courseID = await Course.getIDFromUUID(params.course_uuid);
+            await Course.update(
+                {
+                    is_active: false,
+                },
+                {
+                    where: {
+                        id: courseID,
+                    },
+                }
+            );
+        }
+
+        await trainingType?.destroy();
 
         response.sendStatus(HttpStatusCode.NoContent);
     } catch (e) {
@@ -516,6 +527,5 @@ export default {
     getCourseMentorGroups,
 
     getCourseTrainingTypes,
-    addCourseTrainingType,
     removeCourseTrainingType,
 };

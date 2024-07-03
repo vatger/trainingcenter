@@ -1,5 +1,5 @@
 import { Card } from "@/components/ui/Card/Card";
-import { getAtcRatingLong, getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingLong, getAtcRatingShort } from "@common/AtcRatingHelper";
 import React from "react";
 import { useUserSelector } from "@/app/features/authSlice";
 import { RenderIf } from "@/components/conditionals/RenderIf";

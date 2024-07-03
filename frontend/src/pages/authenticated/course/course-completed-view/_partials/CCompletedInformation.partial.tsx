@@ -4,7 +4,7 @@ import { Badge } from "@/components/ui/Badge/Badge";
 import { COLOR_OPTS } from "@/assets/theme.config";
 import { Input } from "@/components/ui/Input/Input";
 import { TbCalendar, TbCertificate, TbId } from "react-icons/tb";
-import { getAtcRatingCombined } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingCombined } from "@common/AtcRatingHelper";
 import React from "react";
 import dayjs from "dayjs";
 import { Config } from "@/core/Config";

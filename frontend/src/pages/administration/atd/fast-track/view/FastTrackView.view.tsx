@@ -10,7 +10,7 @@ import { Buffer } from "buffer";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { Input } from "@/components/ui/Input/Input";
 import { TbCalendar, TbDownload, TbId, TbRefresh } from "react-icons/tb";
-import { getAtcRatingLong, getAtcRatingShort } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingLong, getAtcRatingShort } from "@common/AtcRatingHelper";
 import { Select } from "@/components/ui/Select/Select";
 import { TextArea } from "@/components/ui/Textarea/TextArea";
 import { Separator } from "@/components/ui/Separator/Separator";

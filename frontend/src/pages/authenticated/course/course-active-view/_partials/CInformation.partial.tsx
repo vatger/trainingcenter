@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/Badge/Badge";
 import { COLOR_OPTS, SIZE_OPTS } from "@/assets/theme.config";
 import { Input } from "@/components/ui/Input/Input";
 import { TbCalendar, TbCertificate, TbChevronsRight, TbClock, TbDoorExit, TbId } from "react-icons/tb";
-import { getAtcRatingCombined } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingCombined } from "@common/AtcRatingHelper";
 import { Button } from "@/components/ui/Button/Button";
 import React, { Dispatch, useState } from "react";
 import { TrainingRequestModel } from "@/models/TrainingRequestModel";

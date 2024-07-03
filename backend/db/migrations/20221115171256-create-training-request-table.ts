@@ -66,9 +66,6 @@ export const TRAINING_REQUEST_TABLE_ATTRIBUTES = {
         allowNull: false,
         defaultValue: "requested",
     },
-    number_in_queue: {
-        type: DataType.VIRTUAL(DataType.INTEGER),
-    },
     expires: {
         type: DataType.DATE,
         allowNull: false,

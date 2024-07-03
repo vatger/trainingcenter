@@ -3,6 +3,7 @@ import React from "react";
 import EnrolRequirementStringHelper from "@/pages/authenticated/course/course-enrol/_helper/EnrolRequirementStringHelper";
 import { RenderIf } from "@/components/conditionals/RenderIf";
 import { TbRefresh } from "react-icons/tb";
+import { ICourseEnrolRequirement } from "@common/Course.model";
 
 function getColor(passed?: boolean) {
     if (passed == null) {
@@ -12,7 +13,7 @@ function getColor(passed?: boolean) {
     return passed ? "bg-emerald-500 dark:bg-emerald-600" : "bg-red-500 dark:bg-red-500";
 }
 
-export function EnrolRequirementItemComponent({ action, passed }: { action: string; passed?: boolean }) {
+export function EnrolRequirementItemComponent({ action, passed }: { action: ICourseEnrolRequirement; passed?: boolean }) {
     return (
         <div className={"flex mb-3"}>
             <span className={`avatar avatar-circle w-[24px] h-[24px] w-min-[24px] ${getColor(passed)}`} style={{ lineHeight: "24px", fontSize: "12px" }}>

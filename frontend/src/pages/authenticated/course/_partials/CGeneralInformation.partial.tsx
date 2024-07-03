@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/Input/Input";
 import { TbCalendar, TbCertificate, TbClock, TbId } from "react-icons/tb";
 import dayjs from "dayjs";
 import { Config } from "@/core/Config";
-import { getAtcRatingCombined } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingCombined } from "@common/AtcRatingHelper";
 import React from "react";
 import { CourseInformationModel, CourseModel } from "@/models/CourseModel";
 import { TextArea } from "@/components/ui/Textarea/TextArea";
@@ -26,7 +26,7 @@ export function CGeneralInformationPartial({
     course,
     showDescription = false,
     showDuration = false,
-    showEnrolDate = true
+    showEnrolDate = true,
 }: {
     loading: boolean;
     course?: CourseModel;

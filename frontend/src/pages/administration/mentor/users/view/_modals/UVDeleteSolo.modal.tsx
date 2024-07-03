@@ -1,7 +1,7 @@
 import { Modal } from "@/components/ui/Modal/Modal";
 import { UserModel, UserSoloModel } from "@/models/UserModel";
 import { Input } from "@/components/ui/Input/Input";
-import { getAtcRatingCombined } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { getAtcRatingCombined } from "@common/AtcRatingHelper";
 import { Separator } from "@/components/ui/Separator/Separator";
 import { Select } from "@/components/ui/Select/Select";
 import dayjs from "dayjs";

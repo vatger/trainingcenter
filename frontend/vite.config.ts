@@ -21,6 +21,7 @@ export default defineConfig({
         alias: {
             "@": path.resolve(__dirname, "./src"),
             "@models": path.resolve(__dirname, "../backend/src/models"),
+            "@common": path.resolve(__dirname, "../common")
         },
     },
     build: {

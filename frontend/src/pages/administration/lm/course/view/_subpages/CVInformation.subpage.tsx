@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/Button/Button";
 import { COLOR_OPTS, ICON_SIZE_OPTS } from "@/assets/theme.config";
 import { FiSave } from "react-icons/fi";
 import { MapArray } from "@/components/conditionals/MapArray";
-import { E_VATSIM_RATING, RATINGS_MAP } from "@/utils/helper/vatsim/AtcRatingHelper";
+import { E_VATSIM_RATING, RATINGS_MAP } from "@common/AtcRatingHelper";
 import { FormEvent, useState } from "react";
 import useApi from "@/utils/hooks/useApi";
 import { EndorsementGroupModel } from "@/models/EndorsementGroupModel";

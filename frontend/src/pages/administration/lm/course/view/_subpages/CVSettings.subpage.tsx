@@ -18,9 +18,15 @@ import { MapArray } from "@/components/conditionals/MapArray";
 import StringHelper from "@/utils/helper/StringHelper";
 import { CVSettingsSkeleton } from "@/pages/administration/lm/course/view/_skeletons/CVSettings.skeleton";
 import { axiosInstance } from "@/utils/network/AxiosInstance";
+import { Accordion } from "@/components/ui/Accordion/Accordion";
+import { CVEnrolOptionsPartial } from "@/pages/administration/lm/course/view/_partials/CVEnrolOptions.partial";
+import { CVCreateEnrolmentOptionModal } from "@/pages/administration/lm/course/view/_modals/CVCreateEnrolmentOption.modal";
 
 export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefined }) {
     const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+    const [selectedInitialTraining, setSelectedInitialTraining] = useState<number | undefined>(undefined);
+    const [selectedSelfEnrolmentEnabled, setSelectedSelfEnrolmentEnabled] = useState<boolean | undefined>(undefined);
+    const [showCreateRequirementModal, setShowCreateRequirementModal] = useState<boolean>(false);
 
     const {
         data: course,
@@ -29,10 +35,14 @@ export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefin
     } = useApi<CourseModel>({
         url: `/administration/course/${courseUUID}`,
         method: "get",
+        onLoad: course => {
+            setSelectedInitialTraining(course.initial_training_type);
+            setSelectedSelfEnrolmentEnabled(course.self_enrollment_enabled);
+        },
     });
 
     const { data: trainingTypes, loading: loadingTrainingTypes } = useApi<TrainingTypeModel[]>({
-        url: "/administration/training-type",
+        url: `/administration/course/training-type/${courseUUID}`,
         method: "get",
     });
 
@@ -43,6 +53,7 @@ export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefin
 
         let formData = FormHelper.getEntries(e.target);
         FormHelper.set(formData, "course_uuid", courseUUID);
+        FormHelper.set(formData, "enrol_requirements", JSON.stringify(course.enrol_requirements));
         FormHelper.setBool(formData, "active", formData.get("active") == "1");
         FormHelper.setBool(formData, "self_enrol_enabled", formData.get("self_enrol_enabled") == "1");
 
@@ -65,6 +76,20 @@ export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefin
                 elementTrue={<CVSettingsSkeleton />}
                 elementFalse={
                     <div>
+                        <CVCreateEnrolmentOptionModal
+                            show={showCreateRequirementModal}
+                            onClose={() => setShowCreateRequirementModal(false)}
+                            onCreateRequirement={r => {
+                                if (course == null) return;
+
+                                let newCourse = { ...course };
+                                newCourse.enrol_requirements = [...(course.enrol_requirements ?? []), r];
+                                setCourse(newCourse);
+
+                                setShowCreateRequirementModal(false);
+                            }}
+                        />
+
                         <form onSubmit={handleFormSubmission}>
                             <Input
                                 labelSmall
@@ -140,6 +165,7 @@ export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefin
                                     description={
                                         "Wenn der Kurs aktiv ist, wird dieser in der Kurssuche angezeigt. Mentoren sind nur im aktiven Zustand in der Lage Mitglieder in Kursen hinzuzufügen - sofern dies nicht durch die Selbsteinschreibung geregelt ist."
                                     }
+                                    disabled={selectedInitialTraining == null}
                                     label={"Kurs Aktiv"}
                                     className={"mt-5 flex flex-col"}
                                     labelSmall
@@ -162,22 +188,39 @@ export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefin
                                     required
                                     name={"self_enrol_enabled"}
                                     preIcon={<TbLock size={20} />}
+                                    onChange={v => {
+                                        if (v == "1") {
+                                            setSelectedSelfEnrolmentEnabled(true);
+                                        } else {
+                                            setSelectedSelfEnrolmentEnabled(false);
+                                        }
+                                    }}
                                     defaultValue={course?.self_enrollment_enabled ? 1 : 0}>
                                     <option value={"1"}>Ja</option>
                                     <option value={"0"}>Nein</option>
                                 </Select>
                             </div>
 
+                            <Accordion title={"Einschreibeoptionen (Nur bei Selbsteinschreibung)"} className={"mt-5"} disabled={!selectedSelfEnrolmentEnabled}>
+                                <CVEnrolOptionsPartial course={course} setShowModal={setShowCreateRequirementModal} />
+                            </Accordion>
+
                             <Separator />
 
                             <Select
                                 label={"Initiales Training"}
                                 labelSmall
+                                inputError={selectedInitialTraining == null}
                                 name={"training_type_id"}
                                 description={"Dies ist das erste Training, welches jedem Mitglied des Kurses zugewiesen wird."}
                                 required
                                 preIcon={<TbTemplate size={20} />}
-                                defaultValue={course?.initial_training_type.toString()}>
+                                onChange={v => {
+                                    if (v == "-1") return;
+                                    setSelectedInitialTraining(Number(v));
+                                }}
+                                defaultValue={course?.initial_training_type == null ? "-1" : course.initial_training_type}>
+                                <RenderIf truthValue={course?.initial_training_type == null} elementTrue={<option value={"-1"}>N/A</option>} />
                                 <MapArray
                                     data={trainingTypes ?? []}
                                     mapFunction={(trainingType: TrainingTypeModel, index: number) => {
