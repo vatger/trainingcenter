@@ -8,6 +8,8 @@ import { HttpStatusCode } from "axios";
 import { ForbiddenException } from "../../exceptions/ForbiddenException";
 import { EndorsementGroup } from "../../models/EndorsementGroup";
 import { ICourseEnrolRequirement } from "../../../../common/Course.model";
+import { UsersBelongsToCourses } from "../../models/through/UsersBelongsToCourses";
+import { where } from "sequelize";
 
 /**
  * Returns course information based on the provided uuid (request.query.uuid)
@@ -164,6 +166,21 @@ async function validateCourseRequirements(request: Request, response: Response, 
 
         if (await user.isMemberOfCourse(query.course_uuid)) {
             throw new ForbiddenException("You are already a member of this course.");
+        }
+
+        const has_pending_other_rating_course = user.courses?.some(async c => {
+            const user_course = await UsersBelongsToCourses.findOne({
+                where: {
+                    user_id: user.id,
+                    course_id: c.id,
+                },
+            });
+            if(!user_course) return false;
+            return  c.is_rating_course && !user_course.completed
+        });
+
+        if (has_pending_other_rating_course) {
+            throw new ForbiddenException("You can only have one course yielding a rating.");
         }
 
         const fullUser = await User.findOne({

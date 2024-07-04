@@ -10,6 +10,7 @@ export type CourseModel = {
     description: string;
     description_en: string;
     is_active: boolean;
+    is_rating_course: boolean;
     self_enrollment_enabled: boolean;
     enrol_requirements?: ICourseEnrolRequirement[];
     initial_training_type?: number;

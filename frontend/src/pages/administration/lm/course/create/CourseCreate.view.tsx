@@ -157,6 +157,23 @@ export function CourseCreateView() {
                                     <Separator />
 
                                     <Select
+                                        description={
+                                            "Nutzer können sich in nur einen Kurs einschreiben der zu einem (höheren) Rating führt."
+                                        }
+                                        label={"Kurs Ratingerhalt"}
+                                        className={"mt-5 flex flex-col"}
+                                        selectClassName={"mt-auto"}
+                                        labelSmall
+                                        required
+                                        name={"is_rating_course"}
+                                        preIcon={<TbLock size={20} />}>
+                                        <option value={1}>Ja, dieser Kurs führt zum Ratingerhalt</option>
+                                        <option value={0}>Nein, dieser Kurs führt nicht zum Ratingerhalt</option>
+                                    </Select>
+
+                                    <Separator />
+
+                                    <Select
                                         label={"Mentorengruppe"}
                                         labelSmall
                                         className={"mt-5"}

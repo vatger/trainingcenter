@@ -38,6 +38,12 @@ export const COURSE_TABLE_ATTRIBUTES = {
         allowNull: false,
         defaultValue: true,
     },
+    is_rating_course: {
+        type: DataType.BOOLEAN,
+        comment: "A user can only enrol in one rating course",
+        allowNull: false,
+        defaultValue: true,
+    },
     self_enrollment_enabled: {
         type: DataType.BOOLEAN,
         comment: "If true a user can self-enrol in this course",

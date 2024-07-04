@@ -56,6 +56,7 @@ export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefin
         FormHelper.set(formData, "enrol_requirements", JSON.stringify(course.enrol_requirements));
         FormHelper.setBool(formData, "active", formData.get("active") == "1");
         FormHelper.setBool(formData, "self_enrol_enabled", formData.get("self_enrol_enabled") == "1");
+        FormHelper.setBool(formData, "is_rating_course", formData.get("is_rating_course") == "1");
 
         axiosInstance
             .patch("/administration/course", FormHelper.toJSON(formData))
@@ -204,6 +205,24 @@ export function CVSettingsSubpage({ courseUUID }: { courseUUID: string | undefin
                             <Accordion title={"Einschreibeoptionen (Nur bei Selbsteinschreibung)"} className={"mt-5"} disabled={!selectedSelfEnrolmentEnabled}>
                                 <CVEnrolOptionsPartial course={course} setShowModal={setShowCreateRequirementModal} />
                             </Accordion>
+
+                            <Separator />
+
+                            <Select
+                                description={
+                                    "Nutzer können sich in nur einen Kurs einschreiben der zu einem (höheren) Rating führt."
+                                }
+                                label={"Kurs Ratingerhalt"}
+                                className={"mt-5 flex flex-col"}
+                                selectClassName={"mt-auto"}
+                                labelSmall
+                                required
+                                name={"is_rating_course"}
+                                preIcon={<TbLock size={20} />}
+                                defaultValue={course?.is_rating_course ? 1 : 0}>
+                                <option value={"1"}>Ja, dieser Kurs führt zum Ratingerhalt</option>
+                                <option value={"0"}>Nein, dieser Kurs führt nicht zum Ratingerhalt</option>
+                            </Select>
 
                             <Separator />
 

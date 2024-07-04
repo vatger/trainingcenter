@@ -25,6 +25,7 @@ interface ICourseBody {
     description_en: string;
     active: boolean;
     self_enrol_enabled: boolean;
+    is_rating_course: boolean;
     training_type_id: string;
     mentor_group_id: string;
 }
@@ -48,6 +49,7 @@ async function createCourse(request: Request, response: Response, next: NextFunc
             description_de: [ValidationTypeEnum.NON_NULL],
             description_en: [ValidationTypeEnum.NON_NULL],
             self_enrol_enabled: [ValidationTypeEnum.NON_NULL],
+            is_rating_course: [ValidationTypeEnum.NON_NULL],
             mentor_group_id: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.NUMBER],
         });
 
@@ -67,6 +69,7 @@ async function createCourse(request: Request, response: Response, next: NextFunc
                 description: body.description_de,
                 description_en: body.description_en,
                 is_active: false,
+                is_rating_course: body.is_rating_course,
                 self_enrollment_enabled: body.self_enrol_enabled,
             },
             {
@@ -115,6 +118,7 @@ async function updateCourse(request: Request, response: Response, next: NextFunc
             description_en: [ValidationTypeEnum.NON_NULL],
             enrol_requirements: [ValidationTypeEnum.NON_NULL, ValidationTypeEnum.VALID_JSON],
             self_enrol_enabled: [ValidationTypeEnum.NON_NULL],
+            is_rating_course: [ValidationTypeEnum.NON_NULL],
         });
 
         if (!(await user.canEditCourse(body.course_uuid))) {
@@ -130,6 +134,7 @@ async function updateCourse(request: Request, response: Response, next: NextFunc
                 description: body.description_de,
                 description_en: body.description_en,
                 is_active: (body.training_type_id != null && body.training_type_id != "-1" && body.active) ?? false,
+                is_rating_course: body.is_rating_course,
                 enrol_requirements: body.enrol_requirements,
                 self_enrollment_enabled: body.self_enrol_enabled,
                 initial_training_type: body.training_type_id != null && body.training_type_id != "-1" ? Number(body.training_type_id) : null,

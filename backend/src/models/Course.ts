@@ -18,6 +18,7 @@ export class Course extends Model<InferAttributes<Course>, InferCreationAttribut
     declare description: string;
     declare description_en: string;
     declare is_active: boolean;
+    declare is_rating_course: boolean;
     declare self_enrollment_enabled: boolean;
 
     //
