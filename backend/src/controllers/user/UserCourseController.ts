@@ -220,7 +220,6 @@ async function getMentorable(_request: Request, response: Response, next: NextFu
                                 {
                                     association: Course.associations.training_types,
                                     attributes: ["id", "name", "type"],
-                                    through: { attributes: [] },
                                     include: [
                                         {
                                             association: TrainingType.associations.training_stations,

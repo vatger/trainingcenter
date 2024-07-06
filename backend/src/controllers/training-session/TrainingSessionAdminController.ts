@@ -470,9 +470,6 @@ async function getCourseTrainingTypes(request: Request, response: Response, next
                         {
                             association: Course.associations.training_types,
                             attributes: ["id", "name", "type"],
-                            through: {
-                                attributes: [],
-                            },
                         },
                     ],
                 },

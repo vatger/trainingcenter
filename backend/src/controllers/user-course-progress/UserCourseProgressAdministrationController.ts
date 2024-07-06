@@ -43,15 +43,12 @@ async function getInformation(request: Request, response: Response, next: NextFu
                     association: User.associations.courses,
                     attributes: ["uuid", "name"],
                     through: {
-                        attributes: ["id", "completed", "next_training_type"],
+                        attributes: ["id", "completed", "next_training_type", "createdAt"],
                     },
                     include: [
                         {
                             association: Course.associations.training_types,
                             attributes: ["id", "name", "type"],
-                            through: {
-                                attributes: [],
-                            },
                         },
                     ],
                     where: {

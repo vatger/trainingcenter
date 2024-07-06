@@ -1,5 +1,6 @@
 import { DataType } from "sequelize-typescript";
 import { QueryInterface } from "sequelize";
+import { TRAINING_TYPES_TABLE_NAME } from "./20221115171248-create-training-types-table";
 
 export const COURSE_TABLE_NAME = "courses";
 
